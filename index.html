@@ -1,53 +1,81 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-  <meta charset="UTF-8">
-  <title>我的 HTTPS 托管地址</title>
-  <style>
-    body {
-      margin: 0;
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-      background: linear-gradient(135deg, #667eea, #764ba2);
-      color: #fff;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      height: 100vh;
-    }
-    .card {
-      background: rgba(255,255,255,0.15);
-      padding: 40px;
-      border-radius: 16px;
-      text-align: center;
-      backdrop-filter: blur(10px);
-      box-shadow: 0 8px 30px rgba(0,0,0,0.2);
-    }
-    h1 {
-      margin: 0 0 16px;
-      font-size: 28px;
-    }
-    p {
-      margin: 0;
-      opacity: 0.9;
-    }
-    a {
-      color: #fff;
-      text-decoration: underline;
-    }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>归工运踢桃 · 作品集</title>
+<meta name="theme-color" content="#1b2a4a">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif;
+    background: linear-gradient(160deg, #0f1f3d 0%, #1b2a4a 60%, #243a63 100%);
+    color: #f2f5fb; min-height: 100vh; padding: 28px 16px 48px;
+  }
+  header { text-align: center; margin-bottom: 28px; }
+  header h1 { font-size: 26px; letter-spacing: 2px; }
+  header p { margin-top: 8px; font-size: 14px; color: #9fb3d1; }
+  .grid {
+    max-width: 720px; margin: 0 auto;
+    display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 18px;
+  }
+  .card {
+    background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(255,255,255,0.12);
+    border-radius: 18px; padding: 22px 18px; text-align: center;
+    transition: transform .15s ease, background .15s ease;
+    text-decoration: none; color: inherit; display: block;
+  }
+  .card:not(.soon):hover { transform: translateY(-4px); background: rgba(255,255,255,0.12); }
+  .card img { width: 72px; height: 72px; border-radius: 16px; margin-bottom: 14px; }
+  .card .name { font-size: 19px; font-weight: 700; margin-bottom: 6px; }
+  .card .desc { font-size: 13px; color: #b9c7e0; line-height: 1.5; min-height: 40px; }
+  .card .tag {
+    display: inline-block; margin-top: 12px; font-size: 12px; padding: 4px 12px;
+    border-radius: 999px; background: rgba(245,201,107,0.18); color: #f5c96b;
+  }
+  .card.soon { opacity: 0.6; }
+  .card.soon .tag { background: rgba(159,179,209,0.18); color: #9fb3d1; }
+  footer { text-align: center; margin-top: 36px; font-size: 12px; color: #6f86ad; }
+</style>
 </head>
 <body>
-  <div class="card">
-    <h1>✅ HTTPS 托管成功</h1>
-    <p>这是我的 GitHub Pages 地址</p>
-    <p style="margin-top:12px;">
-      <a id="url" href=""></a>
-    </p>
-  </div>
+  <header>
+    <h1>归工运踢桃 · 作品集</h1>
+    <p>以下应用均支持手机「添加到主屏幕」全屏离线使用</p>
+  </header>
 
-  <script>
-    document.getElementById("url").innerText = location.href;
-    document.getElementById("url").href = location.href;
-  </script>
+  <main class="grid">
+    <a class="card" href="qidoushi/">
+      <img src="qidoushi/icon-192.png" alt="棋斗士">
+      <div class="name">棋斗士</div>
+      <div class="desc">中国象棋 / 军棋 / 四巧板 / 七巧板等多款棋类与拼图游戏</div>
+      <span class="tag">立即进入</span>
+    </a>
+
+    <a class="card" href="aiduban/">
+      <img src="aiduban/icon-192.png" alt="AI伴读精灵">
+      <div class="name">AI伴读精灵</div>
+      <div class="desc">儿童拼音陪读 / 唱歌 / 摄像头学习监测 / 画画 / 米字格练字</div>
+      <span class="tag">立即进入</span>
+    </a>
+
+    <a class="card" href="karaoke/">
+      <img src="karaoke/icon-192.png" alt="家庭卡拉OK">
+      <div class="name">家庭卡拉OK</div>
+      <div class="desc">离线/联网点唱系统：2773 首三语歌库、模糊点歌、手写识别、Excel/U盘导入</div>
+      <span class="tag">立即进入</span>
+    </a>
+
+    <a class="card" href="zhonghuazhiqu/">
+      <img src="zhonghuazhiqu/icon-192.png" alt="中华智趣">
+      <div class="name">中华智趣</div>
+      <div class="desc">传统节日 / 生肖 / 节气 / 星座 / 甲子 等中华传统文化趣味板块</div>
+      <span class="tag">立即进入</span>
+    </a>
+  </main>
+
+  <footer>© 2026 归工运踢桃 · 开源使用，不得更改内部关键程序</footer>
 </body>
 </html>
