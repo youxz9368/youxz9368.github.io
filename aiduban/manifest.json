@@ -1,0 +1,17 @@
+{
+  "name": "AI伴读精灵",
+  "short_name": "伴读精灵",
+  "description": "面向 12 岁以下儿童的 AI 伴读应用：拼音陪读、唱歌、摄像头学习监测、自由画画、米字格练字（含笔顺动画）。",
+  "lang": "zh-CN",
+  "start_url": ".",
+  "scope": ".",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#0f2a4a",
+  "theme_color": "#36b37e",
+  "icons": [
+    { "src": "icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "apple-touch-icon.png", "sizes": "180x180", "type": "image/png", "purpose": "apple-touch-icon" }
+  ]
+}
