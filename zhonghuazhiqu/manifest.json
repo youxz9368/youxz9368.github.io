@@ -1,0 +1,17 @@
+{
+  "name": "中华智趣",
+  "short_name": "中华智趣",
+  "description": "传统节日 / 生肖 / 节气 / 星座 / 甲子 等中华传统文化趣味板块",
+  "lang": "zh-CN",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#f7f4ec",
+  "theme_color": "#c0392b",
+  "orientation": "portrait",
+  "icons": [
+    { "src": "icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "apple-touch-icon.png", "sizes": "180x180", "type": "image/png", "purpose": "apple touch icon" }
+  ]
+}
