@@ -1,0 +1,27 @@
+{
+  "name": "棋斗士 · 掌上棋类益智大全",
+  "short_name": "棋斗士",
+  "description": "12 种棋类介绍、人机对战、四巧板/七巧板等拼图益智游戏，纯离线 Web App。",
+  "lang": "zh-CN",
+  "start_url": ".",
+  "scope": ".",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#0f172a",
+  "theme_color": "#1b2a4a",
+  "categories": ["games", "education", "puzzle"],
+  "icons": [
+    {
+      "src": "icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
