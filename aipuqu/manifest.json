@@ -1,0 +1,17 @@
+{
+  "name": "AI谱曲",
+  "short_name": "AI谱曲",
+  "description": "AI 歌词谱曲机：主副歌结构编排、AI 真人歌声试听、WAV 导出（需本地服务）",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#ffffff",
+  "theme_color": "#6c5ce7",
+  "lang": "zh-CN",
+  "icons": [
+    {"src": "icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any"},
+    {"src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any"},
+    {"src": "apple-touch-icon.png", "sizes": "180x180", "type": "image/png"}
+  ]
+}

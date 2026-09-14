@@ -1,0 +1,941 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-page-node-id="jTIriPcRYsYvw9f9YhijwK">
+<head data-page-node-id="hopdq7IN7YMoc37dELnruv">
+<meta charset="UTF-8" data-page-node-id="oAm1Ag8iqmLGUmJZkDZqD3">
+<meta name="viewport" content="width=device-width, initial-scale=1.0" data-page-node-id="DsZClcXd7yLP9Bxu4acxiz">
+<title>AI 歌词谱曲机 v2.0 — 主副歌结构 · AI真人歌声 · WAV导出</title>
+<style>
+  :root {
+    --bg: #f5f6fa;
+    --panel: #ffffff;
+    --ink: #2d3436;
+    --sub: #636e72;
+    --accent: #6c5ce7;
+    --accent2: #00b894;
+    --warm: #fdcb6e;
+    --danger: #d63031;
+    --line: #e1e4ec;
+    --radius: 14px;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: "Microsoft YaHei", "PingFang SC", sans-serif;
+    background: var(--bg);
+    color: var(--ink);
+    min-height: 100vh;
+  }
+  header {
+    background: linear-gradient(135deg, #6c5ce7, #a29bfe 60%, #81ecec);
+    color: #fff;
+    padding: 22px 28px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+  }
+  header .logo { font-size: 34px; }
+  header h1 { font-size: 21px; font-weight: 700; letter-spacing: 1px; }
+  header p { font-size: 13px; opacity: .92; margin-top: 3px; }
+  main {
+    max-width: 1080px;
+    margin: 22px auto 60px;
+    padding: 0 18px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 18px;
+  }
+  .card {
+    background: var(--panel);
+    border-radius: var(--radius);
+    box-shadow: 0 2px 10px rgba(60,60,100,.07);
+    padding: 20px 22px;
+  }
+  .card h2 {
+    font-size: 15px;
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: var(--ink);
+  }
+  .card h2 .tag {
+    font-size: 11px;
+    background: #eef0ff;
+    color: var(--accent);
+    padding: 2px 8px;
+    border-radius: 20px;
+    font-weight: normal;
+  }
+  textarea {
+    width: 100%;
+    height: 200px;
+    border: 1.5px solid var(--line);
+    border-radius: 10px;
+    padding: 12px 14px;
+    font-size: 15px;
+    line-height: 1.9;
+    resize: vertical;
+    font-family: inherit;
+    color: var(--ink);
+  }
+  textarea:focus { outline: none; border-color: var(--accent); }
+  .hint { font-size: 12px; color: var(--sub); margin-top: 8px; line-height: 1.8; }
+  .sample { color: var(--accent); cursor: pointer; text-decoration: underline dotted; }
+  .btn-mini { background:#fff; color:var(--accent); border:1px solid var(--accent); border-radius:8px; padding:7px 14px; font-size:13px; cursor:pointer; }
+  .btn-mini:hover { background:var(--accent); color:#fff; }
+  .file-import { display:flex; align-items:center; gap:10px; margin-top:10px; flex-wrap:wrap; }
+  .import-msg { font-size:12px; color:var(--sub); }
+  .drag-hint { margin-top:6px; }
+  textarea.dragover { border-color:var(--accent); background:#f3f0ff; box-shadow:0 0 0 3px rgba(108,92,231,.15); }
+  .controls { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 4px; }
+  .field label { font-size: 12px; color: var(--sub); display: block; margin-bottom: 5px; }
+  select, input[type=range] { width: 100%; }
+  select {
+    border: 1.5px solid var(--line);
+    border-radius: 8px;
+    padding: 8px 10px;
+    font-size: 14px;
+    background: #fff;
+    color: var(--ink);
+    font-family: inherit;
+  }
+  .range-row { display: flex; align-items: center; gap: 8px; }
+  .range-row output { font-size: 13px; color: var(--accent); min-width: 46px; text-align: right; font-weight: bold; }
+  .mood-box {
+    margin-top: 14px;
+    background: #f8f7ff;
+    border: 1px dashed #c7c2f5;
+    border-radius: 10px;
+    padding: 10px 14px;
+    font-size: 13px;
+    color: var(--sub);
+    line-height: 1.8;
+    min-height: 44px;
+  }
+  .mood-box b { color: var(--accent); }
+  .btn-row { display: flex; gap: 10px; margin-top: 16px; flex-wrap: wrap; }
+  .btn-row + .btn-row { margin-top: 10px; }
+  button {
+    border: none;
+    border-radius: 10px;
+    padding: 12px 20px;
+    font-size: 15px;
+    font-weight: bold;
+    cursor: pointer;
+    font-family: inherit;
+    transition: transform .1s, opacity .15s;
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+  }
+  button:active { transform: scale(.96); }
+  button:disabled { opacity: .45; cursor: not-allowed; }
+  .btn-primary { background: var(--accent); color: #fff; flex: 1; justify-content: center; }
+  .btn-primary:hover { background: #5a4bd1; }
+  .btn-play { background: var(--accent2); color: #fff; flex: 1.4; justify-content: center; }
+  .btn-play:hover { background: #00a383; }
+  .btn-ghost { background: #eef0ff; color: var(--accent); }
+  .btn-midi { background: #ffeaa7; color: #6b5900; }
+  .btn-vocal { background: #ff7675; color: #fff; flex: 1; justify-content: center; }
+  .btn-vocal:hover { background: #e85e5d; }
+  .btn-wav { background: #dfe6e9; color: #2d3436; }
+  /* 曲谱区 */
+  .score-wrap { overflow-x: auto; padding-bottom: 6px; max-height: 430px; overflow-y: auto; }
+  .sec-head {
+    display: inline-block;
+    font-size: 12px;
+    font-weight: bold;
+    padding: 3px 12px;
+    border-radius: 20px;
+    margin: 8px 0 6px;
+  }
+  .sec-verse  { background: #eef0ff; color: var(--accent); }
+  .sec-chorus { background: #fff3c4; color: #b7791f; }
+  .sec-bridge { background: #dcf5ee; color: #019267; }
+  .lyric-line { margin-bottom: 10px; padding: 4px 6px; }
+  .lyric-line.current-line { background: #f4f1ff; border-radius: 8px; }
+  .lyric-line .chords {
+    font-size: 11px;
+    color: var(--accent2);
+    font-weight: bold;
+    letter-spacing: .5px;
+    margin-bottom: 3px;
+    white-space: nowrap;
+  }
+  .note-row { display: flex; align-items: flex-end; gap: 2px; white-space: nowrap; }
+  .note-cell {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-width: 22px;
+    padding: 2px;
+    border-radius: 6px;
+    transition: background .15s, box-shadow .15s;
+  }
+  .note-cell .bar {
+    width: 10px;
+    border-radius: 4px 4px 2px 2px;
+    background: #b2a7f7;
+    transition: background .15s;
+  }
+  .note-cell .chr { font-size: 13px; margin-top: 3px; color: var(--ink); }
+  .note-cell.current { background: #fff3c4; box-shadow: 0 0 0 2px var(--warm); }
+  .note-cell.current .bar { background: #e17055; }
+  .progress-wrap {
+    height: 6px;
+    background: #edeef3;
+    border-radius: 6px;
+    margin-top: 14px;
+    overflow: hidden;
+  }
+  .progress-bar {
+    height: 100%;
+    width: 0%;
+    background: linear-gradient(90deg, var(--accent), var(--accent2));
+    border-radius: 6px;
+    transition: width .1s linear;
+  }
+  .status { font-size: 13px; color: var(--sub); margin-top: 10px; min-height: 20px; line-height: 1.7; }
+  .full { grid-column: 1 / -1; }
+  footer { text-align: center; font-size: 12px; color: #aab0bb; padding-bottom: 30px; }
+  @media (max-width: 860px) { main { grid-template-columns: 1fr; } }
+</style>
+<link rel="manifest" href="manifest.json">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="AI谱曲">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="icon" href="favicon.png">
+<meta name="theme-color" content="#6c5ce7">
+</head>
+<body data-page-node-id="kxe1BgFAImLugEXzDfRJbS">
+
+<header data-page-node-id="G1QnlRcGA5ZMo4LGI0M1E5">
+  <div class="logo" data-page-node-id="JmGBwpGWDUyCaOW1ZcLB6b">🎼</div>
+  <div data-page-node-id="i93dCvwAz3INCTPnhLM51f">
+    <h1 data-page-node-id="rmeHoNrQApmzHRRIEcehGN">AI 歌词谱曲机 <span style="font-size:13px;opacity:.85" data-page-node-id="HWKnQlo6Yaw9zcObNaarTS">v2.0</span></h1>
+    <p data-page-node-id="h4qfHP8JLX9Oe9aLCaY5mz">主歌/副歌自动分段编曲 · AI 真人歌声合成 · 导出 MIDI / WAV（纯本地 + 微软神经语音）</p>
+  </div>
+</header>
+
+<main data-page-node-id="3nsK757sWy8iLjmGeUizsE">
+  <!-- 左：输入与设置 -->
+  <div class="card" data-page-node-id="akuHDU8hbSlX6biNzWcpFw">
+    <h2 data-page-node-id="MTbsdbEEO4MpjN4Z33ePwE">📝 第一步：输入歌词 <span class="tag" data-page-node-id="bGI1iuCsFOREaxcY8oagxJ">支持分段标记</span></h2>
+    <textarea id="lyrics" placeholder="在这里粘贴或输入歌词，每行一句…&#10;可以手动标记段落：&#10;[主歌]&#10;月娘光照着海边&#10;[副歌]&#10;你敢知我块想你&#10;不标记则自动分成主歌+副歌"></textarea>
+    <div class="file-import">
+      <button type="button" class="btn-mini" id="btnImportDoc">📂 插入文档（TXT / Word）</button>
+      <input type="file" id="docFile" accept=".txt,.doc,.docx" hidden>
+      <span class="import-msg" id="importMsg"></span>
+    </div>
+    <p class="hint drag-hint">也可把 .txt / .docx 文件直接拖到上方输入框</p>
+    <p class="hint" data-page-node-id="YnPpMBTE1fwcDRzkSBjTYC">每行一句，标点自动断句换气。可用 <b data-page-node-id="MFuidq8S2ZMmdWYRQlStbq">[主歌] [副歌] [桥段]</b> 标记段落；不标记就自动把前半作主歌、后半作副歌。不知道写什么？<span class="sample" id="btnSample" data-page-node-id="pgdr1KGAn6NHV4XFAFDyP4">填入示例歌词</span></p>
+
+    <h2 style="margin-top:18px;" data-page-node-id="bisr6eHoUzLMPhnRsxBtSk">🎛️ 第二步：曲风设置</h2>
+    <div class="controls" data-page-node-id="0f0CpA88R1bm5XBefz8PK5">
+      <div class="field" data-page-node-id="yYmrA0D9ASEDYRYka6wFYQ">
+        <label data-page-node-id="3DDW88ldhbYKWy340JFB1D">曲风</label>
+        <select id="style" data-page-node-id="cttUnS9nRr8edLSVGnQEFs">
+          <option value="folk" data-page-node-id="aomuYEflJyyam0Rna6Nf4h">民谣（温暖叙事）</option>
+          <option value="pop" data-page-node-id="OeCiX1uxQE5pfLKmk2NVcn">流行（明快上口）</option>
+          <option value="ancient" data-page-node-id="j7aESdkVFEECy5FbHcYtVi">古风（婉转悠扬）</option>
+          <option value="children" data-page-node-id="DIeO0PCGHFgROv6wMwyawu">儿歌（简单欢快）</option>
+        </select>
+      </div>
+      <div class="field" data-page-node-id="PdzMRbcO1nlheBFNhcU54f">
+        <label data-page-node-id="DzZBcb35FJbIBAHyLaum02">调性</label>
+        <select id="key" data-page-node-id="ApLxOayfLqweGSsgRBkSvM">
+          <option value="C" data-page-node-id="cCsv7gbJKuldHdKloaVGtz">C 调（推荐）</option>
+          <option value="D" data-page-node-id="jhyoVInjqW3rnriRZtGn9K">D 调</option>
+          <option value="E" data-page-node-id="uqD34CMPxXeDc9T4AlTzQQ">E 调</option>
+          <option value="F" data-page-node-id="bG7nEWklVWQxBraac4oZZ5">F 调</option>
+          <option value="G" data-page-node-id="QnvRrS2yInGmfbd0Tix08G">G 调</option>
+          <option value="A" data-page-node-id="kWlO10D5Cp1fq4Tw2l8mxK">A 调</option>
+        </select>
+      </div>
+      <div class="field" data-page-node-id="Z9uVitf46Y821yvIVwMEhS">
+        <label data-page-node-id="KjXz8v3Ced5ACv5GrwVk2n">速度（BPM）</label>
+        <div class="range-row" data-page-node-id="cxGIveeYq9lnduhCBDB8bd">
+          <input type="range" id="tempo" min="60" max="140" value="92" data-page-node-id="1B7UegNoMySGGV0bHKsFy7">
+          <output id="tempoOut" data-page-node-id="pgQktI2srQi2N8hfMw7Vri">92</output>
+        </div>
+      </div>
+      <div class="field" data-page-node-id="pbIPnJwcjGKXIpu3l0Rvpk">
+        <label data-page-node-id="UZGDYhoQA1d588pUuHTSQA">伴奏音色</label>
+        <select id="timbre" data-page-node-id="zaOAk5oepkTP19zJ7zbmJq">
+          <option value="piano" data-page-node-id="VwWfdAuk16YJfIDJSbpcqd">钢琴质感</option>
+          <option value="music" data-page-node-id="suoI17ivy0ZzrdzMDBr8mC">八音盒质感</option>
+        </select>
+      </div>
+      <div class="field" data-page-node-id="IQnLqwiRloFI3x3Vd0iYoL">
+        <label data-page-node-id="jhT132Y173LFdhmVPKwLDf">AI 人声音色</label>
+        <select id="voice" data-page-node-id="tZZpcaIba75PlrFddBczmD">
+          <option value="zh-CN-XiaoxiaoNeural" data-page-node-id="ZpFyRJZze5XPu4yuP5vd9j">晓晓（女声）</option>
+          <option value="zh-CN-YunxiNeural" data-page-node-id="zA0Ag6nxvYDPFSFFtTfBO4">云希（男声）</option>
+          <option value="zh-CN-XiaoyiNeural" data-page-node-id="MLVMkUOX6KDBSiIZYdwAN2">晓伊（女声·甜）</option>
+        </select>
+      </div>
+      <div class="field" data-page-node-id="aobjdYyxwb6zBGHr5rce4m">
+        <label data-page-node-id="nlf8Otc77NE18WxokkLCJq">人声位置</label>
+        <select id="vocalMode" data-page-node-id="bGIJqMUbtp2HCIgvB1nEkj">
+          <option value="mix" data-page-node-id="paoZTEb7G1ITUWB0n0OiqA">人声 + 伴奏（完整歌曲）</option>
+          <option value="a" data-page-node-id="JpKANFHl9SOvm8HNmX0EZX">仅人声</option>
+        </select>
+      </div>
+      <div class="field" data-page-node-id="svr000node">
+        <label data-page-node-id="svr000lbl">歌声服务器地址（手机用）</label>
+        <input id="serverUrl" type="text" value="http://127.0.0.1:8765" data-page-node-id="svr000inp"
+          style="border:1.5px solid var(--line);border-radius:8px;padding:8px 10px;font-size:13px;font-family:inherit;color:var(--ink);">
+      </div>
+    </div>
+
+    <div class="mood-box" id="moodBox" data-page-node-id="z39Hw8G2Zh14BODqVtRiTI"> AI 会自动分析歌词情绪选调式，自动分段（主歌平缓铺垫、副歌升高加密集节奏），并匹配主/副歌不同的和弦走向。谱曲后这里显示分析结果。</div>
+
+    <div class="btn-row" data-page-node-id="xsZIobswwozMCF98kzlLM3">
+      <button class="btn-primary" id="btnCompose" data-page-node-id="z8UGXjIALeFHDApmGqj4R2">✨ 自动谱曲</button>
+      <button class="btn-play" id="btnPlay" disabled data-page-node-id="EMY7gWPyFlXmwgASB63Glc">▶ 试听（合成人声）</button>
+      <button class="btn-ghost" id="btnStop" disabled data-page-node-id="wHWmMckluRbMTCBmnVYKgu">■ 停止</button>
+    </div>
+    <div class="btn-row" data-page-node-id="Avz185U6RP7ER8X68a70Hy">
+      <button class="btn-vocal" id="btnSing" disabled data-page-node-id="K0Wn7xJzG4eEV4krEtQujz">🎤 AI 真人歌声合成</button>
+      <button class="btn-midi" id="btnMidi" disabled data-page-node-id="OkyMHh65juHiHEbkKSqmO5">⬇ MIDI</button>
+      <button class="btn-wav" id="btnWav" disabled data-page-node-id="6eZMfFcBJrVxzauoDHmoAm">⬇ WAV伴奏</button>
+      <button class="btn-wav" id="btnVocal" disabled data-page-node-id="ZjQDyeECrRzA7GDjnCshC2">⬇ 人声WAV</button>
+      <button class="btn-wav" id="btnMix" disabled data-page-node-id="LlkvuUQNZUfN41UZtIrrpn">⬇ 完整WAV</button>
+    </div>
+    <p class="hint" data-page-node-id="gJwoFprCq5zEEoEPZniESl">🎤 AI真人歌声：需先双击 <b data-page-node-id="BJjwFMjHyKnwTX8FJAPlvH">start_singer_server.bat</b> 启动本地歌声服务器（用微软神经语音接口，免key），并保持联网。合成一次约需几秒到几十秒。</p>
+  </div>
+
+  <!-- 右：曲谱展示 -->
+  <div class="card" data-page-node-id="TKoV83Ljt1MFAIwY4a0VUE">
+    <h2 data-page-node-id="vRPIeFgNkyFOL2fIHBRVEq">🎶 自动生成的曲谱 <span class="tag" data-page-node-id="HR6wrMesAUnEYH1Nw5tBO8">主副歌结构 · 演唱高亮跟随</span></h2>
+    <div class="score-wrap" id="score" data-page-node-id="lFtHntQFJ4iUbclY2VnsHU">
+      <p class="hint" id="scoreEmpty" data-page-node-id="r0CAvAgRoEhQDRQutbzlF1">谱曲后显示结构分段（主歌/副歌）、逐字音高柱状图与和弦进行，播放时卡拉OK式高亮跟随。</p>
+    </div>
+    <div class="progress-wrap" data-page-node-id="HQesAPNycBc5046ZpCCQSY"><div class="progress-bar" id="progress" data-page-node-id="EuwKiMMR1BhxFOxYEQcCly"></div></div>
+    <p class="status" id="status" data-page-node-id="WfnzDq7oSHawphjGsVFUCI">等待谱曲…</p>
+  </div>
+
+  <!-- 说明 -->
+  <div class="card full" data-page-node-id="ntspIwwes9JeDAMy8w2c9x">
+    <h2 data-page-node-id="GgxnQPmGLASlWofsvEjXqk">📖 v2.0 升级了什么</h2>
+    <p class="hint" style="font-size:13px;" data-page-node-id="aiJ5BuEmvnsMONzXWqwgk3">
+      ① <b data-page-node-id="kbeTBQ16dEMdLITVyIgBVs">主歌/副歌结构</b>：主歌低平铺垫、音符舒缓；副歌整体升高、音域更宽、节奏更密集、伴奏更饱满，且使用与主歌不同的和弦走向（如流行：主歌 I–V–vi–IV，副歌 vi–IV–I–V），呈现"起承转合"的段落感。<br data-page-node-id="wcUqH7Y7ANDdqTwfqjuXPo">
+      ② <b data-page-node-id="hDeGK46QejxJAfUoBlB1EV">AI 真人歌声</b>：本地服务器把每个字交给微软 Edge 神经语音合成单字人声，自动检测基频并变调到目标音符，按旋律时间轴拼装 —— 听起来是真人一字一音在唱你的歌词。<br data-page-node-id="y7O7tBNfblbRx7DmTO7X87">
+      ③ <b data-page-node-id="toESBHYngpyhtgjpQPHiHL">WAV 导出</b>：可分别导出「纯伴奏」「人声」「人声+伴奏完整歌曲」三种 44.1kHz WAV，配合之前的 MIDI，方便导入任意编曲软件或接入卡拉OK系统。
+    </p>
+  </div>
+</main>
+
+<footer data-page-node-id="ziBqG9CAItfLrNAlePMoJH">YourSmake · AI 歌词谱曲机 v2.0 · 歌词不上传第三方，人声合成仅传输单字到微软语音接口</footer>
+
+<script>
+/* fflate (bundled, offline docx unzip) */
+!function(f){typeof module!='undefined'&&typeof exports=='object'?module.exports=f():typeof define!='undefined'&&define.amd?define(f):(typeof self!='undefined'?self:this).fflate=f()}(function(){var _e={};"use strict";var t=(typeof module!='undefined'&&typeof exports=='object'?function(_f){"use strict";var e,t=";var __w=require('worker_threads');__w.parentPort.on('message',function(m){onmessage({data:m})}),postMessage=function(m,t){__w.parentPort.postMessage(m,t)},close=process.exit;self=global";try{e=require("worker_threads").Worker}catch(e){}exports.default=e?function(r,n,o,a,s){var u=!1,i=new e(r+t,{eval:!0}).on("error",(function(e){return s(e,null)})).on("message",(function(e){return s(null,e)})).on("exit",(function(e){e&&!u&&s(Error("exited with code "+e),null)}));return i.postMessage(o,a),i.terminate=function(){return u=!0,e.prototype.terminate.call(i)},i}:function(e,t,r,n,o){setImmediate((function(){return o(Error("async operations unsupported - update to Node 12+ (or Node 10-11 with the --experimental-worker CLI flag)"),null)}));var a=function(){};return{terminate:a,postMessage:a}};return _f}:function(_f){"use strict";var e={};_f.default=function(r,t,s,a,n){var o=new Worker(e[t]||(e[t]=URL.createObjectURL(new Blob([r+';addEventListener("error",function(e){e=e.error;postMessage({$e$:[e.message,e.code,e.stack]})})'],{type:"text/javascript"}))));return o.onmessage=function(e){var r=e.data,t=r.$e$;if(t){var s=Error(t[0]);s.code=t[1],s.stack=t[2],n(s,null)}else n(null,r)},o.postMessage(s,a),o};return _f})({}),n=Uint8Array,r=Uint16Array,e=Int32Array,i=new n([0,0,0,0,0,0,0,0,1,1,1,1,2,2,2,2,3,3,3,3,4,4,4,4,5,5,5,5,0,0,0,0]),o=new n([0,0,0,0,1,1,2,2,3,3,4,4,5,5,6,6,7,7,8,8,9,9,10,10,11,11,12,12,13,13,0,0]),s=new n([16,17,18,0,8,7,9,6,10,5,11,4,12,3,13,2,14,1,15]),a=function(t,n){for(var i=new r(31),o=0;o<31;++o)i[o]=n+=1<<t[o-1];var s=new e(i[30]);for(o=1;o<30;++o)for(var a=i[o];a<i[o+1];++a)s[a]=a-i[o]<<5|o;return{b:i,r:s}},u=a(i,2),h=u.b,f=u.r;h[28]=258,f[258]=28;for(var l=a(o,0),c=l.b,p=l.r,v=new r(32768),d=0;d<32768;++d){var g=(43690&d)>>1|(21845&d)<<1;v[d]=((65280&(g=(61680&(g=(52428&g)>>2|(13107&g)<<2))>>4|(3855&g)<<4))>>8|(255&g)<<8)>>1}var y=function(t,n,e){for(var i=t.length,o=0,s=new r(n);o<i;++o)t[o]&&++s[t[o]-1];var a,u=new r(n);for(o=1;o<n;++o)u[o]=u[o-1]+s[o-1]<<1;if(e){a=new r(1<<n);var h=15-n;for(o=0;o<i;++o)if(t[o])for(var f=o<<4|t[o],l=n-t[o],c=u[t[o]-1]++<<l,p=c|(1<<l)-1;c<=p;++c)a[v[c]>>h]=f}else for(a=new r(i),o=0;o<i;++o)t[o]&&(a[o]=v[u[t[o]-1]++]>>15-t[o]);return a},m=new n(288);for(d=0;d<144;++d)m[d]=8;for(d=144;d<256;++d)m[d]=9;for(d=256;d<280;++d)m[d]=7;for(d=280;d<288;++d)m[d]=8;var b=new n(32);for(d=0;d<32;++d)b[d]=5;var w=y(m,9,0),x=y(m,9,1),z=y(b,5,0),k=y(b,5,1),M=function(t){for(var n=t[0],r=1;r<t.length;++r)t[r]>n&&(n=t[r]);return n},S=function(t,n,r){var e=n/8|0;return(t[e]|t[e+1]<<8)>>(7&n)&r},A=function(t,n){var r=n/8|0;return(t[r]|t[r+1]<<8|t[r+2]<<16)>>(7&n)},T=function(t){return(t+7)/8|0},D=function(t,r,e){return(null==r||r<0)&&(r=0),(null==e||e>t.length)&&(e=t.length),new n(t.subarray(r,e))};_e.FlateErrorCode={UnexpectedEOF:0,InvalidBlockType:1,InvalidLengthLiteral:2,InvalidDistance:3,StreamFinished:4,NoStreamHandler:5,InvalidHeader:6,NoCallback:7,InvalidUTF8:8,ExtraFieldTooLong:9,InvalidDate:10,FilenameTooLong:11,StreamFinishing:12,InvalidZipData:13,UnknownCompressionMethod:14};var C=["unexpected EOF","invalid block type","invalid length/literal","invalid distance","stream finished","no stream handler",,"no callback","invalid UTF-8 data","extra field too long","date not in range 1980-2099","filename too long","stream finishing","invalid zip data"],I=function(t,n,r){var e=Error(n||C[t]);if(e.code=t,Error.captureStackTrace&&Error.captureStackTrace(e,I),!r)throw e;return e},U=function(t,r,e,a){var u=t.length,f=a?a.length:0;if(!u||r.f&&!r.l)return e||new n(0);var l=!e,p=l||2!=r.i,v=r.i;l&&(e=new n(3*u));var d=function(t){var r=e.length;if(t>r){var i=new n(Math.max(2*r,t));i.set(e),e=i}},g=r.f||0,m=r.p||0,b=r.b||0,w=r.l,z=r.d,C=r.m,U=r.n,F=8*u;do{if(!w){g=S(t,m,1);var E=S(t,m+1,3);if(m+=3,!E){var Z=t[(J=T(m)+4)-4]|t[J-3]<<8,q=J+Z;if(q>u){v&&I(0);break}p&&d(b+Z),e.set(t.subarray(J,q),b),r.b=b+=Z,r.p=m=8*q,r.f=g;continue}if(1==E)w=x,z=k,C=9,U=5;else if(2==E){var O=S(t,m,31)+257,G=S(t,m+10,15)+4,L=O+S(t,m+5,31)+1;m+=14;for(var H=new n(L),j=new n(19),N=0;N<G;++N)j[s[N]]=S(t,m+3*N,7);m+=3*G;var P=M(j),B=(1<<P)-1,Y=y(j,P,1);for(N=0;N<L;){var J,K=Y[S(t,m,B)];if(m+=15&K,(J=K>>4)<16)H[N++]=J;else{var Q=0,R=0;for(16==J?(R=3+S(t,m,3),m+=2,Q=H[N-1]):17==J?(R=3+S(t,m,7),m+=3):18==J&&(R=11+S(t,m,127),m+=7);R--;)H[N++]=Q}}var V=H.subarray(0,O),W=H.subarray(O);C=M(V),U=M(W),w=y(V,C,1),z=y(W,U,1)}else I(1);if(m>F){v&&I(0);break}}p&&d(b+131072);for(var X=(1<<C)-1,$=(1<<U)-1,_=m;;_=m){var tt=(Q=w[A(t,m)&X])>>4;if((m+=15&Q)>F){v&&I(0);break}if(Q||I(2),tt<256)e[b++]=tt;else{if(256==tt){_=m,w=null;break}var nt=tt-254;tt>264&&(nt=S(t,m,(1<<(it=i[N=tt-257]))-1)+h[N],m+=it);var rt=z[A(t,m)&$],et=rt>>4;if(rt||I(3),m+=15&rt,W=c[et],et>3){var it=o[et];W+=A(t,m)&(1<<it)-1,m+=it}if(m>F){v&&I(0);break}p&&d(b+131072);var ot=b+nt;if(b<W){var st=f-W,at=Math.min(W,ot);for(st+b<0&&I(3);b<at;++b)e[b]=a[st+b]}for(;b<ot;++b)e[b]=e[b-W]}}r.l=w,r.p=_,r.b=b,r.f=g,w&&(g=1,r.m=C,r.d=z,r.n=U)}while(!g);return b!=e.length&&l?D(e,0,b):e.subarray(0,b)},F=function(t,n,r){var e=n/8|0;t[e]|=r<<=7&n,t[e+1]|=r>>8},E=function(t,n,r){var e=n/8|0;t[e]|=r<<=7&n,t[e+1]|=r>>8,t[e+2]|=r>>16},Z=function(t,e){for(var i=[],o=0;o<t.length;++o)t[o]&&i.push({s:o,f:t[o]});var s=i.length,a=i.slice();if(!s)return{t:N,l:0};if(1==s){var u=new n(i[0].s+1);return u[i[0].s]=1,{t:u,l:1}}i.sort((function(t,n){return t.f-n.f})),i.push({s:-1,f:25001});var h=i[0],f=i[1],l=0,c=1,p=2;for(i[0]={s:-1,f:h.f+f.f,l:h,r:f};c!=s-1;)h=i[i[l].f<i[p].f?l++:p++],f=i[l!=c&&i[l].f<i[p].f?l++:p++],i[c++]={s:-1,f:h.f+f.f,l:h,r:f};var v=a[0].s;for(o=1;o<s;++o)a[o].s>v&&(v=a[o].s);var d=new r(v+1),g=q(i[c-1],d,0);if(g>e){o=0;var y=0,m=g-e,b=1<<m;for(a.sort((function(t,n){return d[n.s]-d[t.s]||t.f-n.f}));o<s;++o){var w=a[o].s;if(!(d[w]>e))break;y+=b-(1<<g-d[w]),d[w]=e}for(y>>=m;y>0;){var x=a[o].s;d[x]<e?y-=1<<e-d[x]++-1:++o}for(;o>=0&&y;--o){var z=a[o].s;d[z]==e&&(--d[z],++y)}g=e}return{t:new n(d),l:g}},q=function(t,n,r){return-1==t.s?Math.max(q(t.l,n,r+1),q(t.r,n,r+1)):n[t.s]=r},O=function(t){for(var n=t.length;n&&!t[--n];);for(var e=new r(++n),i=0,o=t[0],s=1,a=function(t){e[i++]=t},u=1;u<=n;++u)if(t[u]==o&&u!=n)++s;else{if(!o&&s>2){for(;s>138;s-=138)a(32754);s>2&&(a(s>10?s-11<<5|28690:s-3<<5|12305),s=0)}else if(s>3){for(a(o),--s;s>6;s-=6)a(8304);s>2&&(a(s-3<<5|8208),s=0)}for(;s--;)a(o);s=1,o=t[u]}return{c:e.subarray(0,i),n:n}},G=function(t,n){for(var r=0,e=0;e<n.length;++e)r+=t[e]*n[e];return r},L=function(t,n,r){var e=r.length,i=T(n+2);t[i]=255&e,t[i+1]=e>>8,t[i+2]=255^t[i],t[i+3]=255^t[i+1];for(var o=0;o<e;++o)t[i+o+4]=r[o];return 8*(i+4+e)},H=function(t,n,e,a,u,h,f,l,c,p,v){F(n,v++,e),++u[256];for(var d=Z(u,15),g=d.t,x=d.l,k=Z(h,15),M=k.t,S=k.l,A=O(g),T=A.c,D=A.n,C=O(M),I=C.c,U=C.n,q=new r(19),H=0;H<T.length;++H)++q[31&T[H]];for(H=0;H<I.length;++H)++q[31&I[H]];for(var j=Z(q,7),N=j.t,P=j.l,B=19;B>4&&!N[s[B-1]];--B);var Y,J,K,Q,R=p+5<<3,V=G(u,m)+G(h,b)+f,W=G(u,g)+G(h,M)+f+14+3*B+G(q,N)+2*q[16]+3*q[17]+7*q[18];if(c>=0&&R<=V&&R<=W)return L(n,v,t.subarray(c,c+p));if(F(n,v,1+(W<V)),v+=2,W<V){Y=y(g,x,0),J=g,K=y(M,S,0),Q=M;var X=y(N,P,0);for(F(n,v,D-257),F(n,v+5,U-1),F(n,v+10,B-4),v+=14,H=0;H<B;++H)F(n,v+3*H,N[s[H]]);v+=3*B;for(var $=[T,I],_=0;_<2;++_){var tt=$[_];for(H=0;H<tt.length;++H)F(n,v,X[rt=31&tt[H]]),v+=N[rt],rt>15&&(F(n,v,tt[H]>>5&127),v+=tt[H]>>12)}}else Y=w,J=m,K=z,Q=b;for(H=0;H<l;++H){var nt=a[H];if(nt>255){var rt;E(n,v,Y[257+(rt=nt>>18&31)]),v+=J[rt+257],rt>7&&(F(n,v,nt>>23&31),v+=i[rt]);var et=31&nt;E(n,v,K[et]),v+=Q[et],et>3&&(E(n,v,nt>>5&8191),v+=o[et])}else E(n,v,Y[nt]),v+=J[nt]}return E(n,v,Y[256]),v+J[256]},j=new e([65540,131080,131088,131104,262176,1048704,1048832,2114560,2117632]),N=new n(0),P=function(t,s,a,u,h,l){var c=l.z||t.length,v=new n(u+c+5*(1+Math.ceil(c/7e3))+h),d=v.subarray(u,v.length-h),g=l.l,y=7&(l.r||0);if(s){y&&(d[0]=l.r>>3);for(var m=j[s-1],b=m>>13,w=8191&m,x=(1<<a)-1,z=l.p||new r(32768),k=l.h||new r(x+1),M=Math.ceil(a/3),S=2*M,A=function(n){return(t[n]^t[n+1]<<M^t[n+2]<<S)&x},C=new e(25e3),I=new r(288),U=new r(32),F=0,E=0,Z=l.i||0,q=0,O=l.w||0,G=0;Z+2<c;++Z){var N=A(Z),P=32767&Z,B=k[N];if(z[P]=B,k[N]=P,O<=Z){var Y=c-Z;if((F>7e3||q>24576)&&(Y>423||!g)){y=H(t,d,0,C,I,U,E,q,G,Z-G,y),q=F=E=0,G=Z;for(var J=0;J<286;++J)I[J]=0;for(J=0;J<30;++J)U[J]=0}var K=2,Q=0,R=w,V=P-B&32767;if(Y>2&&N==A(Z-V))for(var W=Math.min(b,Y)-1,X=Math.min(32767,Z),$=Math.min(258,Y);V<=X&&--R&&P!=B;){if(t[Z+K]==t[Z+K-V]){for(var _=0;_<$&&t[Z+_]==t[Z+_-V];++_);if(_>K){if(K=_,Q=V,_>W)break;var tt=Math.min(V,_-2),nt=0;for(J=0;J<tt;++J){var rt=Z-V+J&32767,et=rt-z[rt]&32767;et>nt&&(nt=et,B=rt)}}}V+=(P=B)-(B=z[P])&32767}if(Q){C[q++]=268435456|f[K]<<18|p[Q];var it=31&f[K],ot=31&p[Q];E+=i[it]+o[ot],++I[257+it],++U[ot],O=Z+K,++F}else C[q++]=t[Z],++I[t[Z]]}}for(Z=Math.max(Z,O);Z<c;++Z)C[q++]=t[Z],++I[t[Z]];y=H(t,d,g,C,I,U,E,q,G,Z-G,y),g||(l.r=7&y|d[y/8|0]<<3,y-=7,l.h=k,l.p=z,l.i=Z,l.w=O)}else{for(Z=l.w||0;Z<c+g;Z+=65535){var st=Z+65535;st>=c&&(d[y/8|0]=g,st=c),y=L(d,y+1,t.subarray(Z,st))}l.i=c}return D(v,0,u+T(y)+h)},B=function(){for(var t=new Int32Array(256),n=0;n<256;++n){for(var r=n,e=9;--e;)r=(1&r&&-306674912)^r>>>1;t[n]=r}return t}(),Y=function(){var t=-1;return{p:function(n){for(var r=t,e=0;e<n.length;++e)r=B[255&r^n[e]]^r>>>8;t=r},d:function(){return~t}}},J=function(){var t=1,n=0;return{p:function(r){for(var e=t,i=n,o=0|r.length,s=0;s!=o;){for(var a=Math.min(s+2655,o);s<a;++s)i+=e+=r[s];e=(65535&e)+15*(e>>16),i=(65535&i)+15*(i>>16)}t=e,n=i},d:function(){return(255&(t%=65521))<<24|(65280&t)<<8|(255&(n%=65521))<<8|n>>8}}},K=function(t,r,e,i,o){if(!o&&(o={l:1},r.dictionary)){var s=r.dictionary.subarray(-32768),a=new n(s.length+t.length);a.set(s),a.set(t,s.length),t=a,o.w=s.length}return P(t,null==r.level?6:r.level,null==r.mem?o.l?Math.ceil(1.5*Math.max(8,Math.min(13,Math.log(t.length)))):20:12+r.mem,e,i,o)},Q=function(t,n){var r={};for(var e in t)r[e]=t[e];for(var e in n)r[e]=n[e];return r},R=function(t,n,r){for(var e=t(),i=""+t,o=i.slice(i.indexOf("[")+1,i.lastIndexOf("]")).replace(/\s+/g,"").split(","),s=0;s<e.length;++s){var a=e[s],u=o[s];if("function"==typeof a){n+=";"+u+"=";var h=""+a;if(a.prototype)if(-1!=h.indexOf("[native code]")){var f=h.indexOf(" ",8)+1;n+=h.slice(f,h.indexOf("(",f))}else for(var l in n+=h,a.prototype)n+=";"+u+".prototype."+l+"="+a.prototype[l];else n+=h}else r[u]=a}return n},V=[],W=function(t){var n=[];for(var r in t)t[r].buffer&&n.push((t[r]=new t[r].constructor(t[r])).buffer);return n},X=function(n,r,e,i){if(!V[e]){for(var o="",s={},a=n.length-1,u=0;u<a;++u)o=R(n[u],o,s);V[e]={c:R(n[a],o,s),e:s}}var h=Q({},V[e].e);return(0,t.default)(V[e].c+";onmessage=function(e){for(var k in e.data)self[k]=e.data[k];onmessage="+r+"}",e,h,W(h),i)},$=function(){return[n,r,e,i,o,s,h,c,x,k,v,C,y,M,S,A,T,D,I,U,Tt,it,ot]},_=function(){return[n,r,e,i,o,s,f,p,w,m,z,b,v,j,N,y,F,E,Z,q,O,G,L,H,T,D,P,K,kt,it]},tt=function(){return[pt,gt,ct,Y,B]},nt=function(){return[vt,dt]},rt=function(){return[yt,ct,J]},et=function(){return[mt]},it=function(t){return postMessage(t,[t.buffer])},ot=function(t){return t&&{out:t.size&&new n(t.size),dictionary:t.dictionary}},st=function(t,n,r,e,i,o){var s=X(r,e,i,(function(t,n){s.terminate(),o(t,n)}));return s.postMessage([t,n],n.consume?[t.buffer]:[]),function(){s.terminate()}},at=function(t){return t.ondata=function(t,n){return postMessage([t,n],[t.buffer])},function(n){n.data.length?(t.push(n.data[0],n.data[1]),postMessage([n.data[0].length])):t.flush()}},ut=function(t,n,r,e,i,o,s){var a,u=X(t,e,i,(function(t,r){t?(u.terminate(),n.ondata.call(n,t)):Array.isArray(r)?1==r.length?(n.queuedSize-=r[0],n.ondrain&&n.ondrain(r[0])):(r[1]&&u.terminate(),n.ondata.call(n,t,r[0],r[1])):s(r)}));u.postMessage(r),n.queuedSize=0,n.push=function(t,r){n.ondata||I(5),a&&n.ondata(I(4,0,1),null,!!r),n.queuedSize+=t.length,u.postMessage([t,a=r],[t.buffer])},n.terminate=function(){u.terminate()},o&&(n.flush=function(){u.postMessage([])})},ht=function(t,n){return t[n]|t[n+1]<<8},ft=function(t,n){return(t[n]|t[n+1]<<8|t[n+2]<<16|t[n+3]<<24)>>>0},lt=function(t,n){return ft(t,n)+4294967296*ft(t,n+4)},ct=function(t,n,r){for(;r;++n)t[n]=r,r>>>=8},pt=function(t,n){var r=n.filename;if(t[0]=31,t[1]=139,t[2]=8,t[8]=n.level<2?4:9==n.level?2:0,t[9]=3,0!=n.mtime&&ct(t,4,Math.floor(new Date(n.mtime||Date.now())/1e3)),r){t[3]=8;for(var e=0;e<=r.length;++e)t[e+10]=r.charCodeAt(e)}},vt=function(t){31==t[0]&&139==t[1]&&8==t[2]||I(6,"invalid gzip data");var n=t[3],r=10;4&n&&(r+=2+(t[10]|t[11]<<8));for(var e=(n>>3&1)+(n>>4&1);e>0;e-=!t[r++]);return r+(2&n)},dt=function(t){var n=t.length;return(t[n-4]|t[n-3]<<8|t[n-2]<<16|t[n-1]<<24)>>>0},gt=function(t){return 10+(t.filename?t.filename.length+1:0)},yt=function(t,n){var r=n.level,e=0==r?0:r<6?1:9==r?3:2;if(t[0]=120,t[1]=e<<6|(n.dictionary&&32),t[1]|=31-(t[0]<<8|t[1])%31,n.dictionary){var i=J();i.p(n.dictionary),ct(t,2,i.d())}},mt=function(t,n){return(8!=(15&t[0])||t[0]>>4>7||(t[0]<<8|t[1])%31)&&I(6,"invalid zlib data"),(t[1]>>5&1)==+!n&&I(6,"invalid zlib data: "+(32&t[1]?"need":"unexpected")+" dictionary"),2+(t[1]>>3&4)};function bt(t,n){return"function"==typeof t&&(n=t,t={}),this.ondata=n,t}var wt=function(){function t(t,r){if("function"==typeof t&&(r=t,t={}),this.ondata=r,this.o=t||{},this.s={l:0,i:32768,w:32768,z:32768},this.b=new n(98304),this.o.dictionary){var e=this.o.dictionary.subarray(-32768);this.b.set(e,32768-e.length),this.s.i=32768-e.length}}return t.prototype.p=function(t,n){this.ondata(K(t,this.o,0,0,this.s),n)},t.prototype.push=function(t,r){this.ondata||I(5),this.s.l&&I(4);var e=t.length+this.s.z;if(e>this.b.length){if(e>2*this.b.length-32768){var i=new n(-32768&e);i.set(this.b.subarray(0,this.s.z)),this.b=i}var o=this.b.length-this.s.z;this.b.set(t.subarray(0,o),this.s.z),this.s.z=this.b.length,this.p(this.b,!1),this.b.set(this.b.subarray(-32768)),this.b.set(t.subarray(o),32768),this.s.z=t.length-o+32768,this.s.i=32766,this.s.w=32768}else this.b.set(t,this.s.z),this.s.z+=t.length;this.s.l=1&r,(this.s.z>this.s.w+8191||r)&&(this.p(this.b,r||!1),this.s.w=this.s.i,this.s.i-=2)},t.prototype.flush=function(){this.ondata||I(5),this.s.l&&I(4),this.p(this.b,!1),this.s.w=this.s.i,this.s.i-=2},t}();_e.Deflate=wt;var xt=function(){return function(t,n){ut([_,function(){return[at,wt]}],this,bt.call(this,t,n),(function(t){var n=new wt(t.data);onmessage=at(n)}),6,1)}}();function zt(t,n,r){return r||(r=n,n={}),"function"!=typeof r&&I(7),st(t,n,[_],(function(t){return it(kt(t.data[0],t.data[1]))}),0,r)}function kt(t,n){return K(t,n||{},0,0)}_e.AsyncDeflate=xt,_e.deflate=zt,_e.deflateSync=kt;var Mt=function(){function t(t,r){"function"==typeof t&&(r=t,t={}),this.ondata=r;var e=t&&t.dictionary&&t.dictionary.subarray(-32768);this.s={i:0,b:e?e.length:0},this.o=new n(32768),this.p=new n(0),e&&this.o.set(e)}return t.prototype.e=function(t){if(this.ondata||I(5),this.d&&I(4),this.p.length){if(t.length){var r=new n(this.p.length+t.length);r.set(this.p),r.set(t,this.p.length),this.p=r}}else this.p=t},t.prototype.c=function(t){this.s.i=+(this.d=t||!1);var n=this.s.b,r=U(this.p,this.s,this.o);this.ondata(D(r,n,this.s.b),this.d),this.o=D(r,this.s.b-32768),this.s.b=this.o.length,this.p=D(this.p,this.s.p/8|0),this.s.p&=7},t.prototype.push=function(t,n){this.e(t),this.c(n)},t}();_e.Inflate=Mt;var St=function(){return function(t,n){ut([$,function(){return[at,Mt]}],this,bt.call(this,t,n),(function(t){var n=new Mt(t.data);onmessage=at(n)}),7,0)}}();function At(t,n,r){return r||(r=n,n={}),"function"!=typeof r&&I(7),st(t,n,[$],(function(t){return it(Tt(t.data[0],ot(t.data[1])))}),1,r)}function Tt(t,n){return U(t,{i:2},n&&n.out,n&&n.dictionary)}_e.AsyncInflate=St,_e.inflate=At,_e.inflateSync=Tt;var Dt=function(){function t(t,n){this.c=Y(),this.l=0,this.v=1,wt.call(this,t,n)}return t.prototype.push=function(t,n){this.c.p(t),this.l+=t.length,wt.prototype.push.call(this,t,n)},t.prototype.p=function(t,n){var r=K(t,this.o,this.v&&gt(this.o),n&&8,this.s);this.v&&(pt(r,this.o),this.v=0),n&&(ct(r,r.length-8,this.c.d()),ct(r,r.length-4,this.l)),this.ondata(r,n)},t.prototype.flush=function(){wt.prototype.flush.call(this)},t}();_e.Gzip=Dt,_e.Compress=Dt;var Ct=function(){return function(t,n){ut([_,tt,function(){return[at,wt,Dt]}],this,bt.call(this,t,n),(function(t){var n=new Dt(t.data);onmessage=at(n)}),8,1)}}();function It(t,n,r){return r||(r=n,n={}),"function"!=typeof r&&I(7),st(t,n,[_,tt,function(){return[Ut]}],(function(t){return it(Ut(t.data[0],t.data[1]))}),2,r)}function Ut(t,n){n||(n={});var r=Y(),e=t.length;r.p(t);var i=K(t,n,gt(n),8),o=i.length;return pt(i,n),ct(i,o-8,r.d()),ct(i,o-4,e),i}_e.AsyncGzip=Ct,_e.AsyncCompress=Ct,_e.gzip=It,_e.compress=It,_e.gzipSync=Ut,_e.compressSync=Ut;var Ft=function(){function t(t,n){this.v=1,this.r=0,Mt.call(this,t,n)}return t.prototype.push=function(t,r){if(Mt.prototype.e.call(this,t),this.r+=t.length,this.v){var e=this.p.subarray(this.v-1),i=e.length>3?vt(e):4;if(i>e.length){if(!r)return}else this.v>1&&this.onmember&&this.onmember(this.r-e.length);this.p=e.subarray(i),this.v=0}Mt.prototype.c.call(this,r),!this.s.f||this.s.l||r||(this.v=T(this.s.p)+9,this.s={i:0},this.o=new n(0),this.push(new n(0),r))},t}();_e.Gunzip=Ft;var Et=function(){return function(t,n){var r=this;ut([$,nt,function(){return[at,Mt,Ft]}],this,bt.call(this,t,n),(function(t){var n=new Ft(t.data);n.onmember=function(t){return postMessage(t)},onmessage=at(n)}),9,0,(function(t){return r.onmember&&r.onmember(t)}))}}();function Zt(t,n,r){return r||(r=n,n={}),"function"!=typeof r&&I(7),st(t,n,[$,nt,function(){return[qt]}],(function(t){return it(qt(t.data[0],t.data[1]))}),3,r)}function qt(t,r){var e=vt(t);return e+8>t.length&&I(6,"invalid gzip data"),U(t.subarray(e,-8),{i:2},r&&r.out||new n(dt(t)),r&&r.dictionary)}_e.AsyncGunzip=Et,_e.gunzip=Zt,_e.gunzipSync=qt;var Ot=function(){function t(t,n){this.c=J(),this.v=1,wt.call(this,t,n)}return t.prototype.push=function(t,n){this.c.p(t),wt.prototype.push.call(this,t,n)},t.prototype.p=function(t,n){var r=K(t,this.o,this.v&&(this.o.dictionary?6:2),n&&4,this.s);this.v&&(yt(r,this.o),this.v=0),n&&ct(r,r.length-4,this.c.d()),this.ondata(r,n)},t.prototype.flush=function(){wt.prototype.flush.call(this)},t}();_e.Zlib=Ot;var Gt=function(){return function(t,n){ut([_,rt,function(){return[at,wt,Ot]}],this,bt.call(this,t,n),(function(t){var n=new Ot(t.data);onmessage=at(n)}),10,1)}}();function Lt(t,n,r){return r||(r=n,n={}),"function"!=typeof r&&I(7),st(t,n,[_,rt,function(){return[Ht]}],(function(t){return it(Ht(t.data[0],t.data[1]))}),4,r)}function Ht(t,n){n||(n={});var r=J();r.p(t);var e=K(t,n,n.dictionary?6:2,4);return yt(e,n),ct(e,e.length-4,r.d()),e}_e.AsyncZlib=Gt,_e.zlib=Lt,_e.zlibSync=Ht;var jt=function(){function t(t,n){Mt.call(this,t,n),this.v=t&&t.dictionary?2:1}return t.prototype.push=function(t,n){if(Mt.prototype.e.call(this,t),this.v){if(this.p.length<6&&!n)return;this.p=this.p.subarray(mt(this.p,this.v-1)),this.v=0}n&&(this.p.length<4&&I(6,"invalid zlib data"),this.p=this.p.subarray(0,-4)),Mt.prototype.c.call(this,n)},t}();_e.Unzlib=jt;var Nt=function(){return function(t,n){ut([$,et,function(){return[at,Mt,jt]}],this,bt.call(this,t,n),(function(t){var n=new jt(t.data);onmessage=at(n)}),11,0)}}();function Pt(t,n,r){return r||(r=n,n={}),"function"!=typeof r&&I(7),st(t,n,[$,et,function(){return[Bt]}],(function(t){return it(Bt(t.data[0],ot(t.data[1])))}),5,r)}function Bt(t,n){return U(t.subarray(mt(t,n&&n.dictionary),-4),{i:2},n&&n.out,n&&n.dictionary)}_e.AsyncUnzlib=Nt,_e.unzlib=Pt,_e.unzlibSync=Bt;var Yt=function(){function t(t,n){this.o=bt.call(this,t,n)||{},this.G=Ft,this.I=Mt,this.Z=jt}return t.prototype.i=function(){var t=this;this.s.ondata=function(n,r){t.ondata(n,r)}},t.prototype.push=function(t,r){if(this.ondata||I(5),this.s)this.s.push(t,r);else{if(this.p&&this.p.length){var e=new n(this.p.length+t.length);e.set(this.p),e.set(t,this.p.length)}else this.p=t;this.p.length>2&&(this.s=31==this.p[0]&&139==this.p[1]&&8==this.p[2]?new this.G(this.o):8!=(15&this.p[0])||this.p[0]>>4>7||(this.p[0]<<8|this.p[1])%31?new this.I(this.o):new this.Z(this.o),this.i(),this.s.push(this.p,r),this.p=null)}},t}();_e.Decompress=Yt;var Jt=function(){function t(t,n){Yt.call(this,t,n),this.queuedSize=0,this.G=Et,this.I=St,this.Z=Nt}return t.prototype.i=function(){var t=this;this.s.ondata=function(n,r,e){t.ondata(n,r,e)},this.s.ondrain=function(n){t.queuedSize-=n,t.ondrain&&t.ondrain(n)}},t.prototype.push=function(t,n){this.queuedSize+=t.length,Yt.prototype.push.call(this,t,n)},t}();function Kt(t,n,r){return r||(r=n,n={}),"function"!=typeof r&&I(7),31==t[0]&&139==t[1]&&8==t[2]?Zt(t,n,r):8!=(15&t[0])||t[0]>>4>7||(t[0]<<8|t[1])%31?At(t,n,r):Pt(t,n,r)}function Qt(t,n){return 31==t[0]&&139==t[1]&&8==t[2]?qt(t,n):8!=(15&t[0])||t[0]>>4>7||(t[0]<<8|t[1])%31?Tt(t,n):Bt(t,n)}_e.AsyncDecompress=Jt,_e.decompress=Kt,_e.decompressSync=Qt;var Rt=function(t,r,e,i){for(var o in t){var s=t[o],a=r+o,u=i;Array.isArray(s)&&(u=Q(i,s[1]),s=s[0]),s instanceof n?e[a]=[s,u]:(e[a+="/"]=[new n(0),u],Rt(s,a,e,i))}},Vt="undefined"!=typeof TextEncoder&&new TextEncoder,Wt="undefined"!=typeof TextDecoder&&new TextDecoder,Xt=0;try{Wt.decode(N,{stream:!0}),Xt=1}catch(t){}var $t=function(t){for(var n="",r=0;;){var e=t[r++],i=(e>127)+(e>223)+(e>239);if(r+i>t.length)return{s:n,r:D(t,r-1)};i?3==i?(e=((15&e)<<18|(63&t[r++])<<12|(63&t[r++])<<6|63&t[r++])-65536,n+=String.fromCharCode(55296|e>>10,56320|1023&e)):n+=String.fromCharCode(1&i?(31&e)<<6|63&t[r++]:(15&e)<<12|(63&t[r++])<<6|63&t[r++]):n+=String.fromCharCode(e)}},_t=function(){function t(t){this.ondata=t,Xt?this.t=new TextDecoder:this.p=N}return t.prototype.push=function(t,r){if(this.ondata||I(5),r=!!r,this.t)return this.ondata(this.t.decode(t,{stream:!0}),r),void(r&&(this.t.decode().length&&I(8),this.t=null));this.p||I(4);var e=new n(this.p.length+t.length);e.set(this.p),e.set(t,this.p.length);var i=$t(e),o=i.s,s=i.r;r?(s.length&&I(8),this.p=null):this.p=s,this.ondata(o,r)},t}();_e.DecodeUTF8=_t;var tn=function(){function t(t){this.ondata=t}return t.prototype.push=function(t,n){this.ondata||I(5),this.d&&I(4),this.ondata(nn(t),this.d=n||!1)},t}();function nn(t,r){if(r){for(var e=new n(t.length),i=0;i<t.length;++i)e[i]=t.charCodeAt(i);return e}if(Vt)return Vt.encode(t);var o=t.length,s=new n(t.length+(t.length>>1)),a=0,u=function(t){s[a++]=t};for(i=0;i<o;++i){if(a+5>s.length){var h=new n(a+8+(o-i<<1));h.set(s),s=h}var f=t.charCodeAt(i);f<128||r?u(f):f<2048?(u(192|f>>6),u(128|63&f)):f>55295&&f<57344?(u(240|(f=65536+(1047552&f)|1023&t.charCodeAt(++i))>>18),u(128|f>>12&63),u(128|f>>6&63),u(128|63&f)):(u(224|f>>12),u(128|f>>6&63),u(128|63&f))}return D(s,0,a)}function rn(t,n){if(n){for(var r="",e=0;e<t.length;e+=16384)r+=String.fromCharCode.apply(null,t.subarray(e,e+16384));return r}if(Wt)return Wt.decode(t);var i=$t(t),o=i.s;return(r=i.r).length&&I(8),o}_e.EncodeUTF8=tn,_e.strToU8=nn,_e.strFromU8=rn;var en=function(t){return 1==t?3:t<6?2:9==t?1:0},on=function(t,n){return n+30+ht(t,n+26)+ht(t,n+28)},sn=function(t,n,r){var e=ht(t,n+28),i=rn(t.subarray(n+46,n+46+e),!(2048&ht(t,n+8))),o=n+46+e,s=ft(t,n+20),a=r&&4294967295==s?an(t,o):[s,ft(t,n+24),ft(t,n+42)],u=a[0],h=a[1],f=a[2];return[ht(t,n+10),u,h,i,o+ht(t,n+30)+ht(t,n+32),f]},an=function(t,n){for(;1!=ht(t,n);n+=4+ht(t,n+2));return[lt(t,n+12),lt(t,n+4),lt(t,n+20)]},un=function(t){var n=0;if(t)for(var r in t){var e=t[r].length;e>65535&&I(9),n+=e+4}return n},hn=function(t,n,r,e,i,o,s,a){var u=e.length,h=r.extra,f=a&&a.length,l=un(h);ct(t,n,null!=s?33639248:67324752),n+=4,null!=s&&(t[n++]=20,t[n++]=r.os),t[n]=20,n+=2,t[n++]=r.flag<<1|(o<0&&8),t[n++]=i&&8,t[n++]=255&r.compression,t[n++]=r.compression>>8;var c=new Date(null==r.mtime?Date.now():r.mtime),p=c.getFullYear()-1980;if((p<0||p>119)&&I(10),ct(t,n,p<<25|c.getMonth()+1<<21|c.getDate()<<16|c.getHours()<<11|c.getMinutes()<<5|c.getSeconds()>>1),n+=4,-1!=o&&(ct(t,n,r.crc),ct(t,n+4,o<0?-o-2:o),ct(t,n+8,r.size)),ct(t,n+12,u),ct(t,n+14,l),n+=16,null!=s&&(ct(t,n,f),ct(t,n+6,r.attrs),ct(t,n+10,s),n+=14),t.set(e,n),n+=u,l)for(var v in h){var d=h[v],g=d.length;ct(t,n,+v),ct(t,n+2,g),t.set(d,n+4),n+=4+g}return f&&(t.set(a,n),n+=f),n},fn=function(t,n,r,e,i){ct(t,n,101010256),ct(t,n+8,r),ct(t,n+10,r),ct(t,n+12,e),ct(t,n+16,i)},ln=function(){function t(t){this.filename=t,this.c=Y(),this.size=0,this.compression=0}return t.prototype.process=function(t,n){this.ondata(null,t,n)},t.prototype.push=function(t,n){this.ondata||I(5),this.c.p(t),this.size+=t.length,n&&(this.crc=this.c.d()),this.process(t,n||!1)},t}();_e.ZipPassThrough=ln;var cn=function(){function t(t,n){var r=this;n||(n={}),ln.call(this,t),this.d=new wt(n,(function(t,n){r.ondata(null,t,n)})),this.compression=8,this.flag=en(n.level)}return t.prototype.process=function(t,n){try{this.d.push(t,n)}catch(t){this.ondata(t,null,n)}},t.prototype.push=function(t,n){ln.prototype.push.call(this,t,n)},t}();_e.ZipDeflate=cn;var pn=function(){function t(t,n){var r=this;n||(n={}),ln.call(this,t),this.d=new xt(n,(function(t,n,e){r.ondata(t,n,e)})),this.compression=8,this.flag=en(n.level),this.terminate=this.d.terminate}return t.prototype.process=function(t,n){this.d.push(t,n)},t.prototype.push=function(t,n){ln.prototype.push.call(this,t,n)},t}();_e.AsyncZipDeflate=pn;var vn=function(){function t(t){this.ondata=t,this.u=[],this.d=1}return t.prototype.add=function(t){var r=this;if(this.ondata||I(5),2&this.d)this.ondata(I(4+8*(1&this.d),0,1),null,!1);else{var e=nn(t.filename),i=e.length,o=t.comment,s=o&&nn(o),a=i!=t.filename.length||s&&o.length!=s.length,u=i+un(t.extra)+30;i>65535&&this.ondata(I(11,0,1),null,!1);var h=new n(u);hn(h,0,t,e,a,-1);var f=[h],l=function(){for(var t=0,n=f;t<n.length;t++)r.ondata(null,n[t],!1);f=[]},c=this.d;this.d=0;var p=this.u.length,v=Q(t,{f:e,u:a,o:s,t:function(){t.terminate&&t.terminate()},r:function(){if(l(),c){var t=r.u[p+1];t?t.r():r.d=1}c=1}}),d=0;t.ondata=function(e,i,o){if(e)r.ondata(e,i,o),r.terminate();else if(d+=i.length,f.push(i),o){var s=new n(16);ct(s,0,134695760),ct(s,4,t.crc),ct(s,8,d),ct(s,12,t.size),f.push(s),v.c=d,v.b=u+d+16,v.crc=t.crc,v.size=t.size,c&&v.r(),c=1}else c&&l()},this.u.push(v)}},t.prototype.end=function(){var t=this;2&this.d?this.ondata(I(4+8*(1&this.d),0,1),null,!0):(this.d?this.e():this.u.push({r:function(){1&t.d&&(t.u.splice(-1,1),t.e())},t:function(){}}),this.d=3)},t.prototype.e=function(){for(var t=0,r=0,e=0,i=0,o=this.u;i<o.length;i++)e+=46+(h=o[i]).f.length+un(h.extra)+(h.o?h.o.length:0);for(var s=new n(e+22),a=0,u=this.u;a<u.length;a++){var h;hn(s,t,h=u[a],h.f,h.u,-h.c-2,r,h.o),t+=46+h.f.length+un(h.extra)+(h.o?h.o.length:0),r+=h.b}fn(s,t,this.u.length,e,r),this.ondata(null,s,!0),this.d=2},t.prototype.terminate=function(){for(var t=0,n=this.u;t<n.length;t++)n[t].t();this.d=2},t}();function dn(t,r,e){e||(e=r,r={}),"function"!=typeof e&&I(7);var i={};Rt(t,"",i,r);var o=Object.keys(i),s=o.length,a=0,u=0,h=s,f=Array(s),l=[],c=function(){for(var t=0;t<l.length;++t)l[t]()},p=function(t,n){xn((function(){e(t,n)}))};xn((function(){p=e}));var v=function(){var t=new n(u+22),r=a,e=u-a;u=0;for(var i=0;i<h;++i){var o=f[i];try{var s=o.c.length;hn(t,u,o,o.f,o.u,s);var l=30+o.f.length+un(o.extra),c=u+l;t.set(o.c,c),hn(t,a,o,o.f,o.u,s,u,o.m),a+=16+l+(o.m?o.m.length:0),u=c+s}catch(t){return p(t,null)}}fn(t,a,f.length,e,r),p(null,t)};s||v();for(var d=function(t){var n=o[t],r=i[n],e=r[0],h=r[1],d=Y(),g=e.length;d.p(e);var y=nn(n),m=y.length,b=h.comment,w=b&&nn(b),x=w&&w.length,z=un(h.extra),k=0==h.level?0:8,M=function(r,e){if(r)c(),p(r,null);else{var i=e.length;f[t]=Q(h,{size:g,crc:d.d(),c:e,f:y,m:w,u:m!=n.length||w&&b.length!=x,compression:k}),a+=30+m+z+i,u+=76+2*(m+z)+(x||0)+i,--s||v()}};if(m>65535&&M(I(11,0,1),null),k)if(g<16e4)try{M(null,kt(e,h))}catch(t){M(t,null)}else l.push(zt(e,h,M));else M(null,e)},g=0;g<h;++g)d(g);return c}function gn(t,r){r||(r={});var e={},i=[];Rt(t,"",e,r);var o=0,s=0;for(var a in e){var u=e[a],h=u[0],f=u[1],l=0==f.level?0:8,c=(M=nn(a)).length,p=f.comment,v=p&&nn(p),d=v&&v.length,g=un(f.extra);c>65535&&I(11);var y=l?kt(h,f):h,m=y.length,b=Y();b.p(h),i.push(Q(f,{size:h.length,crc:b.d(),c:y,f:M,m:v,u:c!=a.length||v&&p.length!=d,o:o,compression:l})),o+=30+c+g+m,s+=76+2*(c+g)+(d||0)+m}for(var w=new n(s+22),x=o,z=s-o,k=0;k<i.length;++k){var M;hn(w,(M=i[k]).o,M,M.f,M.u,M.c.length);var S=30+M.f.length+un(M.extra);w.set(M.c,M.o+S),hn(w,o,M,M.f,M.u,M.c.length,M.o,M.m),o+=16+S+(M.m?M.m.length:0)}return fn(w,o,i.length,z,x),w}_e.Zip=vn,_e.zip=dn,_e.zipSync=gn;var yn=function(){function t(){}return t.prototype.push=function(t,n){this.ondata(null,t,n)},t.compression=0,t}();_e.UnzipPassThrough=yn;var mn=function(){function t(){var t=this;this.i=new Mt((function(n,r){t.ondata(null,n,r)}))}return t.prototype.push=function(t,n){try{this.i.push(t,n)}catch(t){this.ondata(t,null,n)}},t.compression=8,t}();_e.UnzipInflate=mn;var bn=function(){function t(t,n){var r=this;n<32e4?this.i=new Mt((function(t,n){r.ondata(null,t,n)})):(this.i=new St((function(t,n,e){r.ondata(t,n,e)})),this.terminate=this.i.terminate)}return t.prototype.push=function(t,n){this.i.terminate&&(t=D(t,0)),this.i.push(t,n)},t.compression=8,t}();_e.AsyncUnzipInflate=bn;var wn=function(){function t(t){this.onfile=t,this.k=[],this.o={0:yn},this.p=N}return t.prototype.push=function(t,r){var e=this;if(this.onfile||I(5),this.p||I(4),this.c>0){var i=Math.min(this.c,t.length),o=t.subarray(0,i);if(this.c-=i,this.d?this.d.push(o,!this.c):this.k[0].push(o),(t=t.subarray(i)).length)return this.push(t,r)}else{var s=0,a=0,u=void 0,h=void 0;this.p.length?t.length?((h=new n(this.p.length+t.length)).set(this.p),h.set(t,this.p.length)):h=this.p:h=t;for(var f=h.length,l=this.c,c=l&&this.d,p=function(){var t,n=ft(h,a);if(67324752==n){s=1,u=a,v.d=null,v.c=0;var r=ht(h,a+6),i=ht(h,a+8),o=2048&r,c=8&r,p=ht(h,a+26),d=ht(h,a+28);if(f>a+30+p+d){var g=[];v.k.unshift(g),s=2;var y,m=ft(h,a+18),b=ft(h,a+22),w=rn(h.subarray(a+30,a+=30+p),!o);4294967295==m?(t=c?[-2]:an(h,a),m=t[0],b=t[1]):c&&(m=-1),a+=d,v.c=m;var x={name:w,compression:i,start:function(){if(x.ondata||I(5),m){var t=e.o[i];t||x.ondata(I(14,"unknown compression type "+i,1),null,!1),(y=m<0?new t(w):new t(w,m,b)).ondata=function(t,n,r){x.ondata(t,n,r)};for(var n=0,r=g;n<r.length;n++)y.push(r[n],!1);e.k[0]==g&&e.c?e.d=y:y.push(N,!0)}else x.ondata(null,N,!0)},terminate:function(){y&&y.terminate&&y.terminate()}};m>=0&&(x.size=m,x.originalSize=b),v.onfile(x)}return"break"}if(l){if(134695760==n)return u=a+=12+(-2==l&&8),s=3,v.c=0,"break";if(33639248==n)return u=a-=4,s=3,v.c=0,"break"}},v=this;a<f-4&&"break"!==p();++a);if(this.p=N,l<0){var d=h.subarray(0,s?u-12-(-2==l&&8)-(134695760==ft(h,u-16)&&4):a);c?c.push(d,!!s):this.k[+(2==s)].push(d)}if(2&s)return this.push(h.subarray(a),r);this.p=h.subarray(a)}r&&(this.c&&I(13),this.p=null)},t.prototype.register=function(t){this.o[t.compression]=t},t}();_e.Unzip=wn;var xn="function"==typeof queueMicrotask?queueMicrotask:"function"==typeof setTimeout?setTimeout:function(t){t()};function zn(t,r,e){e||(e=r,r={}),"function"!=typeof e&&I(7);var i=[],o=function(){for(var t=0;t<i.length;++t)i[t]()},s={},a=function(t,n){xn((function(){e(t,n)}))};xn((function(){a=e}));for(var u=t.length-22;101010256!=ft(t,u);--u)if(!u||t.length-u>65558)return a(I(13,0,1),null),o;var h=ht(t,u+8);if(h){var f=h,l=ft(t,u+16),c=4294967295==l||65535==f;if(c){var p=ft(t,u-12);(c=101075792==ft(t,p))&&(f=h=ft(t,p+32),l=ft(t,p+48))}for(var v=r&&r.filter,d=function(r){var e=sn(t,l,c),u=e[0],f=e[1],p=e[2],d=e[3],g=e[4],y=on(t,e[5]);l=g;var m=function(t,n){t?(o(),a(t,null)):(n&&(s[d]=n),--h||a(null,s))};if(!v||v({name:d,size:f,originalSize:p,compression:u}))if(u)if(8==u){var b=t.subarray(y,y+f);if(p<524288||f>.8*p)try{m(null,Tt(b,{out:new n(p)}))}catch(t){m(t,null)}else i.push(At(b,{size:p},m))}else m(I(14,"unknown compression type "+u,1),null);else m(null,D(t,y,y+f));else m(null,null)},g=0;g<f;++g)d()}else a(null,{});return o}function kn(t,r){for(var e={},i=t.length-22;101010256!=ft(t,i);--i)(!i||t.length-i>65558)&&I(13);var o=ht(t,i+8);if(!o)return{};var s=ft(t,i+16),a=4294967295==s||65535==o;if(a){var u=ft(t,i-12);(a=101075792==ft(t,u))&&(o=ft(t,u+32),s=ft(t,u+48))}for(var h=r&&r.filter,f=0;f<o;++f){var l=sn(t,s,a),c=l[0],p=l[1],v=l[2],d=l[3],g=l[4],y=on(t,l[5]);s=g,h&&!h({name:d,size:p,originalSize:v,compression:c})||(c?8==c?e[d]=Tt(t.subarray(y,y+p),{out:new n(v)}):I(14,"unknown compression type "+c):e[d]=D(t,y,y+p))}return e}_e.unzip=zn,_e.unzipSync=kn;return _e});
+</script>
+<script>
+/* ============ 基础乐理 ============ */
+const NOTE_BASE = { C:0, D:2, E:4, F:5, G:7, A:9, B:11 };
+const SCALES = {
+  major: [0,2,4,5,7,9,11],
+  minor: [0,2,3,5,7,8,10],
+};
+const CHORDS = {
+  major: { I:[0,2,4], V:[4,6,1], vi:[5,0,2], IV:[3,5,0], ii:[1,3,5], iii:[2,4,6] },
+  minor: { i:[0,2,4], IV:[3,5,0], VI:[5,0,2], VII:[6,1,3], v:[4,6,1], III:[2,4,6], iv:[3,5,0] },
+};
+// 主歌/副歌使用不同走向
+const PROGRESSIONS = {
+  folk: {
+    verse:  { major:["I","vi","IV","V"],  minor:["i","VI","IV","V"] },
+    chorus: { major:["IV","I","V","vi"],  minor:["VI","III","VII","i"] },
+    bridge: { major:["ii","V","I","vi"],  minor:["iv","V","VI","i"] },
+  },
+  pop: {
+    verse:  { major:["I","V","vi","IV"],  minor:["i","VII","VI","VII"] },
+    chorus: { major:["vi","IV","I","V"],  minor:["VI","VII","i","VII"] },
+    bridge: { major:["IV","V","iii","vi"],minor:["iv","V","VI","iv"] },
+  },
+  ancient: {
+    verse:  { major:["I","vi","IV","V"],  minor:["i","III","VI","v"] },
+    chorus: { major:["I","V","vi","IV"],  minor:["i","VI","III","VII"] },
+    bridge: { major:["vi","V","IV","I"],  minor:["VI","v","iv","i"] },
+  },
+  children: {
+    verse:  { major:["I","I","IV","V"],   minor:["i","i","iv","V"] },
+    chorus: { major:["I","V","I","IV"],   minor:["i","V","i","iv"] },
+    bridge: { major:["IV","V","I","I"],   minor:["iv","V","i","i"] },
+  },
+};
+const SECTION_DEFS = {
+  verse:  { name:"主歌", lift:0, amp:2.0, dense:false, chordVol:0.13 },
+  chorus: { name:"副歌", lift:2, amp:3.4, dense:true,  chordVol:0.20 },
+  bridge: { name:"桥段", lift:1, amp:3.0, dense:true,  chordVol:0.16 },
+};
+
+const MOOD_BRIGHT = ["爱","心","笑","花","春","阳","晴","甜","喜","欢","暖","光","星","福","歌","家","月圆","好"];
+const MOOD_DARK   = ["泪","雨","愁","孤","冷","悲","哭","伤","离","别","痛","夜","雾","秋","落","散","空","忘","忆","等","思慕","孤单","暗"];
+
+function midiToFreq(m) { return 440 * Math.pow(2, (m - 69) / 12); }
+function noteName(m) {
+  const names = ["C","C#","D","D#","E","F","F#","G","G#","A","A#","B"];
+  return names[m % 12] + (Math.floor(m / 12) - 1);
+}
+function hashCode(s) {
+  let h = 0;
+  for (let i = 0; i < s.length; i++) { h = ((h << 5) - h) + s.charCodeAt(i); h |= 0; }
+  return h;
+}
+
+/* ============ 情绪与分段分析 ============ */
+function analyzeLyrics(text) {
+  let bright = 0, dark = 0; const hits = [];
+  for (const w of MOOD_BRIGHT) if (text.includes(w)) { bright++; hits.push(w+"+"); }
+  for (const w of MOOD_DARK)   if (text.includes(w)) { dark++;  hits.push(w+"−"); }
+  return { isMinor: dark > bright, bright, dark, hits };
+}
+
+function parseSections(lines) {
+  const map = { "主歌":"verse","副歌":"chorus","桥段":"bridge","verse":"verse","chorus":"chorus","bridge":"bridge" };
+  const secs = []; let cur = null;
+  for (const line of lines) {
+    const m = line.match(/^\s*[\[【]?\s*(主歌|副歌|桥段|verse|chorus|bridge)\s*[\]】]?\s*$/i);
+    if (m) { cur = { type: map[m[1].toLowerCase()] || m[1], lines: [] }; secs.push(cur); }
+    else {
+      if (!cur) { cur = { type: "verse", lines: [] }; secs.push(cur); }
+      cur.lines.push(line);
+    }
+  }
+  // 无标记且行数够 → 自动主歌/副歌
+  if (secs.length === 1 && secs[0].type === "verse" && secs[0].lines.length >= 4) {
+    const l = secs[0].lines;
+    const half = Math.ceil(l.length / 2);
+    return [{ type:"verse", lines:l.slice(0,half) }, { type:"chorus", lines:l.slice(half) }];
+  }
+  return secs.filter(s => s.lines.length);
+}
+
+/* ============ 谱曲核心（分段） ============ */
+function composeSong(text, opts) {
+  const rawLines = text.split(/\n+/).map(s => s.trim()).filter(Boolean);
+  const an = analyzeLyrics(text);
+  const mode = an.isMinor ? "minor" : "major";
+  const scale = SCALES[mode];
+  const root = NOTE_BASE[opts.key];
+  const baseOct = opts.style === "children" ? 5 : 4;
+  const rootMidi = 12 * (baseOct + 1) + root;
+  const beat = 60 / opts.tempo;
+  const sections = parseSections(rawLines);
+
+  const events = [], lineChords = [], sectionMarks = [];
+  let t = 0.4, gl = 0;
+
+  sections.forEach(sec => {
+    const D = SECTION_DEFS[sec.type] || SECTION_DEFS.verse;
+    const P = PROGRESSIONS[opts.style][sec.type][mode];
+    sectionMarks.push({ name: D.name, time: t });
+    for (let phrase = 0; phrase < sec.lines.length; phrase++) {
+      const line = sec.lines[phrase];
+      const chars = [];
+      for (const tk of line.split(/([，。、！？,.!?…；;：:\s]+)/)) {
+        if (!tk) continue;
+        if (/^[，。、！？,.!?…；;：:\s]+$/.test(tk)) {
+          if (chars.length) chars.push({ ch: tk, isPunc: true });
+        } else for (const ch of tk) chars.push({ ch, isPunc: false });
+      }
+      if (!chars.length) continue;
+
+      const label = P[phrase % P.length];
+      lineChords.push({ line: gl, label, deg: CHORDS[mode][label], type: sec.type });
+
+      const singing = chars.filter(c => !c.isPunc);
+      const n = singing.length;
+      singing.forEach((c, i) => {
+        const pos = n > 1 ? i / (n - 1) : 0.5;
+        const seed = Math.abs(hashCode(line + sec.type + i)) % 100 / 100;
+        let degF;
+        if (pos < 0.2)      degF = D.lift * 0.7 + seed * D.amp * 0.6;   // 起句平
+        else if (pos < 0.7) degF = D.lift + 1.2 + seed * D.amp;         // 中段起伏（副歌整体抬高）
+        else                degF = D.lift + 2.2 - seed * D.amp * 0.6;   // 尾句回落
+        let deg = Math.round(degF);
+        deg = Math.max(0, Math.min(9, deg));
+        if (i === n - 1) deg = (seed < 0.5) ? D.lift : Math.min(9, D.lift + 4); // 句尾落主/属
+        const midi = rootMidi + scale[deg % 7] + 12 * Math.floor(deg / 7);
+        let beats = 1;
+        if (D.dense && i % 4 === 1 && i < n - 2) beats = 0.5;           // 副歌切分节奏
+        if (!D.dense && n > 8 && i % 3 === 2 && i < n - 2) beats = 0.5;
+        if (i === n - 1) beats = 2;
+        events.push({ char: c.ch, midi, start: t, dur: beats * beat, lineIdx: gl });
+        t += beats * beat;
+      });
+      const punc = chars.find(c => c.isPunc);
+      t += (punc ? 0.75 : 1) * beat;
+      gl++;
+    }
+  });
+  t += 1.2;
+  return { events, lineChords, mode, total: t, isMinor: an.isMinor, sections, sectionMarks, lines: rawLines };
+}
+
+/* ============ 曲谱渲染 ============ */
+function renderScore(song, opts) {
+  const el = document.getElementById("score");
+  el.innerHTML = "";
+  const modeName = song.isMinor ? "小调（忧郁）" : "大调（明亮）";
+  const secNames = song.sections.map(s => SECTION_DEFS[s.type].name).join(" + ");
+  const head = document.createElement("p");
+  head.className = "hint";
+  head.innerHTML = `<b>${opts.key} ${modeName}</b> · 结构：${secNames} · ${song.lines.length} 句 · 约 ${Math.round(song.total)} 秒 · ${song.events.length} 个音符`;
+  el.appendChild(head);
+
+  const lineSec = {};
+  let gl = 0;
+  song.sections.forEach(s => s.lines.forEach(() => { lineSec[gl] = s.type; gl++; }));
+  const byLine = {};
+  song.events.forEach(ev => { (byLine[ev.lineIdx] = byLine[ev.lineIdx] || []).push(ev); });
+
+  let idx = 0;
+  song.sections.forEach(sec => {
+    const sh = document.createElement("div");
+    sh.className = "sec-head sec-" + sec.type;
+    sh.textContent = SECTION_DEFS[sec.type].name;
+    el.appendChild(sh);
+    sec.lines.forEach(() => {
+      const li = idx++;
+      const div = document.createElement("div");
+      div.className = "lyric-line";
+      div.dataset.line = li;
+      const lc = song.lineChords.find(c => c.line === li);
+      const chordDiv = document.createElement("div");
+      chordDiv.className = "chords";
+      chordDiv.textContent = lc ? `和弦: ${lc.label}` : "";
+      div.appendChild(chordDiv);
+      const row = document.createElement("div");
+      row.className = "note-row";
+      const evs = byLine[li] || [];
+      if (evs.length) {
+        const maxM = Math.max(...evs.map(e => e.midi));
+        const minM = Math.min(...evs.map(e => e.midi));
+        const range = Math.max(1, maxM - minM);
+        evs.forEach(ev => {
+          const cell = document.createElement("div");
+          cell.className = "note-cell";
+          cell.dataset.start = ev.start.toFixed(3);
+          cell.dataset.end = (ev.start + ev.dur).toFixed(3);
+          const bar = document.createElement("div");
+          bar.className = "bar";
+          bar.style.height = (14 + ((ev.midi - minM) / range) * 40) + "px";
+          const chr = document.createElement("div");
+          chr.className = "chr";
+          chr.textContent = ev.char;
+          cell.title = noteName(ev.midi);
+          cell.appendChild(bar); cell.appendChild(chr);
+          row.appendChild(cell);
+        });
+      }
+      div.appendChild(row);
+      el.appendChild(div);
+    });
+  });
+}
+
+/* ============ Web Audio 引擎 ============ */
+let audioCtx = null;
+function getCtx() {
+  if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  if (audioCtx.state === "suspended") audioCtx.resume();
+  return audioCtx;
+}
+
+function playNote(ctx, midi, when, dur, timbre, vol = 0.35) {
+  const osc = ctx.createOscillator();
+  const gain = ctx.createGain();
+  osc.frequency.value = midiToFreq(midi);
+  if (timbre === "piano") {
+    osc.type = "triangle";
+    gain.gain.setValueAtTime(0, when);
+    gain.gain.linearRampToValueAtTime(vol, when + 0.02);
+    gain.gain.exponentialRampToValueAtTime(0.001, when + dur * 1.1);
+  } else {
+    osc.type = "sine";
+    gain.gain.setValueAtTime(0, when);
+    gain.gain.linearRampToValueAtTime(vol, when + 0.015);
+    gain.gain.exponentialRampToValueAtTime(0.001, when + dur * 1.25);
+  }
+  osc.connect(gain).connect(ctx.destination);
+  osc.start(when);
+  osc.stop(when + dur * 1.4);
+}
+
+function playChord(ctx, degs, accRoot, scale, when, dur, timbre, vol) {
+  degs.forEach(d => {
+    const midi = accRoot + scale[d % 7] + 12 * Math.floor(d / 7);
+    playNote(ctx, midi, when, dur * 0.9, timbre, vol);
+  });
+}
+
+// 统一排布旋律+伴奏（在线与离线渲染共用）
+function scheduleAll(ctx, song, opts, when0) {
+  const scale = SCALES[song.mode];
+  const accRoot = 12 * 4 + NOTE_BASE[opts.key];
+  song.events.forEach(ev => playNote(ctx, ev.midi, when0 + ev.start, ev.dur, opts.timbre, 0.32));
+  song.lineChords.forEach(lc => {
+    const evs = song.events.filter(e => e.lineIdx === lc.line);
+    if (!evs.length) return;
+    const start = evs[0].start;
+    const end = evs[evs.length - 1].start + evs[evs.length - 1].dur;
+    playChord(ctx, lc.deg, accRoot, scale, when0 + start, end - start, opts.timbre, SECTION_DEFS[lc.type]?.chordVol ?? 0.14);
+  });
+}
+
+let playState = { playing: false, timer: null, vocalSrc: null };
+
+function playSong(song, opts) {
+  stopPlayback();
+  const ctx = getCtx();
+  const now = ctx.currentTime + 0.15;
+  scheduleAll(ctx, song, opts, now);
+  if (vocalBuffer && document.getElementById("vocalMode").value === "mix") {
+    const src = ctx.createBufferSource();
+    src.buffer = vocalBuffer;
+    src.connect(ctx.destination);
+    src.start(now);
+    playState.vocalSrc = src;
+  }
+  playState.playing = true;
+  document.getElementById("btnStop").disabled = false;
+
+  const cells = Array.from(document.querySelectorAll(".note-cell"));
+  const lines = Array.from(document.querySelectorAll(".lyric-line"));
+  playState.timer = setInterval(() => {
+    const cur = ctx.currentTime - now;
+    document.getElementById("progress").style.width = Math.min(100, (cur / song.total) * 100) + "%";
+    let activeCell = null;
+    cells.forEach(c => {
+      const on = cur >= parseFloat(c.dataset.start) && cur < parseFloat(c.dataset.end);
+      c.classList.toggle("current", on);
+      if (on) activeCell = c;
+    });
+    lines.forEach(l => l.classList.remove("current-line"));
+    if (activeCell) {
+      const ln = activeCell.closest(".lyric-line");
+      if (ln) {
+        ln.classList.add("current-line");
+        const wrap = document.getElementById("score");
+        const top = ln.getBoundingClientRect().top;
+        const wtop = wrap.getBoundingClientRect().top;
+        if (top > wtop + wrap.clientHeight - 60 || top < wtop) wrap.scrollTop = ln.offsetTop - 40;
+      }
+    }
+    document.getElementById("status").textContent =
+      `🎵 播放中 ${Math.floor(cur / 60)}:${String(Math.floor(cur % 60)).padStart(2,"0")} / ${Math.floor(song.total / 60)}:${String(Math.floor(song.total % 60)).padStart(2,"0")}${vocalBuffer ? "（含AI人声）" : ""}`;
+    if (cur > song.total) stopPlayback();
+  }, 60);
+}
+
+function stopPlayback() {
+  if (playState.timer) clearInterval(playState.timer);
+  playState.timer = null;
+  if (playState.vocalSrc) { try { playState.vocalSrc.stop(); } catch(e){} playState.vocalSrc = null; }
+  playState.playing = false;
+  document.getElementById("btnStop").disabled = true;
+  document.getElementById("progress").style.width = "0%";
+  document.querySelectorAll(".note-cell.current").forEach(c => c.classList.remove("current"));
+  document.querySelectorAll(".lyric-line.current-line").forEach(l => l.classList.remove("current-line"));
+  document.getElementById("status").textContent = "已停止。";
+}
+
+/* ============ AI 真人歌声（本地服务器 + edge-tts） ============ */
+let vocalAB = null, vocalBuffer = null;
+
+function singBaseCandidates() {
+  const list = [];
+  const u = document.getElementById("serverUrl").value.trim();
+  if (u) list.push(u.replace(/\/+$/, ""));
+  if (location.protocol.startsWith("http")) list.push(location.origin);
+  list.push("http://127.0.0.1:8765");
+  return [...new Set(list)];
+}
+async function findServer() {
+  for (const b of singBaseCandidates()) {
+    try { const r = await fetch(b + "/api/ping"); if (r.ok) return b; } catch(e) {}
+  }
+  return null;
+}
+
+async function aiSing() {
+  if (!lastSong) return;
+  const st = document.getElementById("status");
+  const btn = document.getElementById("btnSing");
+  btn.disabled = true;
+  st.textContent = "🔄 正在寻找本地歌声服务器…";
+  const base = await findServer();
+  if (!base) {
+    st.textContent = "❌ 未找到歌声服务器。请先双击 start_singer_server.bat 启动，再点一次「🎤 AI 真人歌声合成」。";
+    btn.disabled = false;
+    return;
+  }
+  st.textContent = "🎤 AI 正在逐字演唱（联网合成中，字多会稍慢，请耐心等）…";
+  const voice = document.getElementById("voice").value;
+  try {
+    const r = await fetch(base + "/api/sing", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        notes: lastSong.events.map(e => ({ char: e.char, midi: e.midi, start: e.start, dur: e.dur })),
+        voice
+      })
+    });
+    if (!r.ok) {
+      const j = await r.json().catch(() => ({}));
+      throw new Error(j.error || "HTTP " + r.status);
+    }
+    vocalAB = await r.arrayBuffer();
+    const ctx = getCtx();
+    vocalBuffer = await ctx.decodeAudioData(vocalAB.slice(0));
+    document.getElementById("btnVocal").disabled = false;
+    document.getElementById("btnMix").disabled = false;
+    st.textContent = "✅ AI 人声合成完成！正在播放完整歌曲…";
+    playSong(lastSong, lastOpts);
+  } catch (err) {
+    st.textContent = "❌ 歌声合成失败：" + err.message;
+  }
+  btn.disabled = false;
+}
+
+/* ============ WAV 导出（离线渲染） ============ */
+async function renderSongBuffer(song, opts, includeVocal) {
+  const sr = 44100;
+  const len = Math.ceil((song.total + 1.5) * sr);
+  const ctx = new OfflineAudioContext(2, len, sr);
+  scheduleAll(ctx, song, opts, 0.05);
+  if (includeVocal && vocalBuffer) {
+    const src = ctx.createBufferSource();
+    src.buffer = vocalBuffer;
+    const g = ctx.createGain();
+    g.gain.value = 1.0;
+    src.connect(g).connect(ctx.destination);
+    src.start(0.05);
+  }
+  return await ctx.startRendering();
+}
+
+function bufferToWav(buf) {
+  const nch = buf.numberOfChannels, sr = buf.sampleRate, len = buf.length;
+  const bytes = 44 + len * nch * 2;
+  const ab = new ArrayBuffer(bytes);
+  const v = new DataView(ab);
+  const ws = (o, s) => { for (let i = 0; i < s.length; i++) v.setUint8(o + i, s.charCodeAt(i)); };
+  ws(0, "RIFF"); v.setUint32(4, bytes - 8, true); ws(8, "WAVE");
+  ws(12, "fmt "); v.setUint32(16, 16, true); v.setUint16(20, 1, true); v.setUint16(22, nch, true);
+  v.setUint32(24, sr, true); v.setUint32(28, sr * nch * 2, true);
+  v.setUint16(32, nch * 2, true); v.setUint16(34, 16, true);
+  ws(36, "data"); v.setUint32(40, len * nch * 2, true);
+  const chans = [];
+  for (let c = 0; c < nch; c++) chans.push(buf.getChannelData(c));
+  let off = 44;
+  for (let i = 0; i < len; i++) for (let c = 0; c < nch; c++) {
+    const s = Math.max(-1, Math.min(1, chans[c][i]));
+    v.setInt16(off, s < 0 ? s * 32768 : s * 32767, true);
+    off += 2;
+  }
+  return ab;
+}
+
+function downloadBlob(blob, name) {
+  // 安卓端：通过 JSInterface 把文件写入手机（WebView 不支持 blob 直接下载）
+  if (window.AndroidApp && window.AndroidApp.saveFile) {
+    const reader = new FileReader();
+    reader.onload = () => {
+      const b64 = (reader.result || "").split(",")[1];
+      if (b64) window.AndroidApp.saveFile(name, b64);
+    };
+    reader.readAsDataURL(blob);
+    return;
+  }
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = name;
+  a.click();
+  setTimeout(() => URL.revokeObjectURL(a.href), 5000);
+}
+
+async function exportWav(includeVocal, label) {
+  const st = document.getElementById("status");
+  st.textContent = "⏳ 正在渲染 " + label + " …";
+  const buf = await renderSongBuffer(lastSong, lastOpts, includeVocal);
+  downloadBlob(new Blob([bufferToWav(buf)], { type: "audio/wav" }),
+    "AI谱曲_" + label + "_" + Date.now() + ".wav");
+  st.textContent = "✅ " + label + " WAV 已导出！";
+}
+
+/* ============ MIDI 导出 ============ */
+function exportMidi(song, opts) {
+  const TPQ = 480;
+  const secToTick = s => Math.round(s * (opts.tempo / 60) * TPQ);
+  const track = [];
+  const pushVarLen = (arr, n) => {
+    const bytes = [n & 0x7f]; n >>= 7;
+    while (n > 0) { bytes.unshift((n & 0x7f) | 0x80); n >>= 7; }
+    arr.push(...bytes);
+  };
+  const evs = [];
+  song.events.forEach(ev => {
+    evs.push({ tick: secToTick(ev.start), type: 0x90, data: [ev.midi, 90], ch: 0 });
+    evs.push({ tick: secToTick(ev.start + ev.dur), type: 0x80, data: [ev.midi, 0], ch: 0 });
+  });
+  const scale = SCALES[song.mode];
+  const accRoot = 12 * 4 + NOTE_BASE[opts.key];
+  song.lineChords.forEach(lc => {
+    const evsL = song.events.filter(e => e.lineIdx === lc.line);
+    if (!evsL.length) return;
+    const start = evsL[0].start, end = evsL[evsL.length-1].start + evsL[evsL.length-1].dur;
+    lc.deg.forEach(d => {
+      const midi = accRoot + scale[d % 7] + 12 * Math.floor(d / 7);
+      evs.push({ tick: secToTick(start), type: 0x90, data: [midi, 60], ch: 1 });
+      evs.push({ tick: secToTick(end), type: 0x80, data: [midi, 0], ch: 1 });
+    });
+  });
+  evs.sort((a, b) => a.tick - b.tick || (a.type === 0x80 ? -1 : 1));
+  let lastTick = 0;
+  evs.forEach(e => {
+    pushVarLen(track, e.tick - lastTick);
+    lastTick = e.tick;
+    track.push(0x90 + e.ch, e.data[0], e.data[1]);
+  });
+  track.push(0x00, 0xff, 0x2f, 0x00);
+  const header = [0x4d,0x54,0x68,0x64, 0,0,0,6, 0,0, 0,1, (TPQ>>8)&0xff, TPQ&0xff];
+  const trackLen = track.length;
+  const trackHeader = [0x4d,0x54,0x72,0x6b, (trackLen>>24)&0xff,(trackLen>>16)&0xff,(trackLen>>8)&0xff,trackLen&0xff];
+  const mpqn = Math.round(60000000 / opts.tempo);
+  const tempoMeta = [0x00, 0xff, 0x51, 0x03, (mpqn>>16)&0xff, (mpqn>>8)&0xff, mpqn&0xff];
+  const blob = new Blob([new Uint8Array([...header, ...trackHeader, ...tempoMeta, ...track])], { type: "audio/midi" });
+  downloadBlob(blob, "AI谱曲_" + Date.now() + ".mid");
+}
+
+/* ============ 交互 ============ */
+const SAMPLE = "月娘光照着海边\n风吹来一阵思慕\n你敢知我块想你\n\n梦中的一句叮咛\n陪我行过黑暗路\n唱出满腹的心事\n唱乎天星来听";
+
+document.getElementById("tempo").addEventListener("input", e => {
+  document.getElementById("tempoOut").textContent = e.target.value;
+});
+document.getElementById("btnSample").addEventListener("click", () => {
+  document.getElementById("lyrics").value = SAMPLE;
+});
+
+/* ===== 插入文档识别（TXT / Word .docx，纯本地离线） ===== */
+function decodeText(buf) {
+  const u8 = new Uint8Array(buf);
+  const utf8 = new TextDecoder("utf-8", { fatal: false }).decode(u8);
+  if (utf8.indexOf("\uFFFD") >= 0) {
+    try { return new TextDecoder("gbk").decode(u8); } catch (e) { return utf8; }
+  }
+  return utf8;
+}
+function parseDocx(buf) {
+  const files = fflate.unzipSync(new Uint8Array(buf));
+  const doc = files["word/document.xml"];
+  if (!doc) throw new Error("找不到 word/document.xml");
+  const xml = new TextDecoder("utf-8").decode(doc);
+  let t = xml
+    .replace(/<\/w:p>/g, "\n")
+    .replace(/<w:tab[^>]*\/?>/g, "\t")
+    .replace(/<w:br[^>]*\/?>/g, "\n")
+    .replace(/<[^>]+>/g, "");
+  t = t.replace(/\r/g, "").replace(/[ \t]+\n/g, "\n").replace(/\n{3,}/g, "\n").trim();
+  return t;
+}
+function importLyricsFile(file) {
+  const msg = document.getElementById("importMsg");
+  const ta = document.getElementById("lyrics");
+  const ext = (file.name.split(".").pop() || "").toLowerCase();
+  const reader = new FileReader();
+  reader.onload = () => {
+    try {
+      const buf = reader.result;
+      let text;
+      if (ext === "txt") text = decodeText(buf);
+      else if (ext === "docx" || ext === "doc") text = parseDocx(buf);
+      else {
+        msg.style.color = "#c0392b";
+        msg.textContent = "⚠️ 仅支持 .txt / .docx（Word 2007+）。旧版 .doc 请另存为 .docx 或 .txt";
+        return;
+      }
+      if (!text || !text.trim()) {
+        msg.style.color = "#c0392b";
+        msg.textContent = "⚠️ 文档解析为空，请确认文件包含文字";
+        return;
+      }
+      ta.value = text;
+      msg.style.color = "";
+      msg.textContent = "✅ 已导入「" + file.name + "」，共 " + text.length + " 字";
+      ta.focus();
+    } catch (e) {
+      msg.style.color = "#c0392b";
+      if (ext === "doc") msg.textContent = "⚠️ 旧版 .doc 二进制格式暂不支持，请另存为 .docx 或 .txt";
+      else msg.textContent = "⚠️ 解析失败：" + (e && e.message ? e.message : e);
+    }
+  };
+  reader.onerror = () => {
+    msg.style.color = "#c0392b";
+    msg.textContent = "⚠️ 读取文件失败";
+  };
+  reader.readAsArrayBuffer(file);
+}
+document.getElementById("btnImportDoc").addEventListener("click", () => document.getElementById("docFile").click());
+document.getElementById("docFile").addEventListener("change", (e) => {
+  if (e.target.files[0]) importLyricsFile(e.target.files[0]);
+  e.target.value = "";
+});
+(function () {
+  const ta = document.getElementById("lyrics");
+  ["dragenter", "dragover"].forEach((ev) => ta.addEventListener(ev, (e) => { e.preventDefault(); ta.classList.add("dragover"); }));
+  ["dragleave", "drop"].forEach((ev) => ta.addEventListener(ev, (e) => { e.preventDefault(); ta.classList.remove("dragover"); }));
+  ta.addEventListener("drop", (e) => { const f = e.dataTransfer.files[0]; if (f) importLyricsFile(f); });
+})();
+document.getElementById("btnCompose").addEventListener("click", () => {
+  const text = document.getElementById("lyrics").value.trim();
+  if (!text) { alert("先输入歌词再谱曲哦～"); return; }
+  const opts = {
+    style: document.getElementById("style").value,
+    key: document.getElementById("key").value,
+    tempo: +document.getElementById("tempo").value,
+    timbre: document.getElementById("timbre").value,
+  };
+  lastSong = composeSong(text, opts);
+  lastOpts = opts;
+  vocalAB = null; vocalBuffer = null;          // 换歌后旧人声作废
+  document.getElementById("btnVocal").disabled = true;
+  document.getElementById("btnMix").disabled = true;
+  renderScore(lastSong, opts);
+  const an = analyzeLyrics(text);
+  const m = lastSong.isMinor
+    ? `检测到忧郁意象（${an.hits.join("、") || "整体氛围"}）→ 自动选择<b>小调</b>。`
+    : `检测到明快意象 → 自动选择<b>大调</b>。`;
+  const secTxt = lastSong.sections.map(s => SECTION_DEFS[s.type].name).join(" → ");
+  document.getElementById("moodBox").innerHTML =
+    `🧠 ${m}<br>🎼 结构：${secTxt} · 曲风「${{folk:"民谣",pop:"流行",ancient:"古风",children:"儿歌"}[opts.style]}」 · ${opts.key} 调 · ${opts.tempo} BPM · ${lastSong.events.length} 个音符`;
+  ["btnPlay","btnMidi","btnWav","btnSing"].forEach(id => document.getElementById(id).disabled = false);
+  document.getElementById("status").textContent = "✅ 谱曲完成！可试听合成伴奏；想要真人歌声就点「🎤 AI 真人歌声合成」。";
+});
+document.getElementById("btnPlay").addEventListener("click", () => { if (lastSong) playSong(lastSong, lastOpts); });
+document.getElementById("btnStop").addEventListener("click", stopPlayback);
+document.getElementById("btnSing").addEventListener("click", aiSing);
+document.getElementById("btnMidi").addEventListener("click", () => { if (lastSong) exportMidi(lastSong, lastOpts); });
+document.getElementById("btnWav").addEventListener("click", () => exportWav(false, "伴奏"));
+document.getElementById("btnVocal").addEventListener("click", () => {
+  if (vocalAB) { downloadBlob(new Blob([vocalAB], { type: "audio/wav" }), "AI人声_" + Date.now() + ".wav"); }
+});
+document.getElementById("btnMix").addEventListener("click", () => exportWav(true, "完整歌曲"));
+
+let lastSong = null, lastOpts = null;
+</script>
+<script>
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', function () {
+    navigator.serviceWorker.register('./sw.js').catch(function () {});
+  });
+}
+</script>
+</body>
+</html>
