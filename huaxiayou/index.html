@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-page-node-id="5qQOo6qNnpRcoB7FUFhqDJ">
+<head data-page-node-id="1D6QlLmahAvY5DkrDjGeo2">
+<meta charset="utf-8" data-page-node-id="byyomH0gAI3AwPJUmFb3cO">
+<meta name="viewport" content="width=device-width, initial-scale=1" data-page-node-id="graJS9E8gBoG9Cu9NGtvIS">
+<title>华夏游 · 全国著名景区通</title>
+<style>
+:root{--red:#c0392b;--bg:#f5f6f8;--card:#fff;--txt:#2b2f36;--muted:#7a8190;--line:#e6e9ee;}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:"Microsoft YaHei","PingFang SC",sans-serif;background:var(--bg);color:var(--txt);font-size:14px}
+header{position:sticky;top:0;z-index:20;background:#fff;border-bottom:1px solid var(--line);padding:10px 14px}
+.hrow{display:flex;gap:10px;align-items:center;flex-wrap:wrap;max-width:1200px;margin:0 auto}
+h1{font-size:19px;color:var(--red);white-space:nowrap}
+h1 small{font-size:11px;color:var(--muted);font-weight:normal;margin-left:6px}
+#q{flex:1;min-width:160px;padding:8px 14px;border:1px solid var(--line);border-radius:20px;font-size:14px;outline:none}
+#q:focus{border-color:var(--red)}
+.btn{border:1px solid var(--line);background:#fff;border-radius:18px;padding:7px 14px;cursor:pointer;font-size:13px}
+.btn:hover{border-color:var(--red);color:var(--red)}
+.btn.act{background:var(--red);color:#fff;border-color:var(--red)}
+.tabs{display:flex;gap:8px;overflow-x:auto;padding:10px 14px 2px;max-width:1200px;margin:0 auto}
+.tab{white-space:nowrap;border:1px solid var(--line);background:#fff;border-radius:8px;padding:7px 14px;cursor:pointer;font-size:13px;color:#444}
+.tab b{display:block;font-size:14px;color:var(--txt)}
+.tab small{color:var(--muted);font-size:11px}
+.tab.on{border-color:var(--red);background:#fdf3f2}
+.tab.on b{color:var(--red)}
+.filters{display:flex;gap:8px;flex-wrap:wrap;align-items:center;padding:8px 14px;max-width:1200px;margin:0 auto}
+.chip{border:1px solid var(--line);background:#fff;border-radius:14px;padding:4px 12px;font-size:12px;cursor:pointer}
+.chip.on{background:var(--red);color:#fff;border-color:var(--red)}
+select{padding:6px 10px;border:1px solid var(--line);border-radius:8px;font-size:13px;background:#fff;max-width:180px}
+#stat{color:var(--muted);font-size:12px;margin-left:auto}
+main{max-width:1200px;margin:0 auto;padding:8px 14px 40px}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:12px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:14px;cursor:pointer;transition:.15s;position:relative}
+.card:hover{box-shadow:0 4px 16px rgba(0,0,0,.08);transform:translateY(-2px)}
+.lv{position:absolute;top:12px;right:12px;font-size:11px;font-weight:bold;color:#fff;padding:2px 8px;border-radius:10px}
+.lv5{background:var(--red)}.lv4{background:#e67e22}.lv3{background:#2980b9}
+.cn{font-size:16px;font-weight:bold;margin-bottom:4px;padding-right:44px}
+.cc{color:var(--muted);font-size:12px;margin-bottom:6px}
+.tag{display:inline-block;font-size:11px;color:var(--red);background:#fdf3f2;border-radius:4px;padding:1px 6px;margin-bottom:6px}
+.ci{color:#555;font-size:12px;line-height:1.6;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.fav{position:absolute;bottom:10px;right:12px;background:none;border:none;font-size:16px;cursor:pointer;color:#ccc}
+.fav.on{color:var(--red)}
+footer{max-width:1200px;margin:0 auto;padding:0 14px 30px;color:var(--muted);font-size:11px;line-height:1.8}
+.mask{display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:30;overflow-y:auto}
+.mask.show{display:block}
+.sheet{background:#fff;max-width:680px;margin:40px auto 60px;border-radius:14px;padding:26px 28px}
+.sheet h2{font-size:20px;margin-bottom:2px}
+.sub{color:var(--muted);font-size:12px;margin-bottom:14px}
+.sec{margin:14px 0}
+.sec h3{font-size:14px;color:var(--red);margin-bottom:6px;border-left:3px solid var(--red);padding-left:8px}
+.sec p{line-height:1.8;color:#444;font-size:13px;white-space:pre-wrap}
+.navs{display:flex;gap:10px;flex-wrap:wrap;margin-top:18px}
+.navs a{text-decoration:none;background:#1a73e8;color:#fff;padding:9px 16px;border-radius:8px;font-size:13px}
+.navs a.g{background:#00b96b}
+.close{float:right;border:none;background:none;font-size:22px;cursor:pointer;color:#999}
+@media(max-width:600px){.sheet{margin:14px;padding:18px}.grid{grid-template-columns:1fr}}
+</style>
+<link rel="manifest" href="manifest.json">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="华夏游">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="icon" href="favicon.png">
+<meta name="theme-color" content="#c0392b">
+</head>
+<body data-page-node-id="AQRa6AZRcIMhV6ZqPCaPRw">
+<header data-page-node-id="7EsjvU1dyrFm2hm4OQYuWJ">
+  <div class="hrow" data-page-node-id="j0Bo87osHdTlMK3gWimn63">
+    <h1 data-page-node-id="0WlutyKZHAMXzZ43LSz8jc">🗺️ 华夏游 · 全国著名景区通<small data-page-node-id="Y48PIDzAeUjIC9Z7mUBGje">导游 · 导航 · 攻略 · 住宿 · 美食</small></h1>
+    <input id="q" placeholder="搜索景区名 / 城市 / 关键词…" data-page-node-id="4tCfHQNI0UdVIJZXi4sMT9">
+    <button class="btn" id="favBtn" data-page-node-id="1B4MyFim3arG4NUWT96kHk">❤️ 我的收藏</button>
+    <button class="btn" id="randBtn" data-page-node-id="Av9vQ93TfrgrYxyhp2uTwl">🎲 随机推荐</button>
+  </div>
+  <div class="tabs" id="tabs" data-page-node-id="lklRCzVJKw6by2IGGtpfv5"></div>
+  <div class="filters" id="filters" data-page-node-id="tqyMzahVButjdl11Drlf4O"></div>
+</header>
+<main data-page-node-id="twlLv74cTSCNUTf8hZgLzZ"><div class="grid" id="grid" data-page-node-id="ArCJfNK9EBe26lYA53llC4"></div></main>
+<footer data-page-node-id="vio99vkuiL9SgoDehFMa6n">说明：本软件为离线旅游参考工具，景区评级、开放时间与票价可能随时间调整，出行前请以景区官方公告为准。导航按钮将调用高德 / 腾讯 / 百度地图（需联网）。点击卡片查看完整介绍与攻略。</footer>
+<div class="mask" id="mask" data-page-node-id="iDC4EfffIKNA1mGWNlRQCG"><div class="sheet" id="sheet" data-page-node-id="UBBFfSp3UUzfpEuJHhKmKH"></div></div>
+
+<script src="data/fj.js"></script>
+<script src="data/qz_miao.js"></script>
+<script src="data/gd.js"></script>
+<script src="data/south_a.js"></script>
+<script src="data/south_b.js"></script>
+<script src="data/north.js"></script>
+<script src="data/rest.js"></script>
+<script>
+window.DB = window.DB || [];
+const REGIONS=[
+ {id:"fd",name:"福建 · 重点",ps:["福建省"],desc:"3A+4A+5A 全收录"},
+ {id:"qz",name:"泉州寺庙",ps:["泉州市"],desc:"泉南佛国 138座"},
+ {id:"gd",name:"广东 · 重点",ps:["广东省"],desc:"3A+4A+5A 全收录"},
+ {id:"south",name:"长江以南其他省份",ps:["浙江省","江苏省","上海市","安徽省","江西省","湖南省","湖北省","四川省","重庆市","云南省","贵州省","广西壮族自治区","海南省","台湾省"],desc:"4A / 5A 精选"},
+ {id:"north",name:"长江以北重点城市",ps:["北京市","天津市","河北省","山西省","山东省","河南省","陕西省","辽宁省","吉林省","黑龙江省"],desc:"4A / 5A 精选"},
+ {id:"rest",name:"其他地区",ps:["内蒙古自治区","甘肃省","青海省","宁夏回族自治区","新疆维吾尔自治区","西藏自治区"],desc:"5A 精选"},
+ {id:"all",name:"全国全部",ps:null,desc:"全部地区"}
+];
+const state={region:"fd",level:0,province:"",city:"",q:"",fav:false};
+let favs=[];
+try{favs=JSON.parse(localStorage.getItem("hy_favs")||"[]")}catch(e){favs=[]}
+const key=s=>s.p+"|"+s.n;
+function regionOf(p){const r=REGIONS.find(r=>r.ps&&r.ps.includes(p));return r?r.id:"rest"}
+
+function renderTabs(){
+  const el=document.getElementById("tabs");el.innerHTML="";
+  REGIONS.forEach(r=>{
+    const n=DB.filter(s=>!r.ps||r.ps.includes(s.p)).length;
+    const d=document.createElement("div");d.className="tab"+(state.region===r.id?" on":"");
+    d.innerHTML="<b>"+r.name+" ("+n+")</b><small>"+r.desc+"</small>";
+    d.onclick=()=>{state.region=r.id;state.province="";state.city="";state.level=0;render()};
+    el.appendChild(d);
+  });
+}
+function renderFilters(){
+  const el=document.getElementById("filters");el.innerHTML="";
+  let levels;
+  if(state.region==="qz"){levels=[[0,"全部"],[ "国保","国保"],[ "省保","省保"],[ "市保","市保"],[ "4A","4A"],[ "知名","知名"],[ "民间","民间"]];}
+  else{levels=[[0,"全部等级"],[5,"5A"],[4,"4A"],[3,"3A"]];}
+  levels.forEach(([v,t])=>{
+    const c=document.createElement("span");c.className="chip"+(state.level===v?" on":"");c.textContent=t;
+    c.onclick=()=>{state.level=v;render()};el.appendChild(c);
+  });
+  const r=REGIONS.find(r=>r.id===state.region);
+  const pool=DB.filter(s=>!r.ps||r.ps.includes(s.p));
+  const provs=[...new Set(pool.map(s=>s.p))];
+  const sel1=document.createElement("select");
+  sel1.innerHTML='<option value="">全部省份</option>'+provs.map(p=>'<option'+(state.province===p?" selected":"")+'>'+p+'</option>').join("");
+  sel1.onchange=()=>{state.province=sel1.value;state.city="";render()};
+  el.appendChild(sel1);
+  const cities=[...new Set(pool.filter(s=>!state.province||s.p===state.province).map(s=>s.c))].sort();
+  const sel2=document.createElement("select");
+  sel2.innerHTML='<option value="">全部城市</option>'+cities.map(c=>'<option'+(state.city===c?" selected":"")+'>'+c+'</option>').join("");
+  sel2.onchange=()=>{state.city=sel2.value;render()};
+  el.appendChild(sel2);
+  const stat=document.createElement("span");stat.id="stat";el.appendChild(stat);
+}
+function current(){
+  const r=REGIONS.find(r=>r.id===state.region);
+  let list=DB.filter(s=>!r.ps||r.ps.includes(s.p));
+  if(state.level)list=list.filter(s=>s.l===state.level);
+  if(state.province)list=list.filter(s=>s.p===state.province);
+  if(state.city)list=list.filter(s=>s.c===state.city);
+  const q=state.q.trim();
+  if(q)list=list.filter(s=>(s.n+s.c+s.p+s.t+s.intro).includes(q));
+  if(state.fav)list=list.filter(s=>favs.includes(key(s)));
+  return list.sort((a,b)=>(typeof b.l==='number'?b.l:0)-(typeof a.l==='number'?a.l:0));
+}
+function render(){
+  renderTabs();renderFilters();
+  const list=current(),grid=document.getElementById("grid");
+  const stat=document.getElementById("stat");
+  if(stat)stat.textContent="共 "+list.length+" 个景区";
+  grid.innerHTML="";
+  if(!list.length){grid.innerHTML='<p style="color:#999;padding:20px">没有符合条件的景区，试试更换筛选条件。</p>';return}
+  list.forEach(s=>{
+    const d=document.createElement("div");d.className="card";
+    const lvlNum=typeof s.l==='number';
+    d.innerHTML='<span class="lv '+(lvlNum?'lv'+s.l:'lvx')+'">'+(lvlNum?s.l+'A':s.l)+'</span>'
+      +'<div class="cn">'+s.n+'</div>'
+      +'<div class="cc">'+s.p+' · '+s.c+(s.loc?' · '+s.loc:'')+'</div>'
+      +'<span class="tag">'+s.t+'</span>'
+      +'<div class="ci">'+s.intro+'</div>'
+      +'<button class="fav'+(favs.includes(key(s))?" on":"")+'">'+(favs.includes(key(s))?"❤":"♡")+'</button>';
+    d.querySelector(".fav").onclick=e=>{e.stopPropagation();toggleFav(s)};
+    d.onclick=()=>openDetail(s);
+    grid.appendChild(d);
+  });
+}
+function toggleFav(s){
+  const k=key(s);
+  if(favs.includes(k)){favs=favs.filter(x=>x!==k)}else{favs.push(k)}
+  localStorage.setItem("hy_favs",JSON.stringify(favs));render();
+}
+function openDetail(s){
+  const kw=encodeURIComponent(s.p+s.c+s.n);
+  document.getElementById("sheet").innerHTML=
+    '<button class="close" onclick="document.getElementById(\'mask\').classList.remove(\'show\')">×</button>'
+    +'<span class="lv '+(typeof s.l==='number'?'lv'+s.l:'lvx')+'" style="position:static;display:inline-block;margin-bottom:6px">'+(typeof s.l==='number'? s.l+'A 景区':s.l)+'</span>'
+    +'<h2>'+s.n+'</h2><div class="sub">'+s.p+' · '+s.c+' · '+s.t+'</div>'
+    +'<div class="sec"><h3>📍 景区介绍</h3><p>'+s.intro+'</p></div>'
+    +'<div class="sec"><h3>🧭 游玩攻略</h3><p>'+s.tips+'</p></div>'
+    +'<div class="sec"><h3>🏨 住宿介绍</h3><p>'+s.hotel+'</p></div>'
+    +'<div class="sec"><h3>🍜 地方美食</h3><p>'+s.food+'</p></div>'
+    +'<div class="navs"><a target="_blank" href="https://uri.amap.com/search?keyword='+kw+'&src=webapp.amap">🧭 高德导航</a>'
+    +'<a class="g" target="_blank" href="https://map.qq.com/search/'+encodeURIComponent(s.c+s.n)+'">🧭 腾讯地图</a>'
+    +'<a target="_blank" style="background:#3385ff" href="https://map.baidu.com/s?wd='+kw+'">🧭 百度地图</a></div>';
+  document.getElementById("mask").classList.add("show");
+}
+document.getElementById("mask").onclick=e=>{if(e.target.id==="mask")e.target.classList.remove("show")};
+document.getElementById("q").oninput=e=>{state.q=e.target.value;render()};
+document.getElementById("favBtn").onclick=function(){state.fav=!state.fav;this.classList.toggle("act",state.fav);render()};
+document.getElementById("randBtn").onclick=()=>{const l=current();if(l.length)openDetail(l[Math.floor(Math.random()*l.length)])};
+render();
+</script>
+<script>
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', function () {
+    navigator.serviceWorker.register('./sw.js').catch(function () {});
+  });
+}
+</script>
+</body>
+</html>
