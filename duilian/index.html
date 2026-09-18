@@ -1,0 +1,1668 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-page-node-id="q9TaNtlWcy6H8Oeojjt1aZ">
+<head data-page-node-id="K642UxwuopAo8qCAGByTIT">
+<meta charset="UTF-8" data-page-node-id="qYiJHuUxJBp5af1xvNYlLY">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" data-page-node-id="qmm6mEnqHDxCIz23KzvNy6">
+<meta name="theme-color" content="#a4121a" data-page-node-id="oXd6W2v8wM20ktey3BDBRm">
+<title>对联口袋工具</title>
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+  body {
+    font-family:"Kaiti SC","楷体","STKaiti","KaiTi",serif;
+    background:#f5efe0; min-height:100vh; color:#3a2a1a;
+  }
+  .app { max-width:470px; margin:0 auto; padding-bottom:40px; }
+
+  header {
+    background:linear-gradient(160deg,#8f1016,#c0392b);
+    color:#ffe9b0; text-align:center; padding:20px 16px 14px;
+    border-radius:0 0 22px 22px; box-shadow:0 3px 10px rgba(0,0,0,.18);
+  }
+  header h1 { font-size:25px; letter-spacing:6px; font-weight:700; }
+  header p { font-size:12px; opacity:.85; margin-top:4px; letter-spacing:2px; }
+
+  .tabs { display:flex; margin:14px 12px 0; background:#e8dcc3; border-radius:12px; padding:4px; }
+  .tabs button {
+    flex:1; border:none; background:transparent; padding:10px 0;
+    font-family:inherit; font-size:14px; color:#7a5c33; border-radius:9px; cursor:pointer;
+  }
+  .tabs button.on { background:#a4121a; color:#ffe9b0; font-weight:700; box-shadow:0 2px 6px rgba(164,18,26,.35); }
+
+  .panel { display:none; padding:12px; }
+  .panel.on { display:block; }
+
+  .card {
+    background:#fffdf6; border:1px solid #e3d3ae; border-radius:14px;
+    padding:13px; box-shadow:0 2px 8px rgba(120,80,20,.08);
+  }
+  .card label { font-size:13px; color:#8a6a3a; display:block; margin-bottom:7px; font-weight:700; }
+  textarea, input[type=text] { font-family:inherit; outline:none; color:#3a2a1a; }
+  #shangInput {
+    width:100%; border:2px solid #d9c08a; border-radius:10px; padding:11px;
+    font-size:18px; letter-spacing:2px; background:#fff; resize:none;
+  }
+  #shangInput:focus { border-color:#a4121a; }
+  .hint { font-size:12px; color:#a08a60; margin-top:6px; line-height:1.7; }
+  .btnrow { display:flex; gap:9px; margin-top:11px; }
+  .btn {
+    flex:1; border:none; border-radius:10px; padding:11px 0;
+    font-family:inherit; font-size:15px; cursor:pointer; transition:.15s;
+  }
+  .btn:active { transform:scale(.96); }
+  .btn-main { background:#a4121a; color:#ffe9b0; font-weight:700; box-shadow:0 3px 8px rgba(164,18,26,.35); }
+  .btn-ghost { background:#f0e4c8; color:#7a5c33; }
+
+  .chips { display:flex; flex-wrap:wrap; gap:7px; }
+  .chip {
+    border:1px solid #d9c08a; background:#fff; color:#7a5c33;
+    border-radius:18px; padding:6px 12px; font-size:13px; font-family:inherit; cursor:pointer;
+  }
+  .chip.on { background:#a4121a; color:#ffe9b0; border-color:#a4121a; font-weight:700; }
+  .ctlrow { margin-bottom:12px; }
+  details.tips { font-size:12.5px; color:#8a6a3a; line-height:1.85; margin-top:10px; }
+  details.tips summary { cursor:pointer; color:#a4121a; font-weight:700; font-size:13px; }
+
+  /* ============ 作品台 ============ */
+  #stageWrap { margin-top:16px; display:none; }
+  .stage { display:flex; justify-content:center; }
+
+  .paper {
+    --cs: 52px;
+    --gap: 4px;
+    --fg: #f7d354;
+    --line: rgba(255,222,130,.55);
+    position:relative;
+    display:inline-block;
+    padding:30px 26px;
+    background:linear-gradient(160deg,#c8221f,#9c0f14);
+    color:var(--fg);
+    border-radius:6px;
+    box-shadow:0 5px 18px rgba(0,0,0,.28);
+    overflow:hidden;
+    -webkit-print-color-adjust:exact; print-color-adjust:exact;
+  }
+  .pat { position:absolute; inset:0; pointer-events:none; opacity:.20; background-repeat:repeat; background-position:center; }
+  .chargrid {
+    position:absolute; inset:0;
+    display:grid;
+    grid-template-columns:repeat(16, var(--cw));
+    grid-auto-rows:var(--cw);
+    justify-content:center; align-content:center;
+    overflow:hidden;
+  }
+  .chargrid span {
+    display:flex; align-items:center; justify-content:center;
+    font-size:calc(var(--cw) * .8); line-height:1;
+  }
+  .chargrid span.r {
+    border:1px solid currentColor; border-radius:50%;
+    width:calc(var(--cw) - 6px); height:calc(var(--cw) - 6px);
+    margin:3px; font-size:calc(var(--cw) * .58);
+  }
+  .frame { position:absolute; inset:0; pointer-events:none; }
+  .frame .orn { position:absolute; width:30px; height:30px; }
+  .frame .c-tl { top:6px; left:6px; }
+  .frame .c-tr { top:6px; right:6px; transform:scaleX(-1); }
+  .frame .c-bl { bottom:6px; left:6px; transform:scaleY(-1); }
+  .frame .c-br { bottom:6px; right:6px; transform:scale(-1,-1); }
+
+  .content { position:relative; z-index:2; display:flex; flex-direction:column; align-items:center; gap:10px; }
+  .heng-row { display:flex; gap:var(--gap); justify-content:center; margin-bottom:2px; }
+  .pairs { display:flex; flex-direction:row-reverse; gap:20px; align-items:flex-start; }
+  .col { display:flex; flex-direction:column; gap:var(--gap); }
+  .colwrap { display:flex; flex-direction:column; align-items:center; }
+  .tag { font-size:10px; letter-spacing:1px; opacity:.6; margin-bottom:4px; white-space:nowrap; }
+
+  .cell {
+    width:var(--cs); height:var(--cs); position:relative;
+    display:flex; align-items:center; justify-content:center;
+    background-position:center; background-repeat:no-repeat;
+    overflow:hidden;
+  }
+  .cell input {
+    width:100%; height:100%; border:none; background:transparent;
+    text-align:center; color:inherit; font-family:inherit;
+    font-size:calc(var(--cs) * .82); line-height:1; padding:0; caret-color:currentColor;
+  }
+  .cell.empty { border:1px dashed var(--line); border-radius:3px; }
+  .paper.g-tian .cell, .paper.g-mi .cell { border:1px solid var(--line); border-radius:3px; }
+
+  /* 毛笔手写格子（点开弹板） */
+  .cell.hand { cursor:pointer; border:1px dashed var(--line); border-radius:3px; }
+  .cell.hand .cell-img { width:100%; height:100%; object-fit:contain; pointer-events:none; }
+  .cell.hand .cell-ph { font-size:12px; color:var(--line); pointer-events:none; }
+  .cell.hand .cell-tools {
+    position:absolute; top:2px; right:2px;
+    display:none; gap:3px; z-index:3;
+  }
+  .cell.hand:hover .cell-tools { display:flex; }
+  .cell-tools button {
+    width:18px; height:18px; border:none; border-radius:3px;
+    background:rgba(164,18,26,.82); color:#ffe9b0;
+    font-size:11px; line-height:1; padding:0; cursor:pointer;
+  }
+
+  .paper.g-tian .cell {
+    background-image:
+      linear-gradient(90deg,transparent 48.6%,var(--line) 48.6%,var(--line) 51.4%,transparent 51.4%),
+      linear-gradient(0deg,transparent 48.6%,var(--line) 48.6%,var(--line) 51.4%,transparent 51.4%);
+  }
+  .paper.g-mi .cell {
+    background-image:
+      linear-gradient(90deg,transparent 48.6%,var(--line) 48.6%,var(--line) 51.4%,transparent 51.4%),
+      linear-gradient(0deg,transparent 48.6%,var(--line) 48.6%,var(--line) 51.4%,transparent 51.4%),
+      linear-gradient(45deg,transparent 49.2%,var(--line) 49.2%,var(--line) 50.8%,transparent 50.8%),
+      linear-gradient(-45deg,transparent 49.2%,var(--line) 49.2%,var(--line) 50.8%,transparent 50.8%);
+  }
+
+  .paper.f-flower { border:4px double var(--fg); padding:34px 30px; }
+  .paper.f-flower .frame { box-shadow:inset 0 0 0 1px var(--line); }
+  .paper.f-gold {
+    border:7px solid transparent;
+    border-image:linear-gradient(135deg,#fff3c4,#e0ae18,#fff3c4,#c9960f) 1;
+    padding:32px 28px;
+  }
+  .paper.f-gold .frame { box-shadow:inset 0 0 0 1px var(--fg); }
+  .paper.f-dragon {
+    border:12px solid transparent;
+    border-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24'%3E%3Cpath d='M0 24a12 12 0 0 1 24 0' fill='none' stroke='%23e8c45a' stroke-width='3'/%3E%3C/svg%3E") 12 round;
+    padding:28px 26px;
+  }
+  .paper.f-dragon .frame { box-shadow:inset 0 0 0 2px var(--fg); }
+
+  /* ============ 斗方：菱形单字（春 / 福）============ */
+  .dou-wrap { display:inline-block; }
+  .dou-wrap.dou { padding:calc(var(--dw) * .30) calc(var(--dw) * .10); }
+  .paper.dou {
+    width:var(--dw); height:var(--dw); padding:0; border-radius:12px;
+    display:flex; align-items:center; justify-content:center;
+    transform:rotate(45deg);
+    box-shadow:0 0 0 1px rgba(0,0,0,.32), 0 7px 20px rgba(0,0,0,.26);
+  }
+  .paper.dou .content { transform:rotate(-45deg); width:100%; height:100%; display:flex; align-items:center; justify-content:center; gap:0; }
+  .paper.dou .pairs { display:block; width:100%; }
+  .doubox { position:relative; display:flex; align-items:center; justify-content:center; width:100%; height:100%; cursor:pointer; }
+  .doubox .douin {
+    width:100%; text-align:center; color:var(--fg); font-family:inherit;
+    border:none; background:transparent; line-height:1.1; padding:0;
+    font-size:calc(var(--dw) * .48); caret-color:currentColor;
+    white-space:nowrap;
+  }
+  /* 斗方毛笔手写：图片 + 清空按钮 */
+  .doubox .dou-img { width:100%; height:100%; object-fit:contain; pointer-events:none; }
+  .doubox .dou-tools {
+    position:absolute; top:calc(var(--dw) * -.02); right:calc(var(--dw) * -.02);
+    width:22px; height:22px; border:none; border-radius:50%;
+    background:rgba(164,18,26,.85); color:#ffe9b0; font-size:12px; line-height:1;
+    display:none; z-index:3;
+  }
+  .doubox:hover .dou-tools { display:block; }
+  .doubox .dou-ph { font-size:calc(var(--dw) * .14); color:var(--fg); opacity:.5; pointer-events:none; }
+  #douText {
+    width:100%; border:2px solid #d9c08a; border-radius:10px; padding:10px;
+    font-size:17px; letter-spacing:2px; background:#fff; margin-bottom:11px;
+  }
+  #douText:focus { border-color:#a4121a; }
+
+  /* ============ 冠头联 ============ */
+  .crown-row { display:flex; gap:12px; margin-bottom:4px; }
+  .crown-f { flex:1; min-width:0; }
+  .crown-lab { display:block; font-size:12px; color:#8a6a3a; margin-bottom:5px; font-weight:700; }
+  .crown-f input {
+    width:100%; border:2px solid #d9c08a; border-radius:10px; padding:10px 6px;
+    font-size:22px; text-align:center; background:#fff; letter-spacing:4px; font-family:inherit;
+  }
+  .crown-f input:focus { border-color:#a4121a; }
+
+  /* 个性化手写体渲染 */
+  .brush-cell { display:flex; align-items:center; justify-content:center; }
+  .cell-brush { width:94%; height:94%; object-fit:contain; }
+
+  /* ============ 信息区（不打印） ============ */
+  #info { margin-top:12px; background:#fffdf6; border:1px solid #e3d3ae; border-radius:12px; padding:11px 13px; font-size:13px; line-height:2; color:#8a6a3a; }
+  #info .pz { display:inline-block; margin:0 2px; }
+  #info .z { color:#8a3a3a; } #info .p { color:#2f6b4f; } #info .q { color:#b0a080; }
+  .resbtns { display:flex; gap:9px; margin-top:11px; }
+
+  .hist { margin-top:16px; }
+  .hist h3 { font-size:13px; color:#8a6a3a; margin-bottom:7px; }
+  .hist-item { background:#fffdf6; border:1px solid #e3d3ae; border-radius:10px; padding:9px 11px; margin-bottom:7px; font-size:13.5px; cursor:pointer; }
+  .hist-item b { color:#a4121a; }
+
+  footer { text-align:center; font-size:11.5px; color:#a08a60; margin-top:22px; line-height:1.8; }
+
+  .toast {
+    position:fixed; left:50%; bottom:60px; transform:translateX(-50%) translateY(20px);
+    background:#3a2a1a; color:#ffe9b0; padding:10px 20px; border-radius:20px;
+    font-size:13.5px; opacity:0; pointer-events:none; transition:.3s; z-index:99; max-width:88%; text-align:center;
+  }
+  .toast.show { opacity:1; transform:translateX(-50%) translateY(0); }
+
+  /* ============ 手写板弹窗 ============ */
+  .pad-mask {
+    position:fixed; inset:0; background:rgba(0,0,0,.55);
+    display:none; align-items:center; justify-content:center;
+    z-index:200; padding:16px;
+  }
+  .pad-mask.show { display:flex; }
+  .pad-dialog {
+    background:#fffdf6; border-radius:16px; width:100%; max-width:360px;
+    overflow:hidden; box-shadow:0 8px 30px rgba(0,0,0,.4);
+  }
+  .pad-head {
+    display:flex; justify-content:space-between; align-items:center;
+    padding:12px 16px; background:linear-gradient(160deg,#8f1016,#c0392b);
+    color:#ffe9b0; font-weight:700; font-size:15px;
+  }
+  .pad-head button {
+    background:transparent; border:none; color:#ffe9b0;
+    font-size:22px; cursor:pointer; line-height:1;
+  }
+  .pad-stage { padding:14px; background:#f3ead3; }
+  .pad-stage canvas {
+    width:100%; height:300px; background:#fff; border-radius:8px; display:block;
+    touch-action:none; cursor:crosshair; box-shadow:inset 0 0 0 1px #e3d3ae;
+  }
+  .pad-tools { display:flex; gap:8px; align-items:center; padding:0 14px 8px; }
+  .pad-tools button {
+    border:1px solid #d9c08a; background:#fff; color:#7a5c33;
+    border-radius:8px; padding:6px 12px; font-family:inherit; font-size:13px; cursor:pointer;
+  }
+  .pad-tip { font-size:11px; color:#a08a60; margin-left:auto; }
+  .pad-actions { display:flex; gap:10px; padding:0 14px 16px; }
+
+  /* ============ 打印 ============ */
+  #printArea { display:none; }
+  @page { size:A4 portrait; margin:8mm; }
+  @media print {
+    html,body { background:#fff !important; }
+    body.printing .app, body.printing .toast { display:none !important; }
+    body.printing #printArea { display:block !important; }
+    #printArea .stage { display:flex; justify-content:center; align-items:center; min-height:270mm; }
+    #printArea .paper { --cs:17mm !important; --gap:1.5mm !important; box-shadow:none !important; padding:16mm 14mm !important; }
+    #printArea .paper.dou { --dw:128mm !important; padding:0 !important; margin:0 !important; border-radius:8px !important; box-shadow:none !important; }
+    #printArea .paper.dou .douin { font-size:calc(var(--dw) * .86); }
+    #printArea .tag { display:none !important; }
+    #printArea .cell-tools, #printArea .dou-tools { display:none !important; }
+  }
+</style>
+<link rel="manifest" href="manifest.json">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="对对联">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="icon" href="favicon.png">
+<meta name="theme-color" content="#e67e22">
+</head>
+<body data-page-node-id="tWBvoSa3mMz9k3h0nhI7G5">
+<div class="app" data-page-node-id="wF1XzFG2j0jf2VVOIFklhf">
+  <header data-page-node-id="x0aGcYV9EEsOGpBHku0U4C">
+    <h1 data-page-node-id="IRw3hpZZp5YfuptMmBGhjR">对联口袋工具</h1>
+    <p data-page-node-id="EKT8fOGiZaLBT65vqbPW3A">出上联 · 对下联 · 手写模板 · 斗方春福 · 打印</p>
+  </header>
+
+  <div class="tabs" data-page-node-id="qeCue8qpkQhYO3RIEZACPL">
+    <button id="tab1" class="on" onclick="switchTab(1)" data-page-node-id="lLxqdhcKCTBiR0ClHZCjpp">对下联</button>
+    <button id="tab2" onclick="switchTab(2)" data-page-node-id="IIEPtF2dFyYHhfMrZCdoIZ">随机出联</button>
+    <button id="tab3" onclick="switchTab(3)" data-page-node-id="rnPJrZTWNGFDfHGYCbmxmM">手写模板</button>
+    <button id="tab4" onclick="switchTab(4)" data-page-node-id="trVBwMkr1KqDkjBn6xpai2">斗方春福</button>
+  </div>
+
+  <div class="panel on" id="panel1" data-page-node-id="ATPzaBpvEtfPYWGaihDkLu">
+    <div class="card" data-page-node-id="vv1j5kfZGkNqMNxgpV1Bau">
+      <label data-page-node-id="TCusuKBk25N50vRSJ1NdLQ">写下你的上联：</label>
+      <textarea id="shangInput" rows="2" maxlength="15" placeholder="如：春风送暖千山绿"></textarea>
+      <div class="hint" data-page-node-id="HdJQTGUr7w7SAPQYvfuCS0">支持 4～15 字，自动忽略标点。对出来不满意就点「换一个」，同一上联每次结果不同。</div>
+      <div class="btnrow" data-page-node-id="JQdIMarObH1TeEciGCvYuK">
+        <button class="btn btn-ghost" onclick="clearInput()" data-page-node-id="AtGAlAn6uLiSfYHEHsmWQ1">清空</button>
+        <button class="btn btn-main" onclick="matchUser()" data-page-node-id="0CqAbEFqAlxDVGA1zUw7nN">对下联</button>
+      </div>
+      <details class="tips" data-page-node-id="H9QFkORPFYhJ2eIpiilp1p">
+        <summary data-page-node-id="KrtL2z1hWHh8FMvhO5RMvF">对联小知识</summary>
+        · 上联末字多为<b data-page-node-id="C7X5kOGJuapyAxlU69BxSc">仄声</b>（三四声），下联末字多为<b data-page-node-id="KG4L5m6u3DaRTTOr5qAWtm">平声</b>（一二声）<br data-page-node-id="un8FMfhTR09iY7tMEICFQB">
+        · 字数相等、词性相对、结构相应、平仄相谐<br data-page-node-id="uJqgZ7Yu3T49F4OC4kTBJe">
+        · 贴法：上联贴<b data-page-node-id="4Zdsnf1hkWFawXW4jtyI37">右</b>，下联贴<b data-page-node-id="YCoxutlLPyQr6OCBQIKoeE">左</b>，横批居中（本工具已按此排布）
+      </details>
+    </div>
+    <div class="card" style="margin-top:12px" data-page-node-id="crownCard">
+      <label data-page-node-id="crownLab">冠头联（中堂联 / 楹联）—— 指定上下联首字</label>
+      <div class="crown-row" data-page-node-id="crownRow">
+        <div class="crown-f">
+          <span class="crown-lab">上联首字</span>
+          <input id="crownUp" type="text" maxlength="1" placeholder="如：福" data-page-node-id="crownUp">
+        </div>
+        <div class="crown-f">
+          <span class="crown-lab">下联首字</span>
+          <input id="crownDn" type="text" maxlength="1" placeholder="如：寿" data-page-node-id="crownDn">
+        </div>
+      </div>
+      <div class="ctlrow" style="margin-top:10px" data-page-node-id="crownLenRow">
+        <label data-page-node-id="crownLenLab">联长（每句字数）：</label>
+        <div class="chips" id="crownLenChips" data-page-node-id="crownLenChips"></div>
+      </div>
+      <div class="btnrow" style="margin-top:11px" data-page-node-id="crownBtns">
+        <button class="btn btn-ghost" onclick="crownClear()" data-page-node-id="crownClear">清空</button>
+        <button class="btn btn-main" onclick="genCrown()" data-page-node-id="crownGen">生成冠头联</button>
+      </div>
+      <div class="hint" data-page-node-id="crownHint">填入两个首字（如「福」「寿」），工具以经典对联作底，把这两字嵌到上下联句首藏头成联；不满意点「换一个」每次不同。中堂联、楹联多用此法。</div>
+    </div>
+
+    <div class="hist" id="histBox" style="display:none" data-page-node-id="knXrwZnyUPqVz25i0NDh4M">
+      <h3 data-page-node-id="F4iZFN6K4A9T8StnbsRomd">最近对过</h3>
+      <div id="histList" data-page-node-id="FCyv899lCQJwmUAwpdByyx"></div>
+    </div>
+  </div>
+
+  <div class="panel" id="panel2" data-page-node-id="omJwDl9YYO3QGt5uVhWIFx">
+    <div class="card" data-page-node-id="PGY0QMBoonD6cxVDjaFZDw">
+      <label data-page-node-id="rCWwnhn31KTMGBW30QuTdx">选个场景：</label>
+      <div class="chips" id="chips" data-page-node-id="9e3YR1MD7r0RoZrNvfjhm3"></div>
+      <div class="btnrow" style="margin-top:13px" data-page-node-id="a9GzYnmspZDq3lNnIszcwG">
+        <button class="btn btn-main" onclick="genRandom()" data-page-node-id="SLKPB8QwwSQP943chtoIkw">来一副</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="panel" id="panel3" data-page-node-id="00GHoHfxK77dj1LC2HYxLt">
+    <div class="card" data-page-node-id="mYi63AR3pRk76foOqVVZ9k">
+      <div class="ctlrow" data-page-node-id="z5CTZZfO29rJcX4QgJaxQH">
+        <label data-page-node-id="DrdOD0DpP2Mw4nDE4ECpce">选择联长（字数）：</label>
+        <div class="chips" id="lenChips" data-page-node-id="kyiIWao92WonCB8tosNaD4"></div>
+      </div>
+      <div class="ctlrow" data-page-node-id="kQRpckNRHDR1HMT0EI9HBy">
+        <label data-page-node-id="wCfgh48M7XYlTp5twdbPT8">输入方式：</label>
+        <div class="chips" id="writeModeChips" data-page-node-id="o9sgkBrbNct1MSIASj4VeD"></div>
+      </div>
+      <div class="ctlrow" style="margin-bottom:0" data-page-node-id="Uy26KTMwE8JlS1uvBYG6na">
+        <label data-page-node-id="c8hxFOT7IA4HKKMEK2Znrr">格线（练字 / 手写定位用）：</label>
+        <div class="chips" id="gridChips" data-page-node-id="G9nYZCsggzAugMAitTosfO"></div>
+      </div>
+      <div class="btnrow" data-page-node-id="6hUWp2Cxiglw2i5LMEoUuy">
+        <button class="btn btn-ghost" onclick="clearAllCells()" data-page-node-id="B7cfBOHuNW6ZDP2aBC9RKP">清空全部</button>
+        <button class="btn btn-main" onclick="printCouplet()" data-page-node-id="S3M8sOJQCalsBkpA8gC6Gc">打印空白模板</button>
+      </div>
+      <div class="hint" data-page-node-id="GOXtQzQlziG6ygvDYWq16z">选「毛笔手写」后，点任意格子会弹出手写板，用鼠标/手指写完点「确认填入」。留空打印出来就是手写模板。</div>
+    </div>
+  </div>
+
+  <div class="panel" id="panel4" data-page-node-id="RXIzyTjM4GxoXRdl5RNBQy">
+    <div class="card" data-page-node-id="pSvc5yaBCyWeiPFfFvAyPC">
+      <div class="ctlrow" data-page-node-id="FCwAtqQEG75F0wioG8BeNp">
+        <label data-page-node-id="YwHu62XMPuKuQHIvfF5zBd">预置吉祥字（点一下即换）：</label>
+        <div class="chips" id="douChips" data-page-node-id="9cE3SseADSgpmRvoH5aysT"></div>
+      </div>
+      <div class="ctlrow" data-page-node-id="s9J4WlClV4a2B9GgrThVXr">
+        <label data-page-node-id="yn2aB9l6sXpPtFWeKJV6Mw">斗方输入方式：</label>
+        <div class="chips" id="douWriteModeChips" data-page-node-id="puBHuWpj4N3QyCsLuRdY42"></div>
+      </div>
+      <div class="ctlrow" style="margin-bottom:0" data-page-node-id="q94CSDmQHPJh6sFR3CpgA6">
+        <label data-page-node-id="05HhxSkcMjvIapJGFvGwzm">或自己写（1～2 字；清空 = 空白菱形，打印后手写）：</label>
+        <input id="douText" type="text" maxlength="6" placeholder="如：春 / 福 / 招财" data-page-node-id="Dh79dfUsM6oKFrtuAo5xNF">
+        <div class="btnrow" data-page-node-id="v0yTLA5MVEwjT0iPoLLgSv">
+          <button class="btn btn-ghost" onclick="douClear()" data-page-node-id="yygRQ0HDHW9edvEbzHDFDc">空白斗方</button>
+          <button class="btn btn-main" onclick="printCouplet()" data-page-node-id="whbwlZnURJxsVbHijIqQLM">打印斗方</button>
+        </div>
+        <div class="hint" data-page-node-id="SyAITn4gI0KnDK1untbf59">选「毛笔手写」后，点菱形弹出手写板写完填入；菱形大小用下方「字号」调。</div>
+      </div>
+    </div>
+  </div>
+
+  <div id="stageWrap" data-page-node-id="RGQLJu7zCsKhJDfIEvzaDG">
+    <div class="stage" data-page-node-id="R3ICFHckP7pkHt246XSzFF">
+      <div class="dou-wrap" id="douWrap" data-page-node-id="88HQ8VsOxacSJS4MZMjcEf">
+      <div class="paper" id="paper" data-page-node-id="sa13ygi0KSZDp2hSGftlkX">
+        <div class="pat" id="patLayer" data-page-node-id="kYgzEjQljjdWgED1NEB0Xi"></div>
+        <div class="content" data-page-node-id="uqAaXPasLYOaSPnEs9d7rg">
+          <div class="heng-row" id="hengRow" data-page-node-id="JXpu1ntpzFmsk5rIIoaX5B"></div>
+          <div class="pairs" id="pairs" data-page-node-id="dFnwpLMaKoOlIAAIQ7duJg"></div>
+        </div>
+        <div class="frame" id="frameLayer" data-page-node-id="CEEsJxBh7BZMcvGNcDGrsg"></div>
+      </div>
+      </div>
+    </div>
+
+    <div class="card" style="margin-top:12px" data-page-node-id="5CLFpdb6KETsVXNSAJQv8o">
+      <div class="ctlrow" data-page-node-id="yhr0HCxMqNbjvi01TGjwPv">
+        <label data-page-node-id="pDGh0Qjk0Am29NWAESGCQW">字体：</label>
+        <div class="chips" id="fontChips" data-page-node-id="u3VpLddabcQ7uilCBjIKhX"></div>
+      </div>
+      <div class="ctlrow" data-page-node-id="wERcSSyQklEvCC39kdtIbl">
+        <label data-page-node-id="gSa3r5MDbUrbWtw4RSaZcU">边框：</label>
+        <div class="chips" id="frameChips" data-page-node-id="j2Q1Xu7FKiOtxJVOsDYXYj"></div>
+      </div>
+      <div class="ctlrow" data-page-node-id="QOYodSbrgUxtZtw4XQXJXk">
+        <label data-page-node-id="fZuKDdxBMVz6MJ8wF1ib1D">底纹：</label>
+        <div class="chips" id="patChips" data-page-node-id="uOrefRJQOCQFX6bX2ut51j"></div>
+      </div>
+      <div class="ctlrow" data-page-node-id="zOWda5XYNNM9FRKSYTsGrS">
+        <label data-page-node-id="SrRuMtbImcBDiaG3YmQUkD">纸色：</label>
+        <div class="chips" id="paperChips" data-page-node-id="GVvW2h20BzFR5CQxC5bWs3"></div>
+      </div>
+      <div class="ctlrow" style="margin-bottom:0" data-page-node-id="xWQbb2N3fPbS9j3Gf83VC2">
+        <label data-page-node-id="kmQzYUUFioo30fKAkaDRl4">字号：</label>
+        <div class="chips" id="scaleChips" data-page-node-id="JESYJmJa25ID8bVPHgCheN"></div>
+      </div>
+    </div>
+
+    <div id="info" data-page-node-id="mtmZEbiBmJWdufSAkAliU7"></div>
+    <div class="resbtns" data-page-node-id="U2ImdTs7FpvQUhLMVuBIbx">
+      <button class="btn btn-ghost" onclick="regen()" data-page-node-id="xbmeRxF9AOdU9hVipthRGu">换一个</button>
+      <button class="btn btn-ghost" onclick="copyAll()" data-page-node-id="iunglHqE7I7dwG2pH3zHEe">复制全文</button>
+      <button class="btn btn-main" onclick="printCouplet()" data-page-node-id="oeasW4lsvzqwZvJ2BHSdna">打印</button>
+    </div>
+    <div class="hint" style="margin-top:8px" data-page-node-id="HQK5Q0HNA1YiHA3UK3mvpq">
+      打印提示：在浏览器打印窗口勾选<b data-page-node-id="gPcCzaBMVX4g8xRKjnbGAL">「背景图形」</b>、取消「页眉页脚」，纸张 A4 纵向，红金底色才打得出来；也可「另存为 PDF」后拿去找彩印。
+    </div>
+  </div>
+
+  <footer data-page-node-id="LHDDoyx7dVLmqMqaIBKx7U">口袋工具 · 离线可用 · 可添加到手机主屏幕</footer>
+</div>
+<div class="toast" id="toast" data-page-node-id="H3Z7cf0E0XdlZAwQQtwefT"></div>
+<div id="printArea" data-page-node-id="0RyDbCrF4HB4IZbNcghl01"></div>
+
+<!-- ============ 手写板弹窗 ============ -->
+<div class="pad-mask" id="padModal" data-page-node-id="H6NiAn9PGAdZBSQVl85ytn">
+  <div class="pad-dialog" data-page-node-id="6An1vWMMiZvvrr235CFvl9">
+    <div class="pad-head" data-page-node-id="GYXX7gAYqRYyb9X7GN6mI8">
+      <span id="padTitle" data-page-node-id="sl3nQjUqOxFkPBp8M8WMaH">毛笔手写</span>
+      <button id="padClose" title="关闭" data-page-node-id="IOk7jSqlkQssbDLikIXWx4">×</button>
+    </div>
+    <div class="pad-stage" data-page-node-id="HDmBfPzEBIPFDOUMBKBIin">
+      <canvas id="padCanvas" data-page-node-id="A9jnPH2rS7TQVo3p9LdSH9"></canvas>
+    </div>
+    <div class="pad-tools" data-page-node-id="730TJbhNd6zBDd5DJmwLaT">
+      <button id="padUndo" data-page-node-id="LInrGnljwTfCYy4xcCeeuN">↩ 撤销</button>
+      <button id="padClear" data-page-node-id="tFf5nakNxklKc8j0s2os6A">清空</button>
+      <span class="pad-tip" data-page-node-id="N91LEIIQpjivtxgTqR6ABv">用鼠标或手指书写，写完点确认</span>
+    </div>
+    <div class="pad-actions" data-page-node-id="V11Rm3w34JweV0raH7OFbd">
+      <button class="btn btn-ghost" id="padCancel" data-page-node-id="23c2n2IVlZYdLrBiQD1LdS">取消</button>
+      <button class="btn btn-main" id="padOk" data-page-node-id="yTZ2zGIslSunR0qXFwXUhD">确认填入</button>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ===================== 词库 ===================== */
+const CLASSIC = [
+  {t:"新春", u:"爆竹一声除旧岁", d:"桃符万户换新春", h:"辞旧迎新"},
+  {t:"新春", u:"春回大地千山秀", d:"日照神州百业兴", h:"春意盎然"},
+  {t:"新春", u:"一年四季春常在", d:"万紫千红百花永开", h:"喜迎新春"},
+  {t:"新春", u:"绿柳舒眉辞旧岁", d:"红桃开口贺新年", h:"辞旧迎新"},
+  {t:"新春", u:"五湖四海皆春色", d:"万水千山尽得辉", h:"万象更新"},
+  {t:"新春", u:"和顺一门有百福", d:"平安二字值千金", h:"万象更新"},
+  {t:"新春", u:"旧岁又添几个喜", d:"新年更上一层楼", h:"辞旧迎新"},
+  {t:"新春", u:"山清水秀风光好", d:"人寿年丰喜事多", h:"吉星高照"},
+  {t:"新春", u:"冬去山明水秀", d:"春来鸟语花香", h:"春回大地"},
+  {t:"新春", u:"春归大地人间暖", d:"福降神州喜临门", h:"福满人间"},
+  {t:"新春", u:"迎新春江山锦绣", d:"辞旧岁事业辉煌", h:"春意盎然"},
+  {t:"新春", u:"一帆风顺年年好", d:"万事如意步步高", h:"吉星高照"},
+  {t:"婚庆", u:"百年恩爱双心结", d:"千里姻缘一线牵", h:"永结同心"},
+  {t:"婚庆", u:"花好月圆欣喜日", d:"桃红柳绿幸福时", h:"珠联璧合"},
+  {t:"婚庆", u:"红梅吐芳喜成连理", d:"绿柳含笑永结同心", h:"百年好合"},
+  {t:"乔迁", u:"喜居宝地千年旺", d:"福照家门万事兴", h:"喜气盈门"},
+  {t:"乔迁", u:"迁居新逢吉祥日", d:"安宅正遇如意春", h:"福星高照"},
+  {t:"乔迁", u:"门迎百福人财旺", d:"户纳千祥阖家欢", h:"吉庆盈门"},
+  {t:"开业", u:"生意兴隆通四海", d:"财源茂盛达三江", h:"财源广进"},
+  {t:"开业", u:"开张笑纳城乡客", d:"开业喜迎远近宾", h:"生意兴隆"},
+  {t:"开业", u:"创大业千秋昌盛", d:"展宏图百代兴隆", h:"大展宏图"},
+  {t:"开业", u:"天时地利兴伟业", d:"年和家睦聚财源", h:"鸿运当头"},
+  {t:"寿诞", u:"福如东海长流水", d:"寿比南山不老松", h:"福寿双全"},
+  {t:"寿诞", u:"天增岁月人增寿", d:"春满乾坤福满门", h:"福寿安康"},
+  {t:"寿诞", u:"天上星辰应作伴", d:"人间岁月不知年", h:"松鹤延年"},
+  {t:"劝学", u:"书山有路勤为径", d:"学海无涯苦作舟", h:"学无止境"},
+  {t:"劝学", u:"宝剑锋从磨砺出", d:"梅花香自苦寒来", h:"业精于勤"},
+  {t:"劝学", u:"少壮不经勤学苦", d:"老来方悔读书迟", h:"惜时如金"},
+  {t:"通用", u:"风声雨声读书声声声入耳", d:"家事国事天下事事事关心", h:"家国情怀"},
+  {t:"通用", u:"海纳百川有容乃大", d:"壁立千仞无欲则刚", h:"虚怀若谷"},
+  {t:"通用", u:"江山永固民安乐", d:"国泰家和享太平", h:"国泰民安"},
+  {t:"通用", u:"人寿年丰家家乐", d:"国泰民安处处春", h:"普天同庆"},
+  {t:"通用", u:"精耕细作丰收岁", d:"勤俭持家有余年", h:"国富民强"},
+  {t:"通用", u:"绿竹别其三分景", d:"红梅正报万家春", h:"春回大地"},
+  {t:"通用", u:"花开富贵年年好", d:"竹报平安岁岁欢", h:"吉祥如意"},
+  {t:"新春", u:"一元复始", d:"万象更新", h:"辞旧迎新"},
+  {t:"通用", u:"天增岁月", d:"春满乾坤", h:"万象更新"},
+  {t:"通用", u:"春回大地", d:"福满人间", h:"普天同庆"},
+  {t:"开业", u:"财源广进", d:"生意兴隆", h:"招财进宝"},
+  {t:"新春", u:"岁岁平安日", d:"年年如意春", h:"万事如意"},
+  {t:"新春", u:"春风拂柳绿", d:"细雨润花红", h:"春回大地"},
+  {t:"新春", u:"冬去冰须泮", d:"春来草自生", h:"万物复苏"},
+  {t:"新春", u:"五福临门第", d:"千祥入户庭", h:"福满门庭"},
+  {t:"通用", u:"人勤百业旺", d:"家和万事兴", h:"家和业兴"},
+  {t:"通用", u:"竹报平安岁", d:"花开富贵春", h:"吉祥如意"},
+  {t:"开业", u:"门迎四海福", d:"户纳八方财", h:"财源广进"},
+  {t:"新春", u:"春临大地百花艳", d:"节至人间万象新", h:"万象更新"},
+  {t:"新春", u:"一年四季行好运", d:"八方财宝进家门", h:"财源广进"},
+  {t:"通用", u:"山重水复疑无路", d:"柳暗花明又一村", h:"豁然开朗"},
+  {t:"通用", u:"沉舟侧畔千帆过", d:"病树前头万木春", h:"生机勃勃"},
+  {t:"通用", u:"百年天地回元气", d:"一统山河际太平", h:"国泰民安"},
+  {t:"劝学", u:"纸上得来终觉浅", d:"绝知此事要躬行", h:"知行合一"},
+  {t:"劝学", u:"问渠那得清如许", d:"为有源头活水来", h:"源头活水"},
+  {t:"通用", u:"五福临门家业旺", d:"千祥云集子孙贤", h:"五福临门"},
+  {t:"通用", u:"一门天赐平安福", d:"四海人同富贵春", h:"吉星高照"},
+  {t:"新春", u:"万紫千红百花争艳", d:"五湖四海一体同春", h:"万象更新"},
+  {t:"通用", u:"处处红花红处处", d:"重重绿树绿重重", h:"各有千秋"},
+  {t:"通用", u:"一粥一饭当思来处不易", d:"半丝半缕恒念物力维艰", h:"勤俭持家"},
+  {t:"劝学", u:"墙上芦苇头重脚轻根底浅", d:"山间竹笋嘴尖皮厚腹中空", h:"务实求真"},
+  {t:"通用", u:"鸟在笼中恨关羽不能张飞", d:"人活世上要八戒更需悟空", h:"各安其位"}
+];
+
+const CATS = [
+  {n:"数字", s:"一二三四五六七八九十百千万亿零两"},
+  {n:"颜色", s:"红橙黄绿青蓝紫黑白金银朱丹翠碧彩"},
+  {n:"方位", s:"东南西北中上下前后左右内外"},
+  {n:"天文", s:"天日月光星辰风雨雪云霞虹雷电霜露烟"},
+  {n:"地理", s:"地山川江河湖海溪泉原野路桥城乡村镇岸峰岭波浪涛洲"},
+  {n:"时令", s:"春夏秋冬晨午暮夜朝夕岁年节季宵晓今古旧新"},
+  {n:"植物", s:"花草树木竹梅兰菊松柏柳桃李荷枫杏莲"},
+  {n:"动物", s:"龙凤虎鹤燕雁莺蝶蜂马牛羊鸡犬鱼鸟鸦鹭鹏鸿"},
+  {n:"动作", s:"迎送来往升降开合飞舞鸣啼笑歌吟读写行观闻看照映生发落尽含吐临辞报纳聚散进出入起坐立卧耕种栽培建创业"},
+  {n:"形容", s:"大小高低长短好美善福寿富贵吉兴荣盛满盈清明暖浓深远近疏密勤俭香甜苦寒乐悲喜哀"},
+  {n:"身体", s:"口目手足头身心面毛发骨肉肩背"},
+  {n:"言语", s:"说道话言语词句诗歌问答告诉讲谈论"},
+  {n:"人称", s:"我你他君汝尔吾卿彼此谁人己身"},
+  {n:"建筑", s:"门户窗院堂室楼台亭阁墙径阶廊"},
+  {n:"状态", s:"平安康健顺泰稳盛宁静祥和昌隆旺盛兴旺泰"},
+  {n:"人事", s:"家国人世事心境意书诗画琴棋酒茶福禄寿喜财业客宾友君子民众乾坤"}
+];
+
+const ANTS = {
+  "来":"去","去":"来","上":"下","下":"上","前":"后","后":"前","左":"右","右":"左",
+  "东":"西","西":"东","南":"北","北":"南","新":"旧","旧":"新","好":"坏","大":"小","小":"大",
+  "高":"低","低":"高","长":"短","短":"长","有":"无","无":"有","进":"出","出":"入",
+  "开":"合","合":"开","起":"落","落":"起","生":"死","苦":"甜","甜":"苦","冷":"暖","暖":"冷",
+  "早":"晚","晚":"早","内":"外","外":"内","多":"少","少":"多","深":"浅","浅":"深",
+  "明":"暗","暗":"明","聚":"散","散":"聚","得":"失","失":"得","真":"假","善":"恶",
+  "朝":"暮","暮":"朝","今":"古","古":"今","天":"地","地":"天","日":"月","月":"日",
+  "升":"降","降":"升","迎":"送","送":"迎","辞":"迎","喜":"悲","悲":"喜","乐":"哀","哀":"乐",
+  "福":"祸","吉":"凶","寒":"暑","暑":"寒","浓":"淡","淡":"浓","远":"近","近":"远",
+  "哭":"笑","笑":"哭","贫":"富","富":"贫","贵":"贱","忙":"闲","闲":"忙","快":"慢","慢":"快"
+};
+
+const PING = "天春风云花红山川河流江海洋舟车人生年田家和国安民平时高低长短中东西南来开寒温香清光明晴空林森梅兰荷松桃文章诗书琴棋歌茶烟霞晨朝楼台亭桥财源祯祥宁金银飞鸣啼吟观闻行耕栽培生发含薪新宽心慈浮沉闲塘灯星桥";
+const ZE = "上下去岁月日土地水火事业路径学海万里进远近喜舞笑写读苦乐好坏大小美梦对酒醉快慢报贵贱富贵寿绿竹别景赤壁尽落出入合起生死早晚内多深浅暗聚散得失真假善恶福禄字值千金户纳祥旺兴照旧添个此意事丰";
+
+/* ===================== 排版资源 ===================== */
+const FONTS = {
+  kai:  {n:"楷体", css:'"Kaiti SC","楷体",KaiTi,STKaiti,"BiauKai","TW-Kai",serif'},
+  song: {n:"宋体", css:'"Songti SC","宋体",SimSun,STSong,"Noto Serif SC",serif'},
+  hei:  {n:"黑体", css:'"Heiti SC","微软雅黑","Microsoft YaHei",SimHei,sans-serif'},
+  li:   {n:"隶书", css:'"LiSu","隶书",STLiti,"Baoli SC",STBaoli,serif'},
+  xing: {n:"行楷", css:'"华文行楷",STXingkai,"Xingkai SC","行楷",KaiTi,serif'},
+  fang: {n:"仿宋", css:'"仿宋",FangSong,STFangsong,serif'},
+  brush:{n:"手写体", css:'"Kaiti SC","楷体",KaiTi,serif'}
+};
+
+const PAPERS = {
+  redgold:  {n:"红纸金字", bg:"linear-gradient(160deg,#c8221f,#9c0f14)", fg:"#f7d354", line:"rgba(255,222,130,.55)"},
+  redblack: {n:"红纸黑字", bg:"linear-gradient(160deg,#c8221f,#9c0f14)", fg:"#20140c", line:"rgba(25,15,8,.55)"},
+  goldred:  {n:"金纸红字", bg:"linear-gradient(160deg,#f9dc72,#e0ae18)", fg:"#9c0f14", line:"rgba(150,20,20,.45)"},
+  goldblack:{n:"金纸黑字", bg:"linear-gradient(160deg,#f9dc72,#e0ae18)", fg:"#1a1a1a", line:"rgba(26,26,26,.45)"},
+  whitered: {n:"白纸红字", bg:"linear-gradient(160deg,#fffdf6,#f2e9d4)", fg:"#a4121a", line:"rgba(164,18,26,.35)"},
+  redwhite: {n:"红纸白字", bg:"linear-gradient(160deg,#e0201c,#a80f13)", fg:"#fffdf6", line:"rgba(255,255,255,.50)"}
+};
+
+/* ---------- 花纹生成工具 ---------- */
+function petalPath(len, w){
+  return 'M0 0 C' + (-w) + ' ' + (-len*0.46) + ' ' + (-w*0.96) + ' ' + (-len*0.86) + ' 0 ' + (-len) +
+         ' C' + (w*0.96) + ' ' + (-len*0.86) + ' ' + w + ' ' + (-len*0.46) + ' 0 0 Z';
+}
+function ring(cx, cy, count, len, w, rot0, c, sw){
+  let s = '';
+  for(let i=0;i<count;i++){
+    const a = rot0 + i*(360/count);
+    s += "<g transform='rotate(" + a + ' ' + cx + ' ' + cy + ")'>" +
+         "<path d='" + petalPath(len, w) + "' transform='translate(" + cx + ' ' + cy + ")'" +
+         " fill='none' stroke='" + c + "' stroke-width='" + sw + "' stroke-linejoin='round'/></g>";
+  }
+  return s;
+}
+function dots(cx, cy, count, r, dot, color){
+  let s = '';
+  for(let i=0;i<count;i++){
+    const a = (i*360/count) * Math.PI/180;
+    s += "<circle cx='" + (cx + Math.cos(a)*r).toFixed(1) + "' cy='" + (cy + Math.sin(a)*r).toFixed(1) + "' r='" + dot + "' fill='" + color + "'/>";
+  }
+  return s;
+}
+
+const TILES = {
+  bird: c => {
+    const plum = (x,y,s,rot) =>
+      "<g transform='translate(" + x + ' ' + y + ') rotate(' + rot + ') scale(' + s + ")'>" +
+      ring(0,0,5,5.8,3.5,0,c,1.15) +
+      "<circle cx='0' cy='0' r='1.25' fill='" + c + "'/></g>";
+    return "<svg xmlns='http://www.w3.org/2000/svg' width='68' height='68' viewBox='0 0 68 68' fill='none' stroke='" + c + "' stroke-width='1.55' stroke-linecap='round' stroke-linejoin='round'>" +
+      "<path d='M2 66c4-7 6-13 8-22 2-10 6-17 13-23'/>" +
+      "<path d='M13 36c-4-1-6-3-7-7'/><path d='M23 26c3 1 6 1 8-1'/><path d='M17 45c-4 0-7 2-9 6'/>" +
+      plum(15,30,1.1,18) + plum(31,14,0.82,-14) + plum(10,51,0.78,32) +
+      "<circle cx='26' cy='36' r='1.9'/><circle cx='23' cy='21' r='2.2'/>" +
+      "<ellipse cx='46' cy='45' rx='7.6' ry='5.3'/>" +
+      "<circle cx='53' cy='38.6' r='3.7'/>" +
+      "<path d='M56.4 38l5.2-1.8-5.2-1.8z' fill='" + c + "' stroke='none'/>" +
+      "<path d='M38.6 44c-4.6 1.8-8 4.8-10.4 8.6'/>" +
+      "<path d='M43 41.4c2.7 1.5 5.2 1.5 7.6 0'/>" +
+      "<path d='M46 50.5l-1.2 5.4M51 50l1.2 5.4'/>" +
+      "<circle cx='54.4' cy='37.6' r='.9' fill='" + c + "' stroke='none'/>" +
+      "</svg>";
+  },
+  yuanbao: c => "<svg xmlns='http://www.w3.org/2000/svg' width='60' height='46' viewBox='0 0 60 46' fill='none' stroke='" + c + "' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'>" +
+    "<path d='M6 9c-2 14 7 26 24 26s26-12 24-26'/>" +
+    "<path d='M6 9c4 6 13 9 24 9s20-3 24-9'/>" +
+    "<path d='M21 15c0-6.5 18-6.5 18 0'/>" +
+    "<path d='M13 21c4 8 9 12 17 13'/><path d='M47 21c-4 8-9 12-17 13'/>" +
+    "<circle cx='6' cy='8' r='2.6'/><circle cx='54' cy='8' r='2.6'/>" +
+    "<circle cx='30' cy='5.5' r='2.2'/>" +
+    "</svg>",
+  coin: c => "<svg xmlns='http://www.w3.org/2000/svg' width='38' height='38' viewBox='0 0 38 38' fill='none' stroke='" + c + "' stroke-width='1.5'>" +
+    "<circle cx='19' cy='19' r='13.6'/><circle cx='19' cy='19' r='11'/>" +
+    "<rect x='14.6' y='14.6' width='8.8' height='8.8'/>" +
+    "</svg>",
+  cloud: c => "<svg xmlns='http://www.w3.org/2000/svg' width='76' height='46' viewBox='0 0 76 46' fill='none' stroke='" + c + "' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'>" +
+    "<path d='M10 34C4 34 2 27 8 25c-4-7 3-12 8-9 1-6 9-8 13-3 3-5 11-3 11 3 5-2 9 3 7 7 5 1 4 10-2 10z'/>" +
+    "<path d='M14 30c-2-3 1-6 4-4 2 1.2 1 5-2 4.8-1.6-.1-2.6-1-2.6-2.6'/>" +
+    "<path d='M33 24c-2-3 2-6 5-3 2 2 0 5-3 4.6'/>" +
+    "<path d='M46 18c3-3 8-1 8 3'/>" +
+    "<path d='M54 27c5 1 9 5 10 10'/><circle cx='65' cy='40' r='1.8' fill='" + c + "'/>" +
+    "</svg>",
+  fish: c => "<svg xmlns='http://www.w3.org/2000/svg' width='52' height='52' viewBox='0 0 52 52' fill='none' stroke='" + c + "' stroke-width='1.5' stroke-linejoin='round'>" +
+    "<path d='M6 15c7-6 16-6 23 0-7 6-16 6-23 0z'/><path d='M29 15l7-5v10z'/>" +
+    "<circle cx='13' cy='14' r='1.1' fill='" + c + "'/><path d='M18 11c2 2 2 6 0 8'/>" +
+    "<path d='M23 37c7-6 16-6 23 0-7 6-16 6-23 0z'/><path d='M23 37l-7-5v10z'/>" +
+    "<circle cx='39' cy='38' r='1.1' fill='" + c + "'/><path d='M34 35c-2 2-2 6 0 8'/>" +
+    "</svg>",
+  peony: c => {
+    const R = 36;
+    return "<svg xmlns='http://www.w3.org/2000/svg' width='76' height='76' viewBox='0 0 76 76' fill='none' stroke='" + c + "' stroke-width='1.25' stroke-linejoin='round'>" +
+      ring(R,R,8,21,11,22.5,c,1.35) +
+      ring(R,R,8,16.5,8.6,0,c,1.2) +
+      ring(R,R,6,12,6.6,30,c,1.15) +
+      ring(R,R,5,8.4,4.8,36,c,1.05) +
+      "<circle cx='" + R + "' cy='" + R + "' r='3.4'/>" +
+      dots(R,R,5,6.4,1.05,c) +
+      "</svg>";
+  },
+  /* 几何回纹：例图样式，由外向内螺旋的方折线（缩进留白，单枚独立，平铺不相连） */
+  hui: c => {
+    const path = "M14 14 H46 V46 H14 V22 H38 V38 H22 V30 H30";
+    return "<svg xmlns='http://www.w3.org/2000/svg' width='60' height='60' viewBox='0 0 60 60' fill='none' stroke='" + c + "' stroke-width='2.4' stroke-linecap='square' stroke-linejoin='miter'>" +
+      "<path d='" + path + "'/>" +
+      "</svg>";
+  }
+};
+
+const CHARPATS = {
+  fu:      {ch:"福", cw:56, font:"kai",  op:.17},
+  fuLi:    {ch:"福", cw:60, font:"li",   op:.17},
+  fuTuan:  {ch:"福", cw:58, font:"kai",  round:true, op:.17},
+  fuDao:   {ch:"福", cw:56, font:"xing", rot:180, op:.16},
+  shouKai: {ch:"寿", cw:56, font:"kai",  op:.17},
+  shouTuan:{ch:"寿", cw:58, font:"li",   round:true, op:.17},
+  wan:     {ch:"卍", cw:44, fontCss:'"KaiTi","楷体","SimSun","宋体","Microsoft YaHei",serif', op:.27},
+  xi:      {ch:"囍", cw:64, font:"kai", op:.20}
+};
+
+const ORN = {
+  flower: c => `<path d="M20 5c3.4 4.4 3.4 9 0 12.4C16.6 14 16.6 9.4 20 5z" fill="${c}"/>
+    <path d="M20 35c-3.4-4.4-3.4-9 0-12.4 3.4 3.4 3.4 8 0 12.4z" fill="${c}"/>
+    <path d="M5 20c4.4-3.4 9-3.4 12.4 0C14 23.4 9.4 23.4 5 20z" fill="${c}"/>
+    <path d="M35 20c-4.4 3.4-9 3.4-12.4 0 3.4-3.4 8-3.4 12.4 0z" fill="${c}"/>
+    <circle cx="20" cy="20" r="3.4" fill="none" stroke="${c}" stroke-width="1.8"/>`,
+  gold: c => `<path d="M6 6h11v11H6zM23 6h11v11H23zM6 23h11v11H6zM23 23h11v11H23z" fill="none" stroke="${c}" stroke-width="2.2"/>
+    <path d="M4 34V4h30" fill="none" stroke="${c}" stroke-width="2.6"/>`,
+  dragon: c => `<path d="M3 37c9 3 12-6 5-9-6-2.6-6.6-10 0-13 5-2.4 10.6 1 10.6 6" fill="none" stroke="${c}" stroke-width="2.4" stroke-linecap="round"/>
+    <path d="M25 7c2.4-3.6 7.4-3.6 9.6 0M29 10.4c1.6-2 4.4-2 5.6 0" fill="none" stroke="${c}" stroke-width="1.8" stroke-linecap="round"/>
+    <circle cx="32" cy="6" r="2.6" fill="${c}"/>
+    <path d="M14 22c3 0 5 2 5 4.4" fill="none" stroke="${c}" stroke-width="1.6"/>
+    <circle cx="10.5" cy="15" r="1.6" fill="${c}"/>`
+};
+
+const FRAMES = { none:"无", flower:"花边", gold:"金边", dragon:"龙纹" };
+const PATTERNS = { none:"无", bird:"花鸟", yuanbao:"元宝", coin:"铜钱", cloud:"祥云", fish:"双鱼", peony:"牡丹", fu:"福字", fuLi:"隶书福", fuTuan:"团福", fuDao:"倒福", shouKai:"寿字", shouTuan:"团寿", wan:"万字纹", hui:"回纹", xi:"双喜" };
+const GRIDS = { none:"无格", tian:"田字格", mi:"米字格" };
+const WRITEMODES = { brush:"毛笔手写", keyboard:"键盘输入" };
+const SCALES = [ {k:0.82,n:"小"}, {k:1,n:"中"}, {k:1.16,n:"大"} ];
+const HENG_N = 4;
+
+/* ===================== 状态 ===================== */
+const state = {
+  shang: [], xia: [], heng: [],
+  font:"kai", frame:"none", pat:"none", paper:"redgold",
+  grid:"none", scaleIdx:1, mode:"", tab:1,
+  crownLen:7, crownUp:"", crownDn:"",
+  douChar:"春", cm:"", douInit:false,
+  writeMode:"brush",          // 对联格子：brush / keyboard
+  douWriteMode:"brush",       // 斗方：brush / keyboard
+  drawings:{ shang:[], xia:[], heng:[], dou:null },  // 手写笔画数据
+  imgData:{ shang:[], xia:[], heng:[], dou:null },   // 手写图片 dataURL
+  curFg:"#f7d354",
+  brushSeed: Math.floor(Math.random()*1e9)
+};
+const DOU_PRESETS = ["春","福","寿","喜","财","满","和","顺","安","乐","丰","贵","囍"];
+const DW_BASE = 200;   // 斗方边长基准（px）
+
+/* ===================== 基础函数 ===================== */
+function normalize(s){ return (s||"").replace(/[^\u4e00-\u9fa5]/g,""); }
+function catOf(ch){ for(let i=0;i<CATS.length;i++) if(CATS[i].s.includes(ch)) return i; return -1; }
+function antonym(ch){ return ANTS[ch]||null; }
+function pickOther(ci, ex){
+  const a = CATS[ci].s.split("").filter(c=>(ex||"").indexOf(c)<0);
+  return a.length ? a[Math.floor(Math.random()*a.length)] : null;
+}
+function isPing(ch){ return PING.includes(ch); }
+function isZe(ch){ return ZE.includes(ch); }
+function pzChar(ch){ return isPing(ch)?"平":(isZe(ch)?"仄":"？"); }
+function pickPingInCat(ci){
+  const a = CATS[ci].s.split("").filter(c=>isPing(c));
+  return a.length ? a[Math.floor(Math.random()*a.length)] : null;
+}
+function scoreAnchor(cu,u){
+  let sc=0;
+  for(let i=0;i<u.length;i++){
+    if(cu[i]===u[i]) sc+=1;
+    else if(antonym(u[i])===cu[i]||antonym(cu[i])===u[i]) sc+=.9;
+    else if(catOf(u[i])>=0 && catOf(u[i])===catOf(cu[i])) sc+=.8;
+  }
+  return sc/u.length;
+}
+function detectTheme(u){
+  if(/春|新|岁|年|福|爆竹|桃/.test(u)) return "喜迎新春";
+  if(/婚|喜|缘|爱|连理/.test(u)) return "永结同心";
+  if(/居|宅|迁|厦|房/.test(u)) return "安居乐业";
+  if(/业|财|商|店|开/.test(u)) return "财源广进";
+  if(/寿|松|鹤|老/.test(u)) return "福寿双全";
+  if(/书|学|读|笔|勤/.test(u)) return "学无止境";
+  return "吉祥如意";
+}
+const GENERIC = "福寿喜财山河日月花草风雨云霞金玉梅竹松鹤龙凤春夏秋冬诗书琴棋酒茶祥和瑞顺安";
+
+function repl(uc, skeleton, skeletonTop, used){
+  if(!uc) return skeleton || "";
+  const dup = c => used && c && used.indexOf(c) >= 0;
+  let rep = antonym(uc);
+  const ci = catOf(uc);
+  if(!rep && ci>=0) rep = pickOther(ci, uc + (skeletonTop||"") + (used||""));
+  if(!rep) rep = skeleton || uc;
+  if(rep===uc && skeleton && skeleton!==uc) rep = skeleton;
+  if(rep===uc || dup(rep)){
+    const pool = GENERIC.split("").filter(c=>c!==uc && !dup(c));
+    if(ci>=0){ const a = CATS[ci].s.split("").filter(c=>c!==uc && !dup(c)); if(a.length) rep = a[Math.floor(Math.random()*a.length)]; }
+    else if(pool.length) rep = pool[Math.floor(Math.random()*pool.length)];
+  }
+  return rep;
+}
+
+function buildPair(u){
+  const n = u.length;
+  const cands = CLASSIC.filter(c=>c.u.length===n);
+  let best=null, bestSc=0;
+  for(const c of cands){
+    let sc = scoreAnchor(c.u, u);
+    if(isZe(u[n-1]) && isPing(c.d[n-1])) sc += 0.12;
+    if(sc>bestSc){ bestSc=sc; best=c; }
+  }
+  if(!best || bestSc<0.45){
+    let out = "";
+    for(let i=0;i<n;i++){ const r = repl(u[i], "", "", out); out += r; }
+    return {u, d:fixPing(out), h:detectTheme(u), mode:"戏对"};
+  }
+  let out = "";
+  for(let i=0;i<n;i++){
+    out += (u[i]===best.u[i]) ? best.d[i] : repl(u[i], best.d[i], best.u[i], out);
+  }
+  out = fixPing(out);
+  const hi = bestSc >= 0.55;
+  return {u, d:out, h: hi ? best.h : detectTheme(u), mode: hi ? "巧对" : "借调"};
+}
+
+function fixPing(s){
+  const n = s.length;
+  if(!n) return s;
+  const last = s[n-1];
+  if(isPing(last)) return s;
+  const ci = catOf(last);
+  const p = ci>=0 ? pickPingInCat(ci) : null;
+  return p ? (s.slice(0,n-1) + p) : s;
+}
+function esc(s){ return (s||"").replace(/&/g,"&amp;").replace(/"/g,"&quot;").replace(/</g,"&lt;"); }
+function fitLen(arr,n){
+  const a=(arr||[]).slice(0,n);
+  while(a.length<n) a.push("");
+  return a;
+}
+
+/* ===================== 毛笔风格化字体引擎（输出图片，不依赖对方字库） ===================== */
+function brushRng(seed){ let t=(seed>>>0)||1; return function(){ t+=0x6D2B79F5; let r=Math.imul(t^t>>>15,1|t); r^=r+Math.imul(r^r>>>7,61|r); return ((r^r>>>14)>>>0)/4294967296; }; }
+/* 毛笔风格化渲染（全字通用）：楷体取形 + 墨晕 + 圆润描边 + 飞白 + 微旋转
+   输出为图片，对方无需安装任何字体即不依赖字库，且明显有别于普通楷体。 */
+function brushFallbackDataURL(ch,color,seed){
+  try{
+    const S=240, c=document.createElement('canvas'); c.width=S; c.height=S;
+    const x=c.getContext('2d'); x.clearRect(0,0,S,S);
+    const rng=brushRng((seed>>>0)^((ch.charCodeAt(0)||0)*40503));
+    const fs=Math.round(S*0.84);
+    x.font='bold '+fs+'px "Kaiti SC","楷体",KaiTi,STKaiti,serif';
+    x.textAlign='center'; x.textBaseline='middle';
+    // 整字微旋转，模拟手写每个字姿态不同（个性化关键观感）
+    const rot=(rng()-0.5)*0.12;
+    x.save();
+    x.translate(S/2,S/2); x.rotate(rot); x.translate(-S/2,-S/2);
+    const cy=S/2+S*0.02;
+    // 1) 墨晕底层（洇墨感）
+    x.save();
+    x.globalAlpha=.18; x.fillStyle=color; x.shadowColor=color; x.shadowBlur=S*0.034;
+    x.fillText(ch,S/2,cy); x.fillText(ch,S/2,cy);
+    x.restore();
+    // 2) 毛笔饱满描边：圆头、多次由粗到细，模拟笔肚
+    x.lineJoin='round'; x.lineCap='round'; x.strokeStyle=color;
+    x.shadowColor=color; x.shadowBlur=S*0.010;
+    [fs*0.12, fs*0.075, fs*0.038].forEach((lw,idx)=>{
+      x.lineWidth=lw; x.globalAlpha=0.60-idx*0.15;
+      x.strokeText(ch,S/2,cy);
+    });
+    // 3) 主体填充（轻微抖动叠两层，制造笔触厚度）
+    x.shadowBlur=0; x.fillStyle=color; x.globalAlpha=.90;
+    for(let k=0;k<2;k++){ const jx=(rng()-0.5)*S*0.012; x.fillText(ch,S/2+jx,cy); }
+    x.restore();
+    // 4) 飞白：随机擦除几条细线，模拟枯笔
+    x.save();
+    x.globalCompositeOperation='destination-out';
+    x.strokeStyle='rgba(0,0,0,.5)'; x.lineCap='round';
+    const n=2+Math.floor(rng()*4);
+    for(let k=0;k<n;k++){ const yy=S*(0.28+rng()*0.44); x.lineWidth=S*(0.004+rng()*0.010);
+      x.beginPath(); x.moveTo(S*0.18,yy); x.lineTo(S*0.82,yy+(rng()-0.5)*S*0.12); x.stroke(); }
+    x.restore();
+    return c.toDataURL('image/png');
+  }catch(e){ return ''; }
+}
+function cellBrushSrc(ch,color,seed){
+  return brushFallbackDataURL(ch,color,seed);
+}
+
+/* ===================== 毛笔手写：弹板方式 ===================== */
+/* 笔画数据结构：每个格子保存 strokes 数组，每笔是一个点数组 {x,y,t}（CSS 坐标） */
+function getCellDrawing(kind, i){
+  if(kind==="dou") return state.drawings.dou || [];
+  return (state.drawings[kind] || [])[i] || [];
+}
+function setCellDrawing(kind, i, strokes){
+  if(kind==="dou"){ state.drawings.dou = strokes; return; }
+  if(!state.drawings[kind]) state.drawings[kind] = [];
+  state.drawings[kind][i] = strokes;
+}
+function getImg(kind, i){
+  if(kind==="dou") return state.imgData.dou;
+  return (state.imgData[kind] || [])[i];
+}
+function cloneStrokes(strokes){
+  return (strokes||[]).map(s => s.map(p => ({x:p.x, y:p.y, t:p.t})));
+}
+
+/* 毛笔效果绘制一条笔画：速度越快越细，带轻微墨晕 */
+function drawStroke(ctx, stroke, color){
+  if(!stroke || stroke.length < 1) return;
+  ctx.save();
+  ctx.strokeStyle = color;
+  ctx.fillStyle = color;
+  ctx.lineCap = "round";
+  ctx.lineJoin = "round";
+  ctx.shadowColor = color;
+  ctx.shadowBlur = 1.5;
+
+  if(stroke.length === 1){
+    ctx.beginPath();
+    ctx.arc(stroke[0].x, stroke[0].y, 4.5, 0, Math.PI*2);
+    ctx.fill();
+    ctx.restore();
+    return;
+  }
+  for(let i=1;i<stroke.length;i++){
+    const p1 = stroke[i-1], p2 = stroke[i];
+    const dt = Math.max(1, p2.t - p1.t);
+    const dist = Math.hypot(p2.x-p1.x, p2.y-p1.y);
+    const speed = dist / dt;
+    let w = 11 - speed * 18;
+    w = Math.max(2.2, Math.min(10, w));
+    ctx.lineWidth = w;
+    ctx.beginPath();
+    ctx.moveTo(p1.x, p1.y);
+    ctx.lineTo(p2.x, p2.y);
+    ctx.stroke();
+  }
+  ctx.restore();
+}
+
+/* ---------- 手写板 ---------- */
+let padStrokes = [];
+let padDrawing = false;
+let padCtx = null;
+let padCanvas = null;
+let padColor = "#f7d354";
+let padGrid = "none";
+
+function openPad(kind, i){
+  state.padTarget = {kind, i};
+  const modal = document.getElementById("padModal");
+  modal.classList.add("show");
+  padColor = state.curFg;
+  padGrid = state.grid;
+  document.getElementById("padTitle").textContent =
+    kind==="dou" ? "斗方毛笔手写" : ("毛笔手写 · 第 " + (i+1) + " 格");
+  padStrokes = cloneStrokes(getCellDrawing(kind, i));
+  requestAnimationFrame(()=>{ initPad(); redrawPad(); });
+}
+function closePad(){
+  document.getElementById("padModal").classList.remove("show");
+  state.padTarget = null;
+}
+function initPad(){
+  padCanvas = document.getElementById("padCanvas");
+  const rect = padCanvas.getBoundingClientRect();
+  const dpr = Math.max(1, window.devicePixelRatio || 1);
+  padCanvas.width = Math.max(1, Math.round(rect.width * dpr));
+  padCanvas.height = Math.max(1, Math.round(rect.height * dpr));
+  padCtx = padCanvas.getContext("2d");
+  padCtx.setTransform(dpr, 0, 0, dpr, 0, 0);
+}
+function padBg(){
+  const w = padCanvas.width / (window.devicePixelRatio||1);
+  const h = padCanvas.height / (window.devicePixelRatio||1);
+  padCtx.save();
+  padCtx.strokeStyle = "rgba(120,90,40,.25)";
+  padCtx.lineWidth = 1;
+  if(padGrid==="tian"){
+    padCtx.strokeRect(w*0.18, h*0.18, w*0.64, h*0.64);
+  } else if(padGrid==="mi"){
+    padCtx.strokeRect(w*0.18, h*0.18, w*0.64, h*0.64);
+    padCtx.beginPath();
+    padCtx.moveTo(w*0.18, h*0.18); padCtx.lineTo(w*0.82, h*0.82);
+    padCtx.moveTo(w*0.82, h*0.18); padCtx.lineTo(w*0.18, h*0.82);
+    padCtx.stroke();
+  }
+  padCtx.restore();
+}
+function redrawPad(){
+  if(!padCtx) return;
+  const w = padCanvas.width / (window.devicePixelRatio||1);
+  const h = padCanvas.height / (window.devicePixelRatio||1);
+  padCtx.clearRect(0,0,w,h);
+  padBg();
+  padStrokes.forEach(s => drawStroke(padCtx, s, padColor));
+}
+function padPos(e){
+  const rect = padCanvas.getBoundingClientRect();
+  const cx = (e.clientX!=null) ? e.clientX : (e.touches && e.touches[0] ? e.touches[0].clientX : 0);
+  const cy = (e.clientY!=null) ? e.clientY : (e.touches && e.touches[0] ? e.touches[0].clientY : 0);
+  return { x: cx - rect.left, y: cy - rect.top, t: Date.now() };
+}
+function padDown(e){
+  if(e) e.preventDefault();
+  padDrawing = true;
+  const p = padPos(e);
+  padStrokes.push([p]);
+  // 落笔点
+  padCtx.save();
+  padCtx.fillStyle = padColor;
+  padCtx.shadowColor = padColor; padCtx.shadowBlur = 1.5;
+  padCtx.beginPath(); padCtx.arc(p.x, p.y, 4.5, 0, Math.PI*2); padCtx.fill();
+  padCtx.restore();
+}
+function padMove(e){
+  if(!padDrawing) return;
+  if(e) e.preventDefault();
+  const p = padPos(e);
+  const last = padStrokes[padStrokes.length-1];
+  const prev = last[last.length-1];
+  last.push(p);
+  drawStroke(padCtx, [prev, p], padColor);
+}
+function padUp(e){ if(e) e.preventDefault(); padDrawing = false; }
+function padUndo(){
+  if(padStrokes.length) padStrokes.pop();
+  redrawPad();
+}
+function padClear(){ padStrokes = []; redrawPad(); }
+function padOk(){
+  if(!state.padTarget) return;
+  const {kind, i} = state.padTarget;
+  const data = padCanvas.toDataURL("image/png");
+  setCellDrawing(kind, i, cloneStrokes(padStrokes));
+  if(kind==="dou") state.imgData.dou = data;
+  else { if(!state.imgData[kind]) state.imgData[kind]=[]; state.imgData[kind][i] = data; }
+  closePad();
+  renderStage();
+}
+
+/* ===================== 渲染 ===================== */
+function renderStage(){
+  const isDou = state.mode === "斗方";
+  const has = state.shang.length || state.xia.length || isDou;
+  document.getElementById("stageWrap").style.display = has ? "block" : "none";
+  if(!has) return;
+
+  const p = PAPERS[state.paper];
+  const paper = document.getElementById("paper");
+  const wrap = document.getElementById("douWrap");
+  paper.style.background = p.bg;
+  paper.style.setProperty("--fg", p.fg);
+  paper.style.setProperty("--line", p.line);
+  paper.style.fontFamily = FONTS[state.font].css;
+  paper.className = "paper f-"+state.frame+" g-"+state.grid + (isDou ? " dou" : "");
+  wrap.className = "dou-wrap" + (isDou ? " dou" : "");
+  state.curFg = p.fg;
+
+  renderPatLayer(p.fg);
+  renderFrameLayer(p.fg);
+
+  const pairs = document.getElementById("pairs");
+  const hengRow = document.getElementById("hengRow");
+
+  if(isDou){
+    const dw = Math.round(DW_BASE * SCALES[state.scaleIdx].k);
+    wrap.style.setProperty("--dw", dw+"px");
+    paper.style.setProperty("--dw", dw+"px");
+    const ch = state.douChar || "";
+    hengRow.innerHTML = "";
+    hengRow.style.display = "none";
+    pairs.innerHTML = renderDouHTML(ch, p.fg);
+    const din = pairs.querySelector(".douin");
+    if(din && document.activeElement !== din) din.value = ch;
+  } else {
+    wrap.style.removeProperty("--dw");
+    paper.style.removeProperty("--dw");
+    const longest = Math.max(state.shang.length, state.xia.length, 5);
+    let cs = longest>=11 ? 38 : longest>=9 ? 44 : longest>=7 ? 50 : 56;
+    cs = Math.round(cs * SCALES[state.scaleIdx].k);
+    paper.style.setProperty("--cs", cs+"px");
+    hengRow.innerHTML = cellHTML("heng", state.heng, HENG_N);
+    pairs.innerHTML =
+      '<div class="colwrap"><span class="tag">上联（贴右）</span><div class="col">'+cellHTML("shang", state.shang)+'</div></div>'+
+      '<div class="colwrap"><span class="tag">下联（贴左）</span><div class="col">'+cellHTML("xia", state.xia)+'</div></div>';
+    hengRow.style.display = (state.heng.some(c=>c) || state.mode==="手写") ? "flex" : "none";
+  }
+  renderInfo();
+}
+
+function renderDouHTML(ch, color){
+  if(state.font==="brush" && ch){
+    const src = cellBrushSrc(ch, color, state.brushSeed);
+    return '<div class="doubox"><img class="dou-img" src="'+src+'">' +
+      '<button type="button" class="dou-tools" onclick="event.stopPropagation();douClear()" title="清空">×</button>' +
+      '</div>';
+  }
+  if(state.douWriteMode === "brush"){
+    const data = state.imgData.dou;
+    return '<div class="doubox" onclick="openPad(\'dou\',0)">' +
+      (data ? '<img class="dou-img" src="'+data+'">' : '<span class="dou-ph">✎ 点此手写</span>') +
+      '<button type="button" class="dou-tools" onclick="event.stopPropagation();clearDraw(\'dou\',0)" title="清空">×</button>' +
+      '</div>';
+  }
+  return '<div class="doubox"><input class="douin" type="text" maxlength="6" data-kind="dou"'+
+    ' value="'+esc(ch)+'" style="font-size:calc(var(--dw) * '+douFontSize(ch.length)+')"'+
+    ' autocomplete="off" autocorrect="off" spellcheck="false"></div>';
+}
+
+function renderFrameLayer(fg){
+  const fl = document.getElementById("frameLayer");
+  if(state.frame==="none"){ fl.innerHTML = ""; return; }
+  const orn = ORN[state.frame](fg);
+  fl.innerHTML = ["c-tl","c-tr","c-bl","c-br"].map(k=>'<svg class="orn '+k+'" viewBox="0 0 40 40">'+orn+'</svg>').join("");
+}
+
+function renderPatLayer(fg){
+  const layer = document.getElementById("patLayer");
+  layer.innerHTML = "";
+  if(state.pat==="none"){ layer.style.backgroundImage = "none"; return; }
+  const tile = TILES[state.pat];
+  if(tile){
+    layer.style.opacity = .20;
+    layer.style.backgroundImage = 'url("data:image/svg+xml,' + encodeURIComponent(tile(fg)) + '")';
+    return;
+  }
+  const cfg = CHARPATS[state.pat];
+  if(!cfg){ layer.style.backgroundImage = "none"; return; }
+  layer.style.backgroundImage = "none";
+  layer.style.opacity = cfg.op || .17;
+  const fontCss = cfg.fontCss || FONTS[cfg.font].css;
+  const cols = 16, rows = 30;
+  let html = "<div class='chargrid' style='--cw:" + cfg.cw + "px;font-family:" + fontCss + ";" +
+    (cfg.rot ? "transform:rotate(" + cfg.rot + "deg);" : "") + "'>";
+  for(let i = 0; i < cols*rows; i++) html += "<span" + (cfg.round ? " class='r'" : "") + ">" + cfg.ch + "</span>";
+  layer.innerHTML = html + "</div>";
+}
+
+function cellHTML(kind, arr, forceN){
+  const n = forceN || arr.length;
+  let html = "";
+  const useBrush = state.font==="brush" && state.mode!=="手写";
+  for(let i=0;i<n;i++){
+    const v = arr[i]||"";
+    if(useBrush){
+      if(v){
+        const src = cellBrushSrc(v, state.curFg, state.brushSeed);
+        html += '<div class="cell brush-cell"><img class="cell-brush" src="'+src+'"></div>';
+      } else {
+        html += '<div class="cell empty"></div>';
+      }
+      continue;
+    }
+    if(state.mode === "手写" && state.writeMode === "brush"){
+      const data = getImg(kind, i);
+      html += '<div class="cell hand'+(data?' has':'')+'" data-kind="'+kind+'" data-i="'+i+'" onclick="openPad(\''+kind+'\','+i+')">' +
+              (data ? '<img class="cell-img" src="'+data+'">' : '<span class="cell-ph">✎ 手写</span>') +
+              '<div class="cell-tools"><button type="button" onclick="event.stopPropagation();clearDraw(\''+kind+'\','+i+')" title="清空">×</button></div>' +
+              '</div>';
+    } else {
+      html += '<div class="cell'+(v?"":" empty")+'"><input type="text" value="'+esc(v)+'" data-kind="'+kind+'" data-i="'+i+'" maxlength="6" autocomplete="off" autocorrect="off" spellcheck="false"></div>';
+    }
+  }
+  return html;
+}
+
+function douFontSize(len){
+  const base = len>=3 ? .40 : (len===2 ? .58 : .86);
+  const f = state.font;
+  if(f === "hei") return base * (78/86);   // 黑体：单字 86→78，整体略缩
+  if(f === "li")  return base * (98/86);    // 隶书：单字 86→98（落在 96~100 之间）
+  return base;
+}
+function syncDouText(){
+  const t = document.getElementById("douText");
+  if(t && document.activeElement !== t) t.value = state.douChar;
+}
+
+/* 清除某格手写 */
+function clearDraw(kind, i){
+  if(kind==="dou"){ state.drawings.dou = []; state.imgData.dou = null; }
+  else {
+    if(state.drawings[kind]) state.drawings[kind][i] = [];
+    if(state.imgData[kind]) state.imgData[kind][i] = null;
+  }
+  renderStage();
+}
+
+/* 单元格输入：兼容中文输入法组字 */
+function handleCell(el){
+  const kind = el.dataset.kind, i = +el.dataset.i;
+  if(kind==="dou"){
+    let v = normalize(el.value);
+    if(v.length>2){ v = v.slice(0,2); toast("斗方最多 2 个字"); }
+    el.value = v; state.douChar = v;
+    el.style.fontSize = "calc(var(--dw) * " + douFontSize(v.length) + ")";
+    syncDouText(); renderInfo();
+    return;
+  }
+  const v = normalize(el.value).slice(-1) || "";
+  el.value = v;
+  if(kind==="heng") state.heng[i]=v; else state[kind][i]=v;
+  el.parentElement.classList.toggle("empty", !v);
+  if(v){
+    const cells = [].slice.call(document.querySelectorAll('input[data-kind="'+kind+'"]'));
+    const idx = cells.indexOf(el);
+    if(idx>=0 && idx<cells.length-1) cells[idx+1].focus();
+  }
+  if(kind!=="heng") renderInfo();
+}
+document.addEventListener("input", e=>{
+  const el = e.target;
+  if(!el.dataset || el.dataset.kind===undefined) return;
+  if(e.isComposing) return;
+  handleCell(el);
+});
+document.addEventListener("compositionend", e=>{
+  const el = e.target;
+  if(!el.dataset || el.dataset.kind===undefined) return;
+  handleCell(el);
+});
+
+function renderInfo(){
+  const box = document.getElementById("info");
+  if(state.mode==="斗方"){
+    box.style.display = "block";
+    const ch = state.douChar || "";
+    const pz = ch
+      ? ch.split("").map(c=>{ const p=pzChar(c), cls = p==="平"?"p":(p==="仄"?"z":"q"); return '<span class="pz '+cls+'">'+c+p+'</span>'; }).join("")
+      : '<span class="q">空白菱形 —— 打印后可直接手写</span>';
+    box.innerHTML = "斗方单字　" + pz + '<br><span style="font-size:12px">菱形四角朝上下左右，多贴门心、米缸、柜面、窗户圆芯。</span>';
+    return;
+  }
+  const up = state.shang.join(""), dn = state.xia.join("");
+  if(!up && !dn){ box.style.display = "none"; return; }
+  box.style.display = "block";
+  let crownNote = "";
+  if(state.mode==="冠头"){
+    const cu = state.shang[0]||"", cd = state.xia[0]||"";
+    crownNote = "冠头联（藏头于句首）：上联首字「"+cu+"」、下联首字「"+cd+"」　" +
+      '<span style="color:#a4121a">藏头「'+esc(cu+cd)+'」</span><br>';
+  }
+  const row = s => s.split("").map(c=>{
+    const p = pzChar(c), cls = p==="平"?"p":(p==="仄"?"z":"q");
+    return '<span class="pz '+cls+'">'+c+p+'</span>';
+  }).join("");
+  let tip = "";
+  if(up && dn && up.length!==dn.length) tip = "⚠ 上下联字数不等（"+up.length+" : "+dn.length+"），对联讲究字数相等。";
+  else if(up && pzChar(up[up.length-1])==="平") tip = "提示：上联末字为平声，传统讲究「仄起平收」，上联末字宜仄。";
+  else if(up && dn){
+    tip = state.mode==="巧对" ? "骨架取自经典联，属巧对 ✓"
+        : state.mode==="借调" ? "借了相近经典联的架子，属借调 —— 不满意就点「换一个」"
+        : state.mode==="冠头" ? "以经典对联作底，句首二字为你指定的藏头字"
+        : "词库里没有近亲，属即兴戏对，图个乐 ⚙️";
+  }
+  box.innerHTML = crownNote +
+    (up?("上联　"+row(up)+"<br>") : "") + (dn?("下联　"+row(dn)+"<br>") : "") +
+    (tip?('<span style="color:#a4121a">'+tip+'</span>') : "");
+}
+
+/* ===================== 交互 ===================== */
+function setMode(m){ state.mode = m; if(m!=="斗方") state.cm = m; }
+
+function switchTab(no){
+  state.tab = no;
+  [1,2,3,4].forEach(i=>{
+    const tb = document.getElementById("tab"+i), pn = document.getElementById("panel"+i);
+    if(tb) tb.classList.toggle("on", i===no);
+    if(pn) pn.classList.toggle("on", i===no);
+  });
+  if(no===3){
+    if(state.mode!=="手写") setLen(state.shang.length || 7);
+    else renderStage();
+  } else if(no===4){
+    if(state.mode!=="斗方") enterDou();
+  } else if(state.mode==="斗方"){
+    setMode(state.cm || "");
+    renderStage();
+  }
+}
+
+/* ---- 斗方 ---- */
+function enterDou(){
+  setMode("斗方");
+  if(!state.douInit){ state.paper = "redwhite"; state.douInit = true; renderStyleChips(); }
+  syncDouText();
+  renderStage();
+  document.getElementById("stageWrap").scrollIntoView({behavior:"smooth",block:"start"});
+}
+function douClear(){
+  state.douChar = "";
+  state.drawings.dou = []; state.imgData.dou = null;
+  syncDouText();
+  renderStage();
+  toast("已清空，打印出来是空白菱形，可手写");
+}
+function initDouChips(){
+  const box = document.getElementById("douChips");
+  box.innerHTML = "";
+  DOU_PRESETS.forEach(ch=>{
+    const b = document.createElement("button");
+    b.className = "chip"+(ch===state.douChar?" on":""); b.textContent = ch; b.dataset.ch = ch;
+    b.onclick = ()=>{ state.douChar = ch; state.drawings.dou = []; state.imgData.dou = null; syncDouText(); initDouChips(); renderStage(); };
+    box.appendChild(b);
+  });
+  const z = document.createElement("button");
+  z.className = "chip"+(state.douChar===""?" on":"");
+  z.textContent = "空白"; z.onclick = ()=>{ douClear(); initDouChips(); };
+  box.appendChild(z);
+}
+
+function matchUser(){
+  const u = normalize(document.getElementById("shangInput").value);
+  if(u.length<4){ toast("上联至少 4 个汉字哦"); return; }
+  if(u.length>15){ toast("上联太长啦，15 字以内"); return; }
+  const r = buildPair(u);
+  setMode(r.mode);
+  state.shang = r.u.split(""); state.xia = r.d.split(""); state.heng = r.h.split("");
+  initDrawings();
+  renderStage();
+  saveHist(r);
+  document.getElementById("stageWrap").scrollIntoView({behavior:"smooth",block:"start"});
+}
+function clearInput(){ document.getElementById("shangInput").value = ""; }
+
+/* ---- 冠头联（藏头于上下联句首） ---- */
+function crownCandidates(N){
+  return CLASSIC.filter(c => c.u.length === N && c.d.length === N);
+}
+function genCrown(cu, cd){
+  cu = (cu != null) ? cu : normalize(document.getElementById("crownUp").value).slice(0,1);
+  cd = (cd != null) ? cd : normalize(document.getElementById("crownDn").value).slice(0,1);
+  if(!cu || !cd){ toast("请分别输入上联、下联的首字（各 1 个汉字）"); return; }
+  let N = state.crownLen || 7;
+  let pool = crownCandidates(N);
+  if(pool.length < 1){ N = 7; pool = crownCandidates(7); }
+  if(!pool.length){ toast("暂时没有该字数的模板，换个字数试试"); return; }
+  const c = pool[Math.floor(Math.random()*pool.length)];
+  const u = cu + c.u.slice(1);
+  const d = cd + c.d.slice(1);
+  setMode("冠头");
+  state.crownUp = cu; state.crownDn = cd; state.crownLen = N;
+  state.shang = u.split(""); state.xia = d.split(""); state.heng = fitLen([], HENG_N);
+  initDrawings();
+  renderStage();
+  saveHist({u:u, d:d, h:""});
+  document.getElementById("stageWrap").scrollIntoView({behavior:"smooth",block:"start"});
+}
+function crownClear(){
+  document.getElementById("crownUp").value = "";
+  document.getElementById("crownDn").value = "";
+}
+function availableCrownLens(){
+  const set = {};
+  CLASSIC.forEach(c=>{ if(c.u.length===c.d.length) set[c.u.length]=true; });
+  return Object.keys(set).map(Number).filter(n=>n>=4 && n<=9).sort((a,b)=>a-b);
+}
+function initCrownLenChips(){
+  const box = document.getElementById("crownLenChips");
+  if(!box) return;
+  const lens = availableCrownLens();
+  if(lens.indexOf(state.crownLen) < 0) state.crownLen = (lens.indexOf(7)>=0) ? 7 : lens[0];
+  box.innerHTML = "";
+  lens.forEach(n=>{
+    const b = document.createElement("button");
+    b.className = "chip"+(n===state.crownLen?" on":""); b.textContent = n+" 字";
+    b.onclick = ()=>{ state.crownLen=n; initCrownLenChips(); if(state.mode==="冠头") genCrown(state.crownUp, state.crownDn); };
+    box.appendChild(b);
+  });
+}
+
+let curTheme = "全部";
+function initChips(){
+  const box = document.getElementById("chips");
+  box.innerHTML = "";
+  ["全部","新春","婚庆","乔迁","开业","寿诞","劝学","通用"].forEach(t=>{
+    const b = document.createElement("button");
+    b.className = "chip"+(t===curTheme?" on":"");
+    b.textContent = t;
+    b.onclick = ()=>{ curTheme=t; initChips(); };
+    box.appendChild(b);
+  });
+}
+function genRandom(){
+  const pool = curTheme==="全部" ? CLASSIC : CLASSIC.filter(c=>c.t===curTheme);
+  const p = pool[Math.floor(Math.random()*pool.length)];
+  setMode("经典");
+  state.shang = p.u.split(""); state.xia = p.d.split(""); state.heng = p.h.split("");
+  initDrawings();
+  renderStage();
+  saveHist({u:p.u,d:p.d,h:p.h});
+  document.getElementById("stageWrap").scrollIntoView({behavior:"smooth",block:"start"});
+}
+function regen(){
+  if(state.mode==="冠头"){ genCrown(state.crownUp, state.crownDn); return; }
+  if(state.mode==="斗方"){
+    const i = DOU_PRESETS.indexOf(state.douChar);
+    state.douChar = DOU_PRESETS[(i+1) % DOU_PRESETS.length];
+    state.drawings.dou = []; state.imgData.dou = null;
+    syncDouText(); initDouChips(); renderStage();
+    return;
+  }
+  if(state.mode==="经典" || state.mode===""){
+    genRandom(); return;
+  }
+  if(state.mode==="手写"){
+    const n = state.shang.length || 7;
+    state.shang = fitLen([],n); state.xia = fitLen([],n); state.heng = fitLen([],HENG_N);
+    initDrawings();
+    renderStage(); return;
+  }
+  const u = state.shang.join("");
+  if(u.length<4){ toast("上联太短，先写几个字再对"); return; }
+  const r = buildPair(u);
+  setMode(r.mode);
+  state.shang = r.u.split(""); state.xia = r.d.split(""); state.heng = r.h.split("");
+  initDrawings();
+  renderStage(); saveHist(r);
+}
+
+/* ---- 手写模板 ---- */
+function initLenChips(){
+  const box = document.getElementById("lenChips");
+  box.innerHTML = "";
+  [5,7,9,11].forEach(n=>{
+    const b = document.createElement("button");
+    b.className = "chip"; b.textContent = n+" 字"; b.dataset.n = n;
+    b.onclick = ()=>setLen(n);
+    box.appendChild(b);
+  });
+}
+function setLen(n){
+  [].slice.call(document.querySelectorAll("#lenChips .chip")).forEach(c=>c.classList.toggle("on", +c.dataset.n===n));
+  setMode("手写");
+  state.shang = fitLen(state.shang, n);
+  state.xia = fitLen(state.xia, n);
+  state.heng = fitLen(state.heng, HENG_N);
+  initDrawings();
+  renderStage();
+  document.getElementById("stageWrap").scrollIntoView({behavior:"smooth",block:"start"});
+}
+function clearAllCells(){
+  state.shang = state.shang.map(()=>"");
+  state.xia = state.xia.map(()=>"");
+  state.heng = state.heng.map(()=>"");
+  initDrawings();
+  renderStage();
+  toast("已清空，打印出来就是空白模板");
+}
+function initGridChips(){
+  const box = document.getElementById("gridChips");
+  box.innerHTML = "";
+  Object.keys(GRIDS).forEach(k=>{
+    const b = document.createElement("button");
+    b.className = "chip"+(k===state.grid?" on":""); b.textContent = GRIDS[k];
+    b.onclick = ()=>{ state.grid=k; initGridChips(); renderStage(); };
+    box.appendChild(b);
+  });
+}
+
+/* 输入方式 chips */
+function initWriteModeChips(){
+  const box = document.getElementById("writeModeChips");
+  box.innerHTML = "";
+  Object.keys(WRITEMODES).forEach(k=>{
+    const b = document.createElement("button");
+    b.className = "chip"+(k===state.writeMode?" on":""); b.textContent = WRITEMODES[k];
+    b.onclick = ()=>{ state.writeMode=k; initWriteModeChips(); initDouWriteModeChips(); renderStage(); };
+    box.appendChild(b);
+  });
+}
+function initDouWriteModeChips(){
+  const box = document.getElementById("douWriteModeChips");
+  if(!box) return;
+  box.innerHTML = "";
+  Object.keys(WRITEMODES).forEach(k=>{
+    const b = document.createElement("button");
+    b.className = "chip"+(k===state.douWriteMode?" on":""); b.textContent = WRITEMODES[k];
+    b.onclick = ()=>{ state.douWriteMode=k; initDouWriteModeChips(); initWriteModeChips(); renderStage(); };
+    box.appendChild(b);
+  });
+}
+
+/* ---- 排版 chips ---- */
+function buildChips(boxId, map, cur, cb, labelFn){
+  const box = document.getElementById(boxId);
+  box.innerHTML = "";
+  Object.keys(map).forEach(k=>{
+    const b = document.createElement("button");
+    b.className = "chip"+(k===cur?" on":"");
+    b.textContent = labelFn ? labelFn(k) : map[k];
+    b.onclick = ()=>{ cb(k); };
+    box.appendChild(b);
+  });
+}
+function renderStyleChips(){
+  buildChips("fontChips", FONTS, state.font, k=>{ state.font=k; renderStyleChips(); renderStage(); }, k=>FONTS[k].n);
+  buildChips("frameChips", FRAMES, state.frame, k=>{ state.frame=k; renderStyleChips(); renderStage(); });
+  buildChips("patChips", PATTERNS, state.pat, k=>{ state.pat=k; renderStyleChips(); renderStage(); });
+  buildChips("paperChips", PAPERS, state.paper, k=>{ state.paper=k; renderStyleChips(); renderStage(); }, k=>PAPERS[k].n);
+  const box = document.getElementById("scaleChips");
+  box.innerHTML = "";
+  SCALES.forEach((s,i)=>{
+    const b = document.createElement("button");
+    b.className = "chip"+(i===state.scaleIdx?" on":""); b.textContent = s.n;
+    b.onclick = ()=>{ state.scaleIdx=i; renderStyleChips(); renderStage(); };
+    box.appendChild(b);
+  });
+}
+
+/* ---- 打印 ---- */
+function printCouplet(){
+  if(!state.shang.length && !state.xia.length && state.mode!=="斗方"){ toast("先对一副联或选个模板再打印"); return; }
+  // 同步键盘输入框的实时内容，克隆时不会丢字
+  [].slice.call(document.querySelectorAll("#paper input[data-kind]")).forEach(inp=>{
+    inp.setAttribute("value", inp.value);
+  });
+
+  const paper = document.getElementById("paper");
+  const clone = paper.cloneNode(true);
+  clone.removeAttribute("id");
+  const wrap = document.getElementById("printArea");
+  wrap.innerHTML = "";
+  const st = document.createElement("div"); st.className = "stage";
+  st.appendChild(clone); wrap.appendChild(st);
+  document.body.classList.add("printing");
+
+  setTimeout(()=>{
+    window.print();
+    setTimeout(()=>{
+      document.body.classList.remove("printing"); wrap.innerHTML = "";
+    }, 600);
+  }, 80);
+}
+
+/* ---- 复制 ---- */
+function copyAll(){
+  if(state.mode==="斗方"){
+    if(!state.douChar && !(state.drawings.dou && state.drawings.dou.length)){ toast("现在是空白斗方，没有字可复制"); return; }
+    copyText("斗方：" + (state.douChar || "【手写】"));
+    return;
+  }
+  const u = state.shang.join(""), d = state.xia.join(""), h = state.heng.join("");
+  if(!u && !d){ toast("还没有内容可复制"); return; }
+  const text = (h?("横批："+h+"\n") : "") + (u?("上联："+u+"\n") : "") + (d?("下联："+d) : "");
+  copyText(text);
+}
+function copyText(text){
+  if(navigator.clipboard && navigator.clipboard.writeText){
+    navigator.clipboard.writeText(text).then(()=>toast("已复制 ✓")).catch(()=>fallbackCopy(text));
+  } else fallbackCopy(text);
+}
+function fallbackCopy(text){
+  const ta = document.createElement("textarea");
+  ta.value = text; document.body.appendChild(ta); ta.select();
+  try{ document.execCommand("copy"); toast("已复制 ✓"); }catch(e){ toast("复制失败，请长按手动复制"); }
+  document.body.removeChild(ta);
+}
+
+/* ---- 历史 ---- */
+function saveHist(p){
+  let hist = [];
+  try{ hist = JSON.parse(localStorage.getItem("couplet_hist")||"[]"); }catch(e){}
+  hist.unshift({u:p.u,d:p.d,h:p.h});
+  hist = hist.slice(0,6);
+  try{ localStorage.setItem("couplet_hist", JSON.stringify(hist)); }catch(e){}
+  renderHist();
+}
+function renderHist(){
+  let hist = [];
+  try{ hist = JSON.parse(localStorage.getItem("couplet_hist")||"[]"); }catch(e){}
+  const box = document.getElementById("histBox");
+  if(!hist.length){ box.style.display = "none"; return; }
+  box.style.display = "block";
+  document.getElementById("histList").innerHTML = hist.map((h,i)=>
+    '<div class="hist-item" data-i="'+i+'"><b>'+esc(h.u)+'</b> <span style="color:#a08a60">对</span> '+esc(h.d)+' <span style="color:#a08a60;font-size:11px">〔'+esc(h.h)+'〕</span></div>'
+  ).join("");
+  [].slice.call(document.querySelectorAll("#histList .hist-item")).forEach(el=>{
+    el.onclick = ()=>{
+      const h = hist[+el.dataset.i];
+      state.shang = h.u.split(""); state.xia = h.d.split(""); state.heng = h.h.split("");
+      initDrawings();
+      setMode("巧对"); renderStage();
+    };
+  });
+}
+
+/* ---- toast ---- */
+let toastTimer = null;
+function toast(msg){
+  const t = document.getElementById("toast");
+  t.textContent = msg; t.classList.add("show");
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(()=>t.classList.remove("show"), 2200);
+}
+
+function initDrawings(){
+  state.drawings.shang = state.shang.map(()=>[]);
+  state.drawings.xia   = state.xia.map(()=>[]);
+  state.drawings.heng  = state.heng.map(()=>[]);
+  state.imgData.shang  = state.shang.map(()=>null);
+  state.imgData.xia    = state.xia.map(()=>null);
+  state.imgData.heng   = state.heng.map(()=>null);
+  state.drawings.dou = null;
+  state.imgData.dou = null;
+}
+
+document.getElementById("shangInput").addEventListener("keydown", e=>{
+  if(e.key==="Enter" && !e.shiftKey){ e.preventDefault(); matchUser(); }
+});
+
+/* 斗方「自己写」输入框 */
+const douTextEl = document.getElementById("douText");
+function syncDouFromText(){
+  let v = normalize(douTextEl.value);
+  if(v.length>2){ v = v.slice(0,2); toast("斗方最多 2 个字"); }
+  douTextEl.value = v;
+  if(state.mode!=="斗方") setMode("斗方");
+  state.douChar = v;
+  state.drawings.dou = []; state.imgData.dou = null;
+  renderStage(); initDouChips();
+}
+douTextEl.addEventListener("input", e=>{ if(!e.isComposing) syncDouFromText(); });
+douTextEl.addEventListener("compositionend", ()=>syncDouFromText());
+
+/* 手写板事件绑定 */
+(function bindPad(){
+  padCanvas = document.getElementById("padCanvas");
+  document.getElementById("padClose").onclick = closePad;
+  document.getElementById("padCancel").onclick = closePad;
+  document.getElementById("padOk").onclick = padOk;
+  document.getElementById("padUndo").onclick = padUndo;
+  document.getElementById("padClear").onclick = padClear;
+  padCanvas.onmousedown = padDown;
+  padCanvas.onmousemove = padMove;
+  window.addEventListener("mouseup", padUp);
+  padCanvas.ontouchstart = padDown;
+  padCanvas.ontouchmove = padMove;
+  padCanvas.ontouchend = padUp;
+  // 点遮罩空白处关闭
+  document.getElementById("padModal").addEventListener("click", e=>{
+    if(e.target.id === "padModal") closePad();
+  });
+})();
+
+/* ---- 启动 ---- */
+initChips();
+initLenChips();
+initGridChips();
+initDouChips();
+initWriteModeChips();
+initDouWriteModeChips();
+initCrownLenChips();
+renderStyleChips();
+renderHist();
+state.shang = fitLen([],7); state.xia = fitLen([],7); state.heng = fitLen([],HENG_N);
+initDrawings();
+renderStage();
+switchTab(1);
+document.getElementById("stageWrap").style.display = "none";
+syncDouText();
+[].slice.call(document.querySelectorAll("#lenChips .chip")).forEach(c=>c.classList.toggle("on", +c.dataset.n === 7));
+</script>
+<script>
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', function () {
+    navigator.serviceWorker.register('./sw.js').catch(function () {});
+  });
+}
+</script>
+</body>
+</html>

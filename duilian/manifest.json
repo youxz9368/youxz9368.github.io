@@ -1,0 +1,17 @@
+{
+  "name": "对对联",
+  "short_name": "对对联",
+  "description": "智能对对联：上联自动对下联、平仄校验、海量联库随手查",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#ffffff",
+  "theme_color": "#e67e22",
+  "lang": "zh-CN",
+  "icons": [
+    {"src": "icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any"},
+    {"src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any"},
+    {"src": "apple-touch-icon.png", "sizes": "180x180", "type": "image/png"}
+  ]
+}
