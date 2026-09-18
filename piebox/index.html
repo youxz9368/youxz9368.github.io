@@ -1,0 +1,2370 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-page-node-id="XvWHAhV3Jebh8bHkBlvTBB">
+<head data-page-node-id="niJ5jxMiRVaoCqivcYzTSp">
+<meta charset="UTF-8" data-page-node-id="DItgGwfc5vUoOE58S9kzqs">
+<meta name="viewport" content="width=device-width, initial-scale=1.0" data-page-node-id="1D6AIHQtWf9EcOLbFcGwLr">
+<title>PIE 工艺百宝箱 V1.1</title>
+<style>
+  :root{
+    --bg:#f4f6f9; --card:#ffffff; --ink:#1c2733; --sub:#64748b;
+    --brand:#0f6cbd; --brand-soft:#e8f1fa; --ok:#1a7f4b; --warn:#b45309; --bad:#b42318;
+    --line:#e2e8f0; --radius:12px;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:"Microsoft YaHei","PingFang SC",sans-serif;background:var(--bg);color:var(--ink);min-height:100vh}
+  header{background:linear-gradient(135deg,#0f6cbd,#0a4d85);color:#fff;padding:18px 28px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px}
+  header h1{font-size:20px;font-weight:700;letter-spacing:1px}
+  header .tag{font-size:12px;opacity:.85;background:rgba(255,255,255,.15);padding:3px 10px;border-radius:20px}
+  nav{display:flex;gap:4px;padding:10px 20px 0;background:var(--card);border-bottom:1px solid var(--line);flex-wrap:wrap}
+  nav button{border:none;background:none;padding:10px 16px;font-size:14px;color:var(--sub);cursor:pointer;border-bottom:3px solid transparent;font-family:inherit}
+  nav button.active{color:var(--brand);border-bottom-color:var(--brand);font-weight:700}
+  main{max-width:980px;margin:0 auto;padding:20px}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:20px;margin-bottom:16px;box-shadow:0 1px 3px rgba(16,24,40,.05)}
+  .card h2{font-size:16px;margin-bottom:4px;color:var(--ink)}
+  .card .desc{font-size:12.5px;color:var(--sub);margin-bottom:14px}
+  .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px}
+  label{display:block;font-size:12.5px;color:var(--sub);margin-bottom:4px}
+  input,textarea,select{width:100%;padding:8px 10px;border:1px solid var(--line);border-radius:8px;font-size:14px;font-family:inherit;background:#fbfcfe}
+  input:focus,textarea:focus,select:focus{outline:2px solid var(--brand-soft);border-color:var(--brand)}
+  .btn{display:inline-block;border:none;border-radius:8px;padding:9px 18px;font-size:14px;cursor:pointer;font-family:inherit;font-weight:600}
+  .btn-primary{background:var(--brand);color:#fff}
+  .btn-ghost{background:var(--brand-soft);color:var(--brand)}
+  .btn:hover{filter:brightness(1.05)}
+  .result{margin-top:14px;padding:14px 16px;border-radius:10px;background:var(--brand-soft);font-size:15px;line-height:1.9}
+  .result b{font-size:22px;color:var(--brand)}
+  .pill{display:inline-block;padding:2px 10px;border-radius:20px;font-size:12.5px;font-weight:700;margin-left:8px}
+  .pill-ok{background:#dcf5e7;color:var(--ok)} .pill-warn{background:#fdebd2;color:var(--warn)} .pill-bad{background:#fde3e1;color:var(--bad)}
+  table{width:100%;border-collapse:collapse;font-size:13.5px;margin-top:8px}
+  th,td{border:1px solid var(--line);padding:7px 9px;text-align:center}
+  th{background:#f1f5f9;color:var(--ink)}
+  .mini{font-size:12px;color:var(--sub);margin-top:6px}
+  .del{color:var(--bad);cursor:pointer;font-weight:700;border:none;background:none;font-size:15px}
+  textarea{min-height:90px;resize:vertical}
+  .report{background:#0f172a;color:#e2e8f0;font-family:Consolas,monospace;font-size:13px;padding:16px;border-radius:10px;white-space:pre-wrap;margin-top:12px;display:none}
+  .hidden{display:none}
+  /* 知识包样式 */
+  #tab-know summary{padding:13px 18px;font-size:15px;font-weight:700;cursor:pointer;list-style:none;position:relative;user-select:none}
+  #tab-know summary::after{content:'▾';position:absolute;right:18px;color:var(--sub);transition:.2s}
+  #tab-know details[open] summary::after{transform:rotate(180deg)}
+  #tab-know summary:hover{background:#fafcfe}
+  #tab-know details{margin-bottom:12px;overflow:hidden;border-radius:10px}
+  #tab-know .oneline{background:var(--brand-soft);border-left:4px solid var(--brand);padding:10px 14px;border-radius:0 8px 8px 0;margin:4px 0 12px;font-weight:600;color:#0a4d85}
+  #tab-know .kbody{padding:0 18px 16px;font-size:14px;line-height:1.85}
+  #tab-know h4{margin:12px 0 5px;font-size:14px;color:var(--brand)}
+  #tab-know .kbody ul{padding-left:20px;margin:5px 0}
+  #tab-know .kbody td,#tab-know .kbody th{text-align:left}
+  #tab-know .case{background:#fff8ed;border:1px dashed #eab308;border-radius:8px;padding:10px 14px;margin:10px 0;font-size:13.5px}
+  #tab-know .case b{color:#b45309}
+  #tab-know .kw{background:#fef3c7;padding:0 4px;border-radius:3px;font-weight:600}
+  #tab-know .toc{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px}
+  #tab-know .toc a{font-size:12.5px;color:var(--brand);text-decoration:none;background:var(--brand-soft);padding:3px 10px;border-radius:14px}
+  #tab-know .toc a:hover{filter:brightness(.95)}
+  #tab-know .intro{font-size:13.5px;color:var(--sub);margin-bottom:14px}
+  .footer{max-width:980px;margin:0 auto 30px;padding:0 20px;font-size:12px;color:var(--sub);text-align:center}
+  @media print{nav,header .tag{display:none}}
+</style>
+<link rel="manifest" href="manifest.json">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="PIE百宝">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="icon" href="favicon.png">
+<meta name="theme-color" content="#1f3a5f">
+</head>
+<body data-page-node-id="wC3VGUNMX50TX9qDYmm3B8">
+<header data-page-node-id="fQQAdPPDU7PCEmBw56aQ2U">
+  <h1 data-page-node-id="LXhChOgwh3d1paCA9WiAHs">⚙️ PIE 工艺百宝箱 <span class="tag" data-page-node-id="ltNUMDac96tYvy9NhLrwXp">V1.2 · 离线可用</span></h1>
+  <span class="tag" data-page-node-id="yVyLnjVgXIgcL6aFpZ4TK9">数据自动保存在本机 · 不联网 · 不上传</span>
+</header>
+<nav id="tabs" data-page-node-id="8aAInAjUQQQdp3CssjjkDF">
+  <button class="active" data-tab="stdhours" data-page-node-id="ONwkOvHEDFeoREqDFjk89S">⏱ 标准工时</button>
+  <button data-tab="line">🏗 流水线(计时)</button>
+  <button data-tab="fpy" data-page-node-id="zpRCpyuVMFZTSpzzJmvsZz">📉 直通率 FPY</button>
+  <button data-tab="cpk" data-page-node-id="xM83TLFac6Txz5S6EgzRMC">📐 CPK 分析</button>
+  <button data-tab="oee" data-page-node-id="1Y2OTBBF51a7d2xx8C6Lei">🏭 OEE 设备综合效率</button>
+  <button data-tab="fish" data-page-node-id="K7ASKzSnij4hQ4uRJ3CRjb">🐟 鱼骨图</button>
+  <button data-tab="8d" data-page-node-id="2d2tMySezxCPqaC7ZbuRUj">📋 8D 报告</button>
+  <button data-tab="watch">⏲ 秒表测时</button>
+  <button data-tab="5why">🧠 5Why</button>
+  <button data-tab="pareto">📊 柏拉图</button>
+  <button data-tab="know">📚 知识包</button>
+  <button data-tab="pocket">🧰 口袋工位</button>
+  <button class="ext" onclick="window.open('PIE口袋书.html')">📱 口袋书</button>
+</nav>
+<main data-page-node-id="7MPsWuMRQlL4zh4PX5Z4XS">
+
+<!-- ============ 标准工时 ============ -->
+<section id="tab-stdhours" class="tabpane" data-page-node-id="5ueVctm9dGdvr6df0ZktlQ">
+  <div class="card" data-page-node-id="OcjsR6Jr74PU9B3fhHFYaU">
+    <h2 data-page-node-id="p31HEPNS4MBN5qNOPLFcCX">标准工时 & 产能计算器</h2>
+    <div class="desc" data-page-node-id="oGzypsEKikLQbyuFdNlUt4">标准工时 = 观测时间 × 评比系数 × (1 + 宽放率)。适用于秒表测时法。</div>
+    <div class="grid" data-page-node-id="sSWZ9FmjppVWyiAYg5uQab">
+      <div data-page-node-id="oBi1uSn9YC7R2P0f1USjAx"><label data-page-node-id="1nkw11qwtmdzHCqyMkdBY6">观测时间 OT（秒）</label><input type="number" id="so_ot" step="0.01" value="30" data-page-node-id="VG98ECeA4AE2hfDLBJPuYN"></div>
+      <div data-page-node-id="QgmGJjWBw6LvMOWppkRUnC"><label data-page-node-id="GGjWog47D3cq7KdmprMlBE">评比系数（%，正常=100）</label><input type="number" id="so_rating" step="1" value="100" data-page-node-id="wUOC2B4RXbLj9Q87axXyws"></div>
+      <div data-page-node-id="q0CbnAaH1pzt6RW4lbEng2"><label data-page-node-id="GnGJwiewj0pukjzhLBmOxh">宽放率（%，一般 10~20）</label><input type="number" id="so_allow" step="0.1" value="15" data-page-node-id="91ZAG8eIHPhvJjv1QGmp0Z"></div>
+    </div>
+    <div class="grid" style="margin-top:12px" data-page-node-id="aMma3dKZixpXGW8oNWIdaM">
+      <div data-page-node-id="0ARDdID2SSNI48MyH9cPRY"><label data-page-node-id="gBSdotoYFg7b3erqMxWf0I">每班作业时间（分钟）</label><input type="number" id="so_shift" step="1" value="480" data-page-node-id="4YIMDYMSwKSauYvDq9XTEe"></div>
+      <div data-page-node-id="MifUvc7N1O7lncIm7ct3UY"><label data-page-node-id="Z5z0nEzRBMvDSpoR5Bo2FF">作业人数</label><input type="number" id="so_ppl" step="1" value="10" data-page-node-id="Ng6bUvDEnQ5OlCxV7flGBw"></div>
+      <div data-page-node-id="5X1r47RM6jR9cEmcFibIDS"><label data-page-node-id="TpzfOCCSzv0qQ3wy9Ew0ef">稼动率（%，扣除换线/故障）</label><input type="number" id="so_act" step="1" value="90" data-page-node-id="JOcbd0OXzPza8i9AYLU47j"></div>
+    </div>
+    <button class="btn btn-primary" style="margin-top:14px" onclick="calcST()" data-page-node-id="QjpyCtnmOgLFk3hSvCNEvb">计算</button>
+    <div class="result" id="so_out" data-page-node-id="qJC6Uz9jXbvClCMFluBuMc"></div>
+  </div>
+</section>
+
+<!-- ============ FPY ============ -->
+<section id="tab-fpy" class="tabpane hidden" data-page-node-id="z95RFElJiqjF5zzFhht7DF">
+  <div class="card" data-page-node-id="TtXmRvehgXxFHc6PGTFmHX">
+    <h2 data-page-node-id="fkJtVzhRAEmjjdbyivcMUi">直通率（FPY）计算器</h2>
+    <div class="desc" data-page-node-id="OJyHGocM1RcHUAIUNjoJdT">逐工位输入投入数与一次合格数，自动算各站良率与总直通率。</div>
+    <table id="fpy_tbl" data-page-node-id="KLZtbRKAMafMYo8p5q2FK9">
+      <thead data-page-node-id="4k26cYfXkjTTuFvErACgSU"><tr data-page-node-id="BNyr0hJVC7lIFxYF6coRg2"><th style="width:32%" data-page-node-id="neFDH84NM2dU3kMyLFWp4O">工位名称</th><th data-page-node-id="q5JbTm0xb7f7yioBJtBfFU">投入数</th><th data-page-node-id="OpkFst9XaVls1ix7AKtROb">一次合格数</th><th data-page-node-id="pDQAJTLphb52utZWiy5dUe">良率</th><th data-page-node-id="1tj4yJoLboXWNAZTGfGViX"></th></tr></thead>
+      <tbody data-page-node-id="5ug6hDshWuZ2A8SZHlIGxS"></tbody>
+    </table>
+    <button class="btn btn-ghost" style="margin-top:10px" onclick="fpyAddRow()" data-page-node-id="0QRNwSGPLuOF3yKFpGMBEo">+ 添加工位</button>
+    <button class="btn btn-primary" style="margin-top:10px;margin-left:8px" onclick="calcFPY()" data-page-node-id="OgpjP5pKuGpqUkLKVkzfGp">计算 FPY</button>
+    <div class="result" id="fpy_out" data-page-node-id="JgOtuCGH3VmNUrHJeX0EVM"></div>
+  </div>
+</section>
+
+<!-- ============ CPK ============ -->
+<section id="tab-cpk" class="tabpane hidden" data-page-node-id="FGKKdCL2mxcBkIFr6Opzzu">
+  <div class="card" data-page-node-id="L5XCw19r1AH5l16ZgxrH4X">
+    <h2 data-page-node-id="Q5DoS5xYFvYDFleKD3PYDX">CPK 过程能力分析</h2>
+    <div class="desc" data-page-node-id="DVLqWPckH9B1YvZQkKMYGu">把测量数据粘贴进来（空格/逗号/换行分隔均可），选择规格类型计算 Cp / Cpk。</div>
+    <div class="grid" data-page-node-id="XbhZYEOAS1u11jIj3HqNB6">
+      <div data-page-node-id="6cY07e4ylT2pnSZ9q4AvnS"><label data-page-node-id="rg9wsfRwMTAQcmPy0kbSAw">规格类型</label>
+        <select id="cpk_type" data-page-node-id="6CYr7RIY14g0rHvbeYZN07">
+          <option value="both" data-page-node-id="Xz0S64abSSmfJALODRXGJg">双边规格（有上下限）</option>
+          <option value="upper" data-page-node-id="kJPxHuQaxtufMu62xx7gVe">单边上限（越小越好）</option>
+          <option value="lower" data-page-node-id="9bJNX6UiZm1jONqF9iTG08">单边下限（越大越好）</option>
+        </select>
+      </div>
+      <div data-page-node-id="YOpAsCaqnqI4FfY1OndTSU"><label data-page-node-id="pub72XhvYWxjjzHNXFtm1x">USL 上限</label><input type="number" id="cpk_usl" step="any" data-page-node-id="Z2v7pygJlCjwnvfC3IXQgc"></div>
+      <div data-page-node-id="haeVQxTX7xEuQGsw6m8AII"><label data-page-node-id="smmd61tkkypTNyinEu94iT">LSL 下限</label><input type="number" id="cpk_lsl" step="any" data-page-node-id="p83EcZrKqjjOiaoHSzbDk3"></div>
+    </div>
+    <div style="margin-top:12px" data-page-node-id="VSiOPZEE9oEJkSiESEaoeD"><label data-page-node-id="jkm3gqUSFuz0C7u9ZU5VIC">测量数据（至少 5 个）</label><textarea id="cpk_data" placeholder="例如：10.02 9.98 10.05 10.01 9.97 10.03 ..."></textarea></div>
+    <button class="btn btn-primary" style="margin-top:12px" onclick="calcCPK()" data-page-node-id="Y6bSu9EozIqoFhEvnaOGq6">分析</button>
+    <div class="result" id="cpk_out" data-page-node-id="1tYRCxEr0RFL57k2xoBjYg"></div>
+  </div>
+</section>
+
+<!-- ============ OEE ============ -->
+<section id="tab-oee" class="tabpane hidden" data-page-node-id="oKqZE1K1cGlEqMGQRbjzDo">
+  <div class="card" data-page-node-id="lwEvPlvcMucQ8qZLzOLkTX">
+    <h2 data-page-node-id="XhuOD1ne3sKEGGh9D8sQb8">OEE 设备综合效率</h2>
+    <div class="desc" data-page-node-id="06dZnwrHh6AvO2wNvS6YhN">OEE = 时间稼动率 × 性能稼动率 × 良品率。世界级水平约 85%。</div>
+    <div class="grid" data-page-node-id="ch0pNY3FTelIMSmwO4jLCU">
+      <div data-page-node-id="jrjmvBBPb6ETERNkwymyKQ"><label data-page-node-id="Y7lBS3e1HotAHPIhBkhFkJ">负荷时间（分钟）</label><input type="number" id="oe_load" value="480" data-page-node-id="siH5wAY63VU1l7dAcQyqbG"></div>
+      <div data-page-node-id="BKpFm9sHKwOChfBqugnQ8a"><label data-page-node-id="H5SoBjPDpZK0dJDJUcS3Kk">停机损失（分钟：故障/换线/待料）</label><input type="number" id="oe_down" value="60" data-page-node-id="l8so8Un4i1IrQNMTHWLa6y"></div>
+      <div data-page-node-id="UJuF7rgryMGLhTgPLXWN47"><label data-page-node-id="0xLfFRSBzgpEi5FYGEz7go">理论周期时间（秒/件）</label><input type="number" id="oe_ct" step="0.01" value="30" data-page-node-id="0k7egXBLj2fPNz6AnP6mBN"></div>
+    </div>
+    <div class="grid" style="margin-top:12px" data-page-node-id="jLLQxT9uVL9cC0T9J0xeN2">
+      <div data-page-node-id="Amjk9dZAdCBrNODJPlYd2J"><label data-page-node-id="5Nga8ZHDPPAJ7aG6dQyv0H">实际产量（件）</label><input type="number" id="oe_out" value="800" data-page-node-id="ACzroMTosReNCtwm5ccYrM"></div>
+      <div data-page-node-id="E5TUCL5kl63OlI9aUO7ime"><label data-page-node-id="E4oSAjI9HuseUtfhKC7Ero">良品数（件）</label><input type="number" id="oe_good" value="780" data-page-node-id="SkWUw9jRzL7fvSGECDBors"></div>
+    </div>
+    <button class="btn btn-primary" style="margin-top:14px" onclick="calcOEE()" data-page-node-id="uPFiXEKxeJJDPFG5prWFXW">计算</button>
+    <div class="result" id="oe_out" data-page-node-id="dvcaT2fM6M7xxh9GmXqJju"></div>
+  </div>
+</section>
+
+<!-- ============ 鱼骨图 ============ -->
+<section id="tab-fish" class="tabpane hidden" data-page-node-id="UO62lN9VSBx0MF2tIADAiU">
+  <div class="card" data-page-node-id="X4jJ7vLmb7mduldCgW81Z0">
+    <h2 data-page-node-id="6xUiClyg2ydHgyYQ5YikH4">鱼骨图生成器（人机料法环测）</h2>
+    <div class="desc" data-page-node-id="IC3MR3jEMBfdULfIWAYsqs">每个类别填入原因，用「；」或换行分隔，点生成即出图，可下载 PNG。</div>
+    <div style="margin-bottom:10px" data-page-node-id="cSjUWqJVOQdBVRyHlyf7Ba"><label data-page-node-id="NTHfeMyIOprfwfCJE1IWzP">问题（鱼头）</label><input type="text" id="fish_head" value="产品外观不良" data-page-node-id="kbSVq9iZjeWq1O8wZ3w59R"></div>
+    <div class="grid" data-page-node-id="NsTClZ69mcC1V5Yvr9lMhU">
+      <div data-page-node-id="DmIUt7QJ0qGsPM4EcCeRuk"><label data-page-node-id="MZ6L7Dj1DuPQwrhjsyiQCq">人（Man）</label><textarea id="fish_man"></textarea></div>
+      <div data-page-node-id="BlbhgHCmnct7CTbFzlJE2Y"><label data-page-node-id="OBj1Vc4eyFc52QnEPXAfCa">机（Machine）</label><textarea id="fish_mch"></textarea></div>
+      <div data-page-node-id="6GO9JYRrcfIdarbhffBVhF"><label data-page-node-id="Zt4LsPwoYhEIDiwuGmEMYN">料（Material）</label><textarea id="fish_mat"></textarea></div>
+    </div>
+    <div class="grid" style="margin-top:10px" data-page-node-id="QKhHiiT43JT4wCk5sHUa2o">
+      <div data-page-node-id="O4J4w1tBV6vWWMi2UEs6tz"><label data-page-node-id="tnJn4aQUdA5uFCeacn0iFR">法（Method）</label><textarea id="fish_mtd"></textarea></div>
+      <div data-page-node-id="mILYp5WRK6uzDylKJMIhAX"><label data-page-node-id="04eE3lbcD1HVxnmo8gHxNE">环（Environment）</label><textarea id="fish_env"></textarea></div>
+      <div data-page-node-id="wwCDaWGxPpMyutBEoGv6xP"><label data-page-node-id="ubc7MxAJDvYHAicOtK9mEE">测（Measure）</label><textarea id="fish_mea"></textarea></div>
+    </div>
+    <button class="btn btn-primary" style="margin-top:14px" onclick="drawFish()" data-page-node-id="TSBFd3wCenOFIG0VFlGQIp">生成鱼骨图</button>
+    <button class="btn btn-ghost" style="margin-top:14px;margin-left:8px" onclick="downloadFish()" data-page-node-id="ryf2pv3r6ZizetYVv8QDCa">下载 PNG</button>
+    <div id="fish_box" style="margin-top:14px" data-page-node-id="YNb9nLxRj4ZrshC0hOIEJG"></div>
+  </div>
+</section>
+
+<!-- ============ 8D ============ -->
+<section id="tab-8d" class="tabpane hidden" data-page-node-id="RTl4oldE1RTqcDAjDehB9X">
+  <div class="card" data-page-node-id="dtEmlSPi6jbf2t4bUIG89b">
+    <h2 data-page-node-id="hwGpJysfkrfzlMwnBmLhMh">8D 报告生成器</h2>
+    <div class="desc" data-page-node-id="OIWm6U07JB6xC3XxhCgECf">按 D1~D8 填写，一键生成 Markdown 格式报告，可复制或下载。</div>
+    <div id="d8form" data-page-node-id="axvz13VoOpqpvshO4tlWE3"></div>
+    <button class="btn btn-primary" style="margin-top:14px" onclick="gen8D()" data-page-node-id="OBIu4g2EVmccJyM8sD3CrA">生成报告</button>
+    <button class="btn btn-ghost" style="margin-top:14px;margin-left:8px" onclick="copy8D()" data-page-node-id="C5w7N2mxxgewdTvGNAyW7M">复制全文</button>
+    <button class="btn btn-ghost" style="margin-top:14px;margin-left:8px" onclick="dl8D()" data-page-node-id="1XJETZZjwuQBubAW9sbpB0">下载 .md</button>
+    <div class="report" id="d8out" data-page-node-id="w85GXMHJCNCwveClm9xOiv"></div>
+  </div>
+</section>
+
+<!-- ============ 秒表 ============ -->
+<section id="tab-watch" class="tabpane hidden">
+  <div class="card">
+    <h2>秒表测时（高精度）</h2>
+    <div class="desc">用 performance.now() 计时，精度 1/100 秒。测完点「平均填入标准工时」，圈平均自动写进 OT 框。</div>
+    <div style="text-align:center;margin:10px 0">
+      <div id="sw_disp" style="font-family:Consolas,monospace;font-size:56px;font-weight:700;letter-spacing:2px;color:var(--brand)">00:00.00</div>
+      <div id="sw_lapdisp" class="mini">上圈时间：--</div>
+    </div>
+    <div style="text-align:center;margin-bottom:8px">
+      <button class="btn btn-primary" id="sw_startbtn" onclick="swToggle()" style="min-width:110px">开始</button>
+      <button class="btn btn-ghost" onclick="swLap()" style="min-width:110px">记圈 / 单件</button>
+      <button class="btn btn-ghost" onclick="swReset()" style="min-width:110px">清零</button>
+    </div>
+    <table id="sw_tbl">
+      <thead><tr><th>圈次</th><th>单圈时间（秒）</th><th>累计时间</th><th></th></tr></thead>
+      <tbody></tbody>
+    </table>
+    <div style="margin-top:10px">
+      <button class="btn btn-primary" onclick="swToST()">平均填入标准工时 OT</button>
+      <button class="btn btn-ghost" onclick="swDelLast()">删最后一圈</button>
+      <span class="mini" id="sw_stat"></span>
+    </div>
+    <div class="mini">测时小技巧：同一工位连测 10 圈以上，剔除异常圈后再用平均；记圈时按动作节点打点（如：取料→装配→检测），后面好做评比。</div>
+  </div>
+</section>
+
+<!-- ============ 5Why ============ -->
+<section id="tab-5why" class="tabpane hidden">
+  <div class="card">
+    <h2>5Why 根因分析</h2>
+    <div class="desc">每一问的答案必须是「事实」，不是「猜测」。追问到能改的流程/制度为止，别停在「人没做好」。</div>
+    <div style="margin-bottom:10px"><label>问题描述（现象）</label><input type="text" id="wy_prob" placeholder="例：3号线 9/12 批次产品外观划伤，客诉 500 件"></div>
+    <div id="wy_rows"></div>
+    <button class="btn btn-ghost" style="margin-top:8px" onclick="wyAdd()">+ 追加一问 Why</button>
+    <div style="margin-top:12px"><label>根本原因（发生原因 + 流出原因）</label><textarea id="wy_root" placeholder="发生原因：治具定位块磨损未列入点检项目（流出原因：出货检验未覆盖该面）"></textarea></div>
+    <div style="margin-top:12px"><label>对策（对应根因，可验证）</label><textarea id="wy_action" placeholder="例：定位块纳入日点检表，更换耐磨材质，检验 SOP 增加该面外观全检"></textarea></div>
+    <button class="btn btn-primary" style="margin-top:12px" onclick="gen5W()">生成报告</button>
+    <button class="btn btn-ghost" style="margin-top:12px;margin-left:8px" onclick="copy5W()">复制全文</button>
+    <div class="report" id="wy_out"></div>
+  </div>
+</section>
+
+<!-- ============ 柏拉图 ============ -->
+<section id="tab-pareto" class="tabpane hidden">
+  <div class="card">
+    <h2>柏拉图（Pareto）不良分析</h2>
+    <div class="desc">80/20 法则：通常前 20% 的不良项目占 80% 的不良数。先攻红色累计线超过 80% 之前的项目。</div>
+    <table id="par_tbl">
+      <thead><tr><th style="width:40%">不良项目</th><th>不良数</th><th>占比</th><th></th></tr></thead>
+      <tbody></tbody>
+    </table>
+    <button class="btn btn-ghost" style="margin-top:10px" onclick="parAddRow()">+ 添加项目</button>
+    <button class="btn btn-primary" style="margin-top:10px;margin-left:8px" onclick="drawPareto()">生成柏拉图</button>
+    <div id="par_out" class="result" style="display:none"></div>
+    <div id="par_box" style="margin-top:14px"></div>
+    <button class="btn btn-ghost" style="margin-top:10px;display:none" id="par_dl" onclick="downloadPareto()">下载 PNG</button>
+  </div>
+</section>
+
+<!-- ============ 知识包 ============ -->
+<section id="tab-know" class="tabpane hidden">
+  <div class="card">
+    <h2>📚 知识包 · 工艺改善方法论手册</h2>
+    <div class="intro">点标题展开。每篇 = 一句话理解 + 详细拆解 + 现场实例。已并入百宝箱，离线单文件随身带。</div>
+    <div class="toc">
+      <a href="#k-sop">SOP草图模板</a><a href="#k-role">PE/IE与IE起源</a><a href="#k-qaqc">QA/QC/QE</a><a href="#k-inspect">IQC/IPQC/FQC/OQC</a>
+      <a href="#k-msa">MSA</a><a href="#k-tpm">TPM/SMED</a><a href="#k-pdca">PDCA</a><a href="#k-5w2h">5W2H</a><a href="#k-ecrs">ECRS</a>
+      <a href="#k-lean">精益生产</a><a href="#k-waste">八大浪费</a><a href="#k-qc7">QC七大手法</a><a href="#k-ie7">IE七大手法</a>
+      <a href="#k-why5">5Why</a><a href="#k-fishbone">鱼骨图</a><a href="#k-fmea">FMEA</a><a href="#k-spc">SPC与CPK</a>
+      <a href="#k-st">标准工时</a><a href="#k-takt">节拍与瓶颈</a><a href="#k-oee">OEE</a><a href="#k-yield">良率体系</a><a href="#k-d8">8D</a><a href="#k-6sigma">六西格玛</a>
+    </div>
+
+    <details id="k-sop" open>
+    <summary>📄 通用工艺文件 SOP 草图模板</summary>
+    <div class="kbody">
+      <div class="oneline">一句话：一张合格的 SOP = 抬头四要素 + 步骤三栏式 + 注意事项 + 签核与版本记录，图在最左、字在中间、规格在右边。</div>
+      <p>照这张草图排版，85% 的稽核挑剔都能躲过去。每个框里写什么，图下有说明。</p>
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 640" style="width:100%;background:#fff;border:1px solid var(--line);border-radius:10px">
+        <rect x="10" y="10" width="780" height="620" fill="#ffffff" stroke="#1c2733" stroke-width="2"/>
+        <rect x="10" y="10" width="780" height="44" fill="#0f6cbd"/>
+        <text x="400" y="39" text-anchor="middle" fill="#fff" font-size="19" font-weight="bold">××工序 作业指导书（SOP）</text>
+        <text x="775" y="25" text-anchor="end" fill="#cfe3f5" font-size="10">受控文件 CONTROLLED</text>
+        <!-- info row 1 -->
+        <g font-size="12" fill="#1c2733">
+          <rect x="10" y="54" width="195" height="32" fill="none" stroke="#94a3b8"/><text x="20" y="74" font-weight="bold">文件编号：</text><text x="85" y="74" fill="#64748b">SOP-PIE-0001</text>
+          <rect x="205" y="54" width="195" height="32" fill="none" stroke="#94a3b8"/><text x="215" y="74" font-weight="bold">版　本：</text><text x="272" y="74" fill="#64748b">A / 0</text>
+          <rect x="400" y="54" width="195" height="32" fill="none" stroke="#94a3b8"/><text x="410" y="74" font-weight="bold">生效日期：</text><text x="475" y="74" fill="#64748b">2026-09-15</text>
+          <rect x="595" y="54" width="195" height="32" fill="none" stroke="#94a3b8"/><text x="605" y="74" font-weight="bold">页　次：</text><text x="662" y="74" fill="#64748b">1 / 3</text>
+        </g>
+        <g font-size="12" fill="#1c2733">
+          <rect x="10" y="86" width="195" height="32" fill="none" stroke="#94a3b8"/><text x="20" y="106" font-weight="bold">产品/机种：</text><text x="92" y="106" fill="#64748b">XXX-100</text>
+          <rect x="205" y="86" width="195" height="32" fill="none" stroke="#94a3b8"/><text x="215" y="106" font-weight="bold">工序/站别：</text><text x="287" y="106" fill="#64748b">组装-第3站</text>
+          <rect x="400" y="86" width="195" height="32" fill="none" stroke="#94a3b8"/><text x="410" y="106" font-weight="bold">节拍要求：</text><text x="475" y="106" fill="#64748b">32 秒/件</text>
+          <rect x="595" y="86" width="195" height="32" fill="none" stroke="#94a3b8"/><text x="605" y="106" font-weight="bold">使用设备：</text><text x="670" y="106" fill="#64748b">电批×1/治具×1</text>
+        </g>
+        <!-- table header -->
+        <rect x="10" y="118" width="70" height="30" fill="#f1f5f9" stroke="#94a3b8"/><text x="45" y="138" text-anchor="middle" font-size="12.5" font-weight="bold">步骤</text>
+        <rect x="80" y="118" width="300" height="30" fill="#f1f5f9" stroke="#94a3b8"/><text x="230" y="138" text-anchor="middle" font-size="12.5" font-weight="bold">作业示意图</text>
+        <rect x="380" y="118" width="260" height="30" fill="#f1f5f9" stroke="#94a3b8"/><text x="510" y="138" text-anchor="middle" font-size="12.5" font-weight="bold">作业内容与要求</text>
+        <rect x="640" y="118" width="150" height="30" fill="#f1f5f9" stroke="#94a3b8"/><text x="715" y="138" text-anchor="middle" font-size="12.5" font-weight="bold">关键规格/要点</text>
+        <!-- rows -->
+        <g>
+          <rect x="10" y="148" width="70" height="90" fill="none" stroke="#94a3b8"/><circle cx="45" cy="193" r="15" fill="#0f6cbd"/><text x="45" y="198" text-anchor="middle" fill="#fff" font-size="14" font-weight="bold">1</text>
+          <rect x="80" y="148" width="300" height="90" fill="#fbfcfe" stroke="#94a3b8"/><rect x="150" y="163" width="160" height="60" fill="none" stroke="#94a3b8" stroke-dasharray="5 4"/><text x="230" y="198" text-anchor="middle" font-size="11" fill="#94a3b8">实拍照片 / 手绘示意图</text>
+          <rect x="380" y="148" width="260" height="90" fill="none" stroke="#94a3b8"/>
+          <text x="390" y="172" font-size="11.5" fill="#334155">1. 取 PCB 放入治具定位槽</text><text x="390" y="194" font-size="11.5" fill="#334155">2. 确认极性标识方向朝右</text><text x="390" y="216" font-size="11.5" fill="#334155">3. 按序锁附 4 颗螺丝</text>
+          <rect x="640" y="148" width="150" height="90" fill="none" stroke="#94a3b8"/><text x="650" y="172" font-size="11.5" fill="#b45309">扭矩 0.8±0.05 N·m</text><text x="650" y="194" font-size="11.5" fill="#b45309">极性反 = 不良</text>
+        </g>
+        <g>
+          <rect x="10" y="238" width="70" height="90" fill="none" stroke="#94a3b8"/><circle cx="45" cy="283" r="15" fill="#0f6cbd"/><text x="45" y="288" text-anchor="middle" fill="#fff" font-size="14" font-weight="bold">2</text>
+          <rect x="80" y="238" width="300" height="90" fill="#fbfcfe" stroke="#94a3b8"/><rect x="150" y="253" width="160" height="60" fill="none" stroke="#94a3b8" stroke-dasharray="5 4"/><text x="230" y="288" text-anchor="middle" font-size="11" fill="#94a3b8">实拍照片 / 手绘示意图</text>
+          <rect x="380" y="238" width="260" height="90" fill="none" stroke="#94a3b8"/><text x="390" y="262" font-size="11.5" fill="#334155">1. 连接 FPC 排线并压平</text><text x="390" y="284" font-size="11.5" fill="#334155">2. 扣紧黑色锁扣（听到咔哒）</text>
+          <rect x="640" y="238" width="150" height="90" fill="none" stroke="#94a3b8"/><text x="650" y="262" font-size="11.5" fill="#b45309">锁扣未扣 = 开路</text><text x="650" y="284" font-size="11.5" fill="#b45309">弯折半径 ≥R2</text>
+        </g>
+        <g>
+          <rect x="10" y="328" width="70" height="90" fill="none" stroke="#94a3b8"/><circle cx="45" cy="373" r="15" fill="#0f6cbd"/><text x="45" y="378" text-anchor="middle" fill="#fff" font-size="14" font-weight="bold">3</text>
+          <rect x="80" y="328" width="300" height="90" fill="#fbfcfe" stroke="#94a3b8"/><rect x="150" y="343" width="160" height="60" fill="none" stroke="#94a3b8" stroke-dasharray="5 4"/><text x="230" y="378" text-anchor="middle" font-size="11" fill="#94a3b8">实拍照片 / 手绘示意图</text>
+          <rect x="380" y="328" width="260" height="90" fill="none" stroke="#94a3b8"/><text x="390" y="352" font-size="11.5" fill="#334155">1. 功能测试：放入测试治具</text><text x="390" y="374" font-size="11.5" fill="#334155">2. 按 START，读取 PASS 判定</text>
+          <rect x="640" y="328" width="150" height="90" fill="none" stroke="#94a3b8"/><text x="650" y="352" font-size="11.5" fill="#b45309">FAIL 连续 3 件停线报备</text>
+        </g>
+        <!-- notes -->
+        <rect x="10" y="418" width="780" height="56" fill="#fff8ed" stroke="#eab308" stroke-dasharray="6 4"/><text x="22" y="440" font-size="12.5" font-weight="bold" fill="#b45309">⚠ 注意事项 / 安全警示</text><text x="22" y="460" font-size="11.5" fill="#92400e">佩戴静电环与护目镜；首件送检合格后方可批量；异常时按安灯流程报备，禁止自行调机</text>
+        <!-- sign -->
+        <g font-size="12" fill="#1c2733">
+          <rect x="10" y="474" width="195" height="48" fill="none" stroke="#94a3b8"/><text x="20" y="494" font-weight="bold">编制（PIE）：</text><text x="20" y="514" fill="#94a3b8">签名 / 日期</text>
+          <rect x="205" y="474" width="195" height="48" fill="none" stroke="#94a3b8"/><text x="215" y="494" font-weight="bold">审核（QA）：</text><text x="215" y="514" fill="#94a3b8">签名 / 日期</text>
+          <rect x="400" y="474" width="195" height="48" fill="none" stroke="#94a3b8"/><text x="410" y="494" font-weight="bold">核准：</text><text x="410" y="514" fill="#94a3b8">签名 / 日期</text>
+          <rect x="595" y="474" width="195" height="48" fill="none" stroke="#94a3b8"/><text x="605" y="494" font-weight="bold">会签（生产/设备）：</text><text x="605" y="514" fill="#94a3b8">签名 / 日期</text>
+        </g>
+        <!-- rev table -->
+        <rect x="10" y="522" width="195" height="30" fill="#f1f5f9" stroke="#94a3b8"/><text x="107" y="542" text-anchor="middle" font-size="12" font-weight="bold">版本</text>
+        <rect x="205" y="522" width="390" height="30" fill="#f1f5f9" stroke="#94a3b8"/><text x="400" y="542" text-anchor="middle" font-size="12" font-weight="bold">变更内容摘要</text>
+        <rect x="595" y="522" width="97" height="30" fill="#f1f5f9" stroke="#94a3b8"/><text x="643" y="542" text-anchor="middle" font-size="12" font-weight="bold">日期</text>
+        <rect x="692" y="522" width="98" height="30" fill="#f1f5f9" stroke="#94a3b8"/><text x="741" y="542" text-anchor="middle" font-size="12" font-weight="bold">修订人</text>
+        <rect x="10" y="552" width="195" height="34" fill="none" stroke="#94a3b8"/><text x="107" y="574" text-anchor="middle" font-size="12">A / 0</text>
+        <rect x="205" y="552" width="390" height="34" fill="none" stroke="#94a3b8"/><text x="215" y="574" font-size="12" fill="#64748b">首次发行</text>
+        <rect x="595" y="552" width="97" height="34" fill="none" stroke="#94a3b8"/><text x="643" y="574" text-anchor="middle" font-size="12">2026-09-15</text>
+        <rect x="692" y="552" width="98" height="34" fill="none" stroke="#94a3b8"/><text x="741" y="574" text-anchor="middle" font-size="12">—</text>
+        <text x="400" y="616" text-anchor="middle" font-size="11" fill="#94a3b8">版式说明：信息可按公司文件系统调整，但「编号/版本/生效日期/页次 + 三栏步骤 + 签核 + 版本记录」四大块缺一不可</text>
+      </svg>
+      <h4>四大块怎么写才经得起稽核</h4>
+      <ul>
+        <li><span class="kw">抬头四要素</span>：文件编号（可追溯）、版本（受控的凭据）、生效日期（新旧判定）、页次（防缺页）。没有版本号的 SOP 在稽核里等于「非法文件」。</li>
+        <li><span class="kw">步骤三栏</span>：左图右字是对应关系——一线员工先看图、看不懂再看字；关键规格（扭矩/参数/判定标准）必须量化，禁止写「适当」「差不多」。</li>
+        <li><span class="kw">注意事项</span>：写安全警示和「做错了会怎样」（如：锁扣未扣 = 开路），比单纯写要求有效得多。</li>
+        <li><span class="kw">签核与版本记录</span>：编制/审核/核准三级签署 + 每次变更留痕。工程变更（ECN）后 3 个工作日内 SOP 必须同步——这是常见稽核开单项。</li>
+      </ul>
+      <div class="case"><b>写 SOP 的黄金法则：</b>让一个刚入职 3 天的人照着做也能做出合格品。做不到，说明图不够、参数没量化、或者步骤漏了。</div>
+    </div>
+    </details>
+
+    <details id="k-role">
+    <summary>👷 角色缩写词典：PE / IE / ME / PIE，以及 IE 的起源</summary>
+    <div class="kbody">
+      <div class="oneline">一句话：PE 管「产品怎么做出来」，IE 管「怎么做最省最顺」，ME 管设备，PIE 把这几摊整合起来。</div>
+      <h4>常见工程师角色</h4>
+      <table>
+        <tr><th>缩写</th><th>全称</th><th>负责什么</th></tr>
+        <tr><td><b>PE</b></td><td>Product / Process Engineer</td><td>产品/工艺工程师：工艺参数制定、试产、工程变更（有的公司分产品 PE 和制程 PE）</td></tr>
+        <tr><td><b>IE</b></td><td>Industrial Engineer</td><td>工业工程师：标准工时、产线平衡、布局规划、效率与成本改善</td></tr>
+        <tr><td><b>ME</b></td><td>Manufacturing / Equipment Engineer</td><td>制造/设备工程师：设备导入、维护保养、自动化改造</td></tr>
+        <tr><td><b>PIE</b></td><td>Process Integration Engineer</td><td>工艺整合工程师：横向打通 PE/IE/ME/QA，对工艺流程整体负责</td></tr>
+        <tr><td><b>QE</b></td><td>Quality Engineer</td><td>品质工程师：检验标准、SPC 推行、不良分析（见下篇 QA/QC/QE）</td></tr>
+      </table>
+      <h4>其他高频缩写</h4>
+      <ul>
+        <li><span class="kw">NPI</span>：新产品导入（New Product Introduction），试产阶段的总管家。</li>
+        <li><span class="kw">EVT / DVT / PVT / MP</span>：工程验证 → 设计验证 → 生产验证 → 量产，硬体产品的四个里程碑。</li>
+        <li><span class="kw">ECR / ECN</span>：工程变更申请 / 通知，任何材料、参数、图纸变动都要走这条流程留痕。</li>
+        <li><span class="kw">4M1E / 5M1E</span>：人(Man)机(Machine)料(Material)法(Method)环(Environment)＋测(Measurement)/量(Measurement)——鱼骨图和变更管理的分析框架。</li>
+        <li><span class="kw">BOM / SOP / SIP</span>：物料清单 / 作业指导书 / 检验标准书（Standard Inspection Procedure）。</li>
+      </ul>
+      <h4>IE 的起源：从「挥铁锹」到「丰田模式」</h4>
+      <ul>
+        <li><span class="kw">1911 · 泰勒《科学管理原理》</span>：时间研究的开端。泰勒拿秒表把「搬运生铁」拆成基本动作逐个计时，证明「凭经验干活」远慢于「按科学方法干活」——你手里那个秒表测时，祖师爷就是他。</li>
+        <li><span class="kw">1910s · 吉尔布雷思夫妇</span>：动作研究之父。把砌砖动作从 18 个砍到 5 个，发明「动素（Therbligs）」体系——伸手、抓取、装配等 17 种基本动作，是 IE 七大手法中「动改法」的底层。</li>
+        <li><span class="kw">1913 · 福特流水线</span>：把工序按节拍串联，Model T 装配时间从 12 小时压到 93 分钟——流水线平衡的思想源头。</li>
+        <li><span class="kw">二战及战后</span>：美国军方大规模用 IE 做产能与后勤规划，IE 正式成为大学学科。</li>
+        <li><span class="kw">1950s · 日本吸收再创新</span>：戴明带来统计品质，丰田大野耐一融合泰勒+福特，长出丰田生产方式（TPS）——1980s 美国反哺学习，命名为「精益生产」。</li>
+        <li><span class="kw">今天</span>：IE 从「秒表+秒表卡」进化到「数据+仿真+精益」，但内核没变：<b>用科学方法消除不增值</b>。</li>
+      </ul>
+    </div>
+    </details>
+
+    <details id="k-qaqc">
+    <summary>🧪 QA / QC / QE 三兄弟怎么分</summary>
+    <div class="kbody">
+      <div class="oneline">一句话：QC 是「验货的」，QA 是「建体系让人信任不验也没事的」，QE 是「写标准、查根因的工程师」。</div>
+      <table>
+        <tr><th></th><th>QC 品质控制</th><th>QA 品质保证</th><th>QE 品质工程</th></tr>
+        <tr><td>定位</td><td>执行层：管「物」</td><td>体系层：管「流程」</td><td>技术层：管「标准与根因」</td></tr>
+        <tr><td>日常</td><td>来料/制程/出货检验，判定合格与否</td><td>文件体系（ISO 9001）、内审外审、客诉窗口</td><td>制定检验标准、SPC/MSA 推行、不良分析、8D 主笔</td></tr>
+        <tr><td>输出</td><td>检验记录、允收判定</td><td>体系证书、稽核报告</td><td>SIP、FMEA、CPK 报告</td></tr>
+        <tr><td>口诀</td><td>把不良「拦下来」</td><td>让不良「不再发生」的制度</td><td>搞清楚不良「为什么发生」</td></tr>
+      </table>
+      <div class="case"><b>一句话记忆：</b>QC 检出不良 → QE 分析根因改标准 → QA 把修正后的标准固化进体系。三者是接力，不是三个平级部门互踢皮球。</div>
+    </div>
+    </details>
+
+    <details id="k-inspect">
+    <summary>🔍 检验链：IQC / IPQC / FQC / OQC</summary>
+    <div class="kbody">
+      <div class="oneline">一句话：从进厂到出厂的四道关卡，各守一段，越早拦住成本越低（1:10:100 法则）。</div>
+      <ul>
+        <li><span class="kw">IQC（Incoming）来料检验</span>：供应商物料进厂抽检。拦不住 → 不良物料进产线，后面全赔。抽检方案常按 AQL（如 GB/T 2828）。</li>
+        <li><span class="kw">IPQC（In-Process）制程检验</span>：首件确认（防批量错误）、巡回检验（每 1~2 小时）、末件确认。是四道关里「性价比」最高的一道。</li>
+        <li><span class="kw">FQC（Final）成品检验</span>：完工成品全检/抽检，合格才入库。</li>
+        <li><span class="kw">OQC（Outgoing）出货检验</span>：出货前按客户规格抽检，贴封条放行。这是最后一道，也是最贵的一道。</li>
+      </ul>
+      <div class="case"><b>1:10:100 法则：</b>来料阶段拦住 1 块钱能解决的事，流到制程变 10 块，流到客户手里就是 100 块起步（含运费、客诉、信誉）。所以 IPQC 的首件制度再麻烦也要做——它防的是「批量性翻车」。</div>
+    </div>
+    </details>
+
+    <details id="k-msa">
+    <summary>📏 MSA 量测系统分析</summary>
+    <div class="kbody">
+      <div class="oneline">一句话：在质疑数据之前，先质疑量具——测量系统不行，后面 CPK、SPC 全是垃圾进垃圾出。</div>
+      <h4>量测系统的五种变差</h4>
+      <ul>
+        <li><span class="kw">偏倚（Bias）</span>：测量平均值与真值的差 → 靠校准解决。</li>
+        <li><span class="kw">分辨率</span>：量具读数至少要能分辨公差的 1/10，卡尺量 0.01mm 级公差就是耍流氓。</li>
+        <li><span class="kw">重复性（Repeatability）</span>：同一个人、同一把量具、同一件产品，测多次差多少——量具自身的抖动。</li>
+        <li><span class="kw">再现性（Reproducibility）</span>：不同人测同一件，差多少——人的差异。</li>
+        <li><span class="kw">稳定性（Stability）</span>：随时间漂移多少。</li>
+      </ul>
+      <h4>GR&amp;R 判定基准（重复性+再现性占总公差比例）</h4>
+      <ul>
+        <li>&lt;10%：量测系统可接受</li>
+        <li>10%~30%：视关键性有条件接受（关键特性必须 &lt;10%）</li>
+        <li>&gt;30%：不合格，先修量测系统再谈数据</li>
+      </ul>
+      <div class="case"><b>经典翻车现场：</b>Cpk 只做到 0.8，追了半个月产线，最后发现是治具定位销松了导致测量偏大——测量系统的「假波动」全被当成产线的「真问题」来改。所以六西格玛的 M 阶段（测量）永远排在 A（分析）前面。</div>
+    </div>
+    </details>
+
+    <details id="k-tpm">
+    <summary>🛠 TPM 全员生产维护 与 SMED 快速换线</summary>
+    <div class="kbody">
+      <div class="oneline">一句话：TPM 让「操作工也保养设备」把停机打下去；SMED 把换线从小时级压到十分钟以内。</div>
+      <h4>TPM（Total Productive Maintenance）</h4>
+      <ul>
+        <li>核心：打破「我操作、你维修」的分工——操作工做日常点检/清扫/紧固润滑，设备工程师做专业维护。</li>
+        <li>抓手是 <span class="kw">OEE</span>（见百宝箱 OEE 模块）：三大损失里「时间稼动率」这一项基本就是 TPM 的战场。</li>
+        <li>标志性活动：自主保养七步骤，第 1 步就是「清扫即点检」——擦设备的过程就是发现松动、渗漏、磨损的过程。</li>
+      </ul>
+      <h4>SMED（Single Minute Exchange of Die，快速换线）</h4>
+      <ul>
+        <li><span class="kw">第一步：内外分离</span>——把换线作业拆成「必须停机做的（内部作业）」和「可以提前/延后做的（外部作业）」。</li>
+        <li><span class="kw">第二步：内转外</span>——治具/物料/程序提前线边备好；换完线再校准的事挪到开机后做。</li>
+        <li><span class="kw">第三步：简化内部作业</span>——快夹治具替代螺丝、标准定位块替代人工对位、双人并行。</li>
+        <li>目标：换线时间 <b>10 分钟以内</b>（单分钟=个位数分钟的意思，不是 1 分钟）。</li>
+      </ul>
+      <div class="case"><b>为什么值得：</b>换线从 60 分钟压到 10 分钟，等于凭空多出产能——而且是「免费的」，不用买一台设备。换线短了，批量才能做小、库存才能降，才支撑得起精益的「小批量多品种」。</div>
+    </div>
+    </details>
+
+    <details id="k-pdca">
+    <summary>🔄 PDCA 循环（戴明环）</summary>
+    <div class="kbody">
+      <div class="oneline">一句话：所有改善的底层节奏 —— 计划、执行、检查、处理，转一圈上一个台阶。</div>
+      <h4>四个阶段</h4>
+      <ul>
+        <li><span class="kw">P（Plan 计划）</span>：找问题、定目标、分析根因、制定对策与排期。这一步花的时间永远不亏。</li>
+        <li><span class="kw">D（Do 执行）</span>：按计划小范围试行。注意——是「试点验证」，不是全厂铺开。</li>
+        <li><span class="kw">C（Check 检查）</span>：用数据验证效果，对比改善前后（良率、工时、CPK…）。没有数据的 C 是自我感动。</li>
+        <li><span class="kw">A（Act/Action 处理）</span>：有效 → 标准化（更新 SOP、FMEA、点检表），无效 → 进入下一轮 PDCA。A 是 PDCA 和「做了又退回去」的分水岭。</li>
+      </ul>
+      <h4>PIE 怎么用</h4>
+      <ul>
+        <li>周例会追改善案进度时，按 P/D/C/A 四栏过一遍，卡在哪一环一目了然。</li>
+        <li>对策没进 SOP = 没完成 A = 改善必然反弹。</li>
+      </ul>
+      <div class="case"><b>例子：</b>某工位换线 45 分钟。P：分析发现治具找料浪费 20 分钟 → D：推行换线物料预置车 → C：换线降至 28 分钟 → A：更新《换线作业指导书》并纳入稽核。</div>
+    </div>
+    </details>
+
+    <details id="k-5w2h">
+    <summary>❓ 5W2H 描述问题法</summary>
+    <div class="kbody">
+      <div class="oneline">一句话：把「感觉有问题描述不清」变成七个格子，填完格子问题就清楚了一半。</div>
+      <table>
+        <tr><th>维度</th><th>问什么</th><th>例子（不良客诉）</th></tr>
+        <tr><td>What</td><td>发生了什么？对象是什么？</td><td>产品外壳划伤</td></tr>
+        <tr><td>When</td><td>何时发生？从何时开始？</td><td>9/12 夜班，20:00 后开始出现</td></tr>
+        <tr><td>Where</td><td>在哪里发生？（位置/工位/客户端）</td><td>外壳左上角；追到组装 3 号线</td></tr>
+        <tr><td>Who</td><td>谁发现的？涉及哪些人/机台？</td><td>客户 IQC 发现；涉及 3 号线 B 组</td></tr>
+        <tr><td>Why</td><td>为什么会发生？（现象层面）</td><td>待 5Why 追根因</td></tr>
+        <tr><td>How</td><td>怎么发生的？过程如何？</td><td>疑似周转箱叠放压擦</td></tr>
+        <tr><td>How many</td><td>数量/比例/损失多少？</td><td>500/20000 件，不良率 2.5%</td></tr>
+      </table>
+      <div class="case"><b>要点：</b>8D 报告的 D2 就是 5W2H。填不全 How many，问题严重度就定不准，后面对策力度全歪。</div>
+    </div>
+    </details>
+
+    <details id="k-ecrs">
+    <summary>✂️ ECRS 改善四原则</summary>
+    <div class="kbody">
+      <div class="oneline">一句话：对每个动作依次问四句——能不能取消？能不能合并？能不能重排？能不能简化？顺序不能乱。</div>
+      <ul>
+        <li><span class="kw">E — Eliminate 取消</span>：这个动作可以不做吗？（最高优先级！不做的改善才是最好的改善）例：多余的搬运、重复的确认签章。</li>
+        <li><span class="kw">C — Combine 合并</span>：两个动作能一起做吗？例：把两道检测合并为一个治具；取料和看单合二为一。</li>
+        <li><span class="kw">R — Rearrange 重排</span>：顺序/位置能换吗？例：把易错检测提前；工具挂在左手边而不是身后。</li>
+        <li><span class="kw">S — Simplify 简化</span>：剩下的动作能不能更省力省时？例：治具改斜面免翻转；拧 4 颗螺丝改卡扣。</li>
+      </ul>
+      <div class="case"><b>口诀：</b>「先取消、再合并、然后重排、最后简化」。很多人一上来就 S（买设备自动化），结果 E 该删的浪费一个没删——钱花了，浪费还在。</div>
+    </div>
+    </details>
+
+    <details id="k-lean">
+    <summary>🏆 什么是精益生产（Lean）</summary>
+    <div class="kbody">
+      <div class="oneline">一句话：以最小的资源投入，只生产客户需要的量，并持续消除一切不增值的活动。</div>
+      <h4>核心思想</h4>
+      <ul>
+        <li>源于丰田生产方式（TPS），两大支柱：<span class="kw">准时化（JIT）</span>——需要的时候、按需要的量、生产需要的件；<span class="kw">自働化（Jidoka）</span>——设备/人带「脑子」，出异常就停下来，不让不良流到下一站。</li>
+        <li>判断标准只有一条：<span class="kw">客户愿不愿意为这个动作付钱</span>。愿意=增值，不愿意=浪费。</li>
+      </ul>
+      <h4>常用精益工具地图</h4>
+      <ul>
+        <li><span class="kw">价值流图（VSM）</span>：把全流程画出来，区分增值/非增值时间。</li>
+        <li><span class="kw">5S</span>：整理、整顿、清扫、清洁、素养——一切现场改善的地基。</li>
+        <li><span class="kw">看板（Kanban）</span>：用「信号」拉动生产，而不是计划推着跑。</li>
+        <li><span class="kw">安灯（Andon）</span>：异常一键呼叫，快速响应。</li>
+        <li><span class="kw">Kaizen</span>：全员持续小改善，积少成多。</li>
+      </ul>
+      <div class="case"><b>常见误区：</b>精益 ≠ 裁人、≠ 单纯快。精益是让流程「流动」起来（减少停滞等待）+「拉动」起来（不提前生产）。「库存是万恶之源」——它把所有问题（不良、缺料、瓶颈）都盖住了。</div>
+    </div>
+    </details>
+
+    <details id="k-waste">
+    <summary>🗑️ 八大浪费（DOWNTIME）</summary>
+    <div class="kbody">
+      <div class="oneline">一句话：凡是客户不买单的活动都是浪费，背下 DOWNTIME 八个字，现场巡视时逐个对号。</div>
+      <table>
+        <tr><th>浪费</th><th>典型现场表现</th></tr>
+        <tr><td><b>D</b>efects 不良/返工</td><td>返工站常年爆满，返工本身也是浪费</td></tr>
+        <tr><td><b>O</b>verproduction 过量生产</td><td>「多做点备着」——最大之恶，掩盖一切问题</td></tr>
+        <tr><td><b>W</b>aiting 等待</td><td>等料、等人、等设备、等批核</td></tr>
+        <tr><td><b>N</b>on-utilized talent 人才浪费</td><td>一线工人天天发现问题却没人听</td></tr>
+        <tr><td><b>T</b>ransportation 搬运</td><td>产线拉得老长、物流路线来回绕</td></tr>
+        <tr><td><b>I</b>nventory 库存</td><td>周转箱堆积、原料半成品满仓</td></tr>
+        <tr><td><b>M</b>otion 动作浪费</td><td>弯腰、转身、找工具、走两步拿料</td></tr>
+        <tr><td><b>E</b>xtra-processing 过度加工</td><td>客户没要求的精度/外观标准做到极致</td></tr>
+      </table>
+      <div class="case"><b>用法：</b>做改善提案或 VSM 时，拿这张表逐条扫现场，每扫出一条记录量化（时间/数量/金额），柏拉图排优先级——这就是最经典的 PIE 专项改善立项方法。</div>
+    </div>
+    </details>
+
+    <details id="k-qc7">
+    <summary>🔧 QC 七大手法</summary>
+    <div class="kbody">
+      <div class="oneline">一句话：质量分析的七件老工具，从「查检表」收数据到「管制图」看趋势，一套走完就是一次完整分析。</div>
+      <table>
+        <tr><th>手法</th><th>干什么用</th></tr>
+        <tr><td>查检表</td><td>设计好表格收数据——数据收不对，后面全白搭</td></tr>
+        <tr><td>层别法</td><td>按机台/班次/模具/人员分层比较，找出差异来源</td></tr>
+        <tr><td>柏拉图</td><td>抓重点：少数不良项目占大头（百宝箱里有）</td></tr>
+        <tr><td>鱼骨图</td><td>发散找原因：人机料法环测（百宝箱里有）</td></tr>
+        <tr><td>散布图</td><td>看两个变量的相关性（如温度 vs 不良率）</td></tr>
+        <tr><td>直方图</td><td>看数据分布形态：偏态？双峰？超出规格？</td></tr>
+        <tr><td>管制图（SPC）</td><td>监控过程是否稳定，区分普通波动和异常波动</td></tr>
+      </table>
+      <div class="case"><b>经典组合拳：</b>柏拉图找「重点问题」→ 层别法找「差异在哪」→ 鱼骨图 + 5Why 找「根因」→ 直方图/CPK 验证「改好了没」。QC 手法不是考试科目，是这套连招。</div>
+    </div>
+    </details>
+
+    <details id="k-ie7">
+    <summary>⚙️ IE 七大手法</summary>
+    <div class="kbody">
+      <div class="oneline">一句话：工业工程（IE）的动作级改善工具，比 ECRS 更细，专门抠「手上的每一个动作」。</div>
+      <ul>
+        <li><span class="kw">动改法（动作经济原则）</span>：双手同时用、动作距离最短、减少弯腰转身、工具定置放手边。</li>
+        <li><span class="kw">防呆法（Poka-Yoke）</span>：让错误「做不出来」而不是「靠人记住」。例：治具做了缺口，装反就放不进去。</li>
+        <li><span class="kw">双手法</span>：左右手动作分解记录，消除「一只手拿另一只手等」。</li>
+        <li><span class="kw">五五法（5W2H 追问）</span>：对动作连环追问挖掘改善点。</li>
+        <li><span class="kw">人机法</span>：一人操作多台设备时，分析人机配合，压缩空闲时间。</li>
+        <li><span class="kw">流程法</span>：用「加工/搬运/等待/检验」四种符号画流程图，找停滞和搬运。</li>
+        <li><span class="kw">抽查法（工作抽样）</span>：随机瞬时观察统计各活动占比，不用盯一天就能估出稼动率。</li>
+      </ul>
+    </div>
+    </details>
+
+    <details id="k-why5">
+    <summary>🧠 5Why 分析法</summary>
+    <div class="kbody">
+      <div class="oneline">一句话：连问「为什么」直到挖到能改的流程层原因，而不是停在「员工疏忽」。</div>
+      <h4>三条铁律</h4>
+      <ul>
+        <li>每一问的答案必须是<span class="kw">可验证的事实</span>，有证据（记录、照片、数据），不是「应该是」「可能」。</li>
+        <li>终点是<span class="kw">流程/制度/设计</span>层面的原因。「作业员没做好」不是根因——为什么 SOP 没防住他做不好？为什么培训/防呆没拦住？</li>
+        <li>通常 3~7 问即可，别为了凑 5 问硬编因果链。</li>
+      </ul>
+      <h4>两条线都要追</h4>
+      <ul>
+        <li><span class="kw">发生原因（Why made）</span>：为什么会产生不良？→ 出厂端</li>
+        <li><span class="kw">流出原因（Why shipped）</span>：为什么不良没被拦住？→ 检验端</li>
+      </ul>
+      <div class="case"><b>经典案例（华盛顿纪念碑腐蚀）：</b>为什么腐蚀？清洁剂刷的。为什么要常刷？鸟粪多。为什么鸟多？吃墙上的蜘蛛。为什么蜘蛛多？晚上灯光引飞虫。<b>根因：调整开灯时间</b>——而不是「换更贵的清洁剂」。追到哪一层，对策就落在哪一层。</div>
+    </div>
+    </details>
+
+    <details id="k-fishbone">
+    <summary>🐟 鱼骨图（石川图 / 因果图）</summary>
+    <div class="kbody">
+      <div class="oneline">一句话：把可能原因按「人机料法环测」六大类展开，穷举 + 汇总团队经验，再逐条验证。</div>
+      <ul>
+        <li><span class="kw">人（Man）</span>：技能、培训、疲劳、操作习惯</li>
+        <li><span class="kw">机（Machine）</span>：设备老化、治具磨损、参数漂移、点检缺失</li>
+        <li><span class="kw">料（Material）</span>：来料批次、供应商变更、储存条件</li>
+        <li><span class="kw">法（Method）</span>：SOP 缺陷、参数设定、流程顺序</li>
+        <li><span class="kw">环（Environment）</span>：温湿度、洁净度、静电、照明</li>
+        <li><span class="kw">测（Measurement）</span>：量具精度、校准、检验标准模糊</li>
+      </ul>
+      <div class="case"><b>要点：</b>鱼骨图只负责「发散」，<b>不负责下结论</b>。列出 10 个原因后要用层别法/复现试验逐个验证，最后用 5Why 收敛。很多烂报告的错误就是「鱼骨图画完直接写对策」。</div>
+    </div>
+    </details>
+
+    <details id="k-fmea">
+    <summary>🛡️ FMEA（失效模式与影响分析）</summary>
+    <div class="kbody">
+      <div class="oneline">一句话：在坏事发生之前，把「会怎么坏、坏得多狠、多容易被发现」提前打分，高风险项先设防。</div>
+      <h4>三个评分维度（RPN = S × O × D）</h4>
+      <ul>
+        <li><span class="kw">S（严重度 Severity）</span>：失效了后果多严重？1~10 分，客户安全类直接 9~10。</li>
+        <li><span class="kw">O（发生度 Occurrence）</span>：发生频率高不高？1~10 分，靠历史数据（PPM/不良率）支撑。</li>
+        <li><span class="kw">D（探测度 Detection）</span>：现行检验能不能发现？1~10 分，10=完全发现不了。</li>
+      </ul>
+      <table>
+        <tr><th>RPN 区间</th><th>行动</th></tr>
+        <tr><td>≥100（或 S≥9）</td><td>必须改善，限期对策</td></tr>
+        <tr><td>50~99</td><td>计划改善</td></tr>
+        <tr><td>&lt;50</td><td>维持现有控制</td></tr>
+      </table>
+      <div class="case"><b>PIE 提醒：</b>降 RPN 最优先靠 <b>D（加防呆、加检出手段）</b>，其次 O（改设计/工艺），S 一般改不动（由产品决定）。FMEA 是活文件——每次出过 8D，都要回头更新对应条目（D7 的要求）。</div>
+    </div>
+    </details>
+
+    <details id="k-spc">
+    <summary>📐 SPC 与 CPK（过程能力）</summary>
+    <div class="kbody">
+      <div class="oneline">一句话：SPC 管制图看过程「稳不稳」，CPK 看过程「准不准」——先稳后准，顺序不能反。</div>
+      <ul>
+        <li><span class="kw">普通原因 vs 特殊原因</span>：普通波动是过程固有的（如刀具正常磨损），特殊波动是异常信号（点出管制界线/连串规则）→ 先消除特殊原因再谈改善。</li>
+        <li><span class="kw">Cp</span>：规格宽度与过程波动的比值——只看「潜力」，不管你中心偏没偏。</li>
+        <li><span class="kw">Cpk</span>：Cp 扣除中心偏移后的实际能力，<b>客户看的是它</b>。</li>
+      </ul>
+      <table>
+        <tr><th>Cpk</th><th>判定</th><th>典型动作</th></tr>
+        <tr><td>≥1.67</td><td>A+ 充足</td><td>可考虑放宽抽检</td></tr>
+        <tr><td>1.33~1.67</td><td>A 充分</td><td>客户普遍接受线，维持管控</td></tr>
+        <tr><td>1.0~1.33</td><td>B 尚可</td><td>加严监控，着手改善</td></tr>
+        <tr><td>&lt;1.0</td><td>C/D 不足</td><td>100% 检验兜底 + 启动 8D</td></tr>
+      </table>
+      <div class="case"><b>注意：</b>算 Cpk 前先确认过程受控（管制图无异常点）且数据近正态——过程都不稳，Cpk 算出来没意义。样本建议 ≥25 组数据。</div>
+    </div>
+    </details>
+
+    <details id="k-st">
+    <summary>⏱ 标准工时（Standard Time）</summary>
+    <div class="kbody">
+      <div class="oneline">一句话：一个合格作业员按标准方法、正常速度做完一个工序所需的时间——排产、算成本、评绩效的地基。</div>
+      <h4>构成公式</h4>
+      <ul>
+        <li><span class="kw">标准工时 = 观测时间 × 评比系数 × (1 + 宽放率)</span></li>
+        <li><span class="kw">观测时间（OT）</span>：秒表实测（测 10 圈以上取平均，剔除异常）。</li>
+        <li><span class="kw">评比系数（Rating）</span>：把「被观测者的速度」修正为「正常速度」，100%=正常。手快的老员工测出的时间要往下评，慢的要往上评。</li>
+        <li><span class="kw">宽放率（Allowance）</span>：喝水、上厕所、疲劳恢复、偶尔等料。一般生理宽放 5~7%、疲劳宽放 5~10%，合计常取 10~20%。</li>
+      </ul>
+      <ul>
+        <li><span class="kw">UPH = 3600 ÷ 标准工时（秒）</span>；班产能 = 班时 × 稼动率 ÷ 标准工时 × 人数。</li>
+        <li>标准工时要定期复核：工程变更、治具更新、良率异动都要触发重测，否则排产和成本全失真。</li>
+      </ul>
+    </div>
+    </details>
+
+    <details id="k-takt">
+    <summary>🥁 节拍时间（Takt Time）与瓶颈</summary>
+    <div class="kbody">
+      <div class="oneline">一句话：Takt 是客户「要求」你多快出一个的鼓点，瓶颈是产线「实际」最慢的那一环——排线就是让全线的 CT 跟上 Takt。</div>
+      <ul>
+        <li><span class="kw">Takt = 可用生产时间 ÷ 客户需求量</span>。例：480 分钟 ÷ 900 件 = 32 秒/件。这是「销售的节奏」。</li>
+        <li><span class="kw">周期时间 CT（Cycle Time）</span>：各工位实际做完一件的时间。全线产出由<b>最大 CT 的瓶颈站</b>决定。</li>
+        <li><span class="kw">平衡率 = 各工位 CT 之和 ÷ (瓶颈CT × 工位数)</span>。低于 85% 说明工时分配不均，用 ECRS 重新拆并工位。</li>
+      </ul>
+      <div class="case"><b>口诀：</b>瓶颈动一动，全线跟着动。改善非瓶颈站（如给瓶颈前补缓冲）不涨产出，只涨库存——先解瓶颈，别的缓一缓。</div>
+    </div>
+    </details>
+
+    <details id="k-oee">
+    <summary>🏭 OEE（设备综合效率）</summary>
+    <div class="kbody">
+      <div class="oneline">一句话：时间稼动率 × 性能稼动率 × 良品率，把设备「时间损失、速度损失、不良损失」三类损失合成一个数。</div>
+      <ul>
+        <li><span class="kw">时间稼动率</span> = (负荷时间 − 停机时间) ÷ 负荷时间。对应：故障、换线、待料。</li>
+        <li><span class="kw">性能稼动率</span> = 实际产量 × 理论CT ÷ 运行时间。对应：小停机、降速运转。</li>
+        <li><span class="kw">良品率</span> = 良品 ÷ 总产量。对应：开机后做废的部分。</li>
+        <li>世界级水平约 <b>85%</b>（90% × 95% × 99.9%）；多数工厂实测只有 40~60%——因为三项相乘，损失是滚雪球的。</li>
+      </ul>
+      <div class="case"><b>用法：</b>OEE 低不要急着说「多买设备」，先拆三大项看哪项最亏，分别对应 TPM（停机）、快速换线（SMED）、品质改善。</div>
+    </div>
+    </details>
+
+    <details id="k-yield">
+    <summary>📉 良率体系（Yield / FPY / RTY）</summary>
+    <div class="kbody">
+      <div class="oneline">一句话：直通率 FPY 看第一次就做对的比例，滚动良率 RTY 是全流程 FPY 连乘——一个站 99% 不代表全线 99%。</div>
+      <ul>
+        <li><span class="kw">FPY（First Pass Yield）</span>：单工位投入中不经返工直接合格的比例。返工救回来的<b>不算</b>合格。</li>
+        <li><span class="kw">RTY（Rolled Throughput Yield）</span> = 各工位 FPY 连乘。例：5 个站各 98% → RTY = 0.98⁵ ≈ 90.4%——直观看「串联放大」效应。</li>
+        <li><span class="kw">直通率 vs 良率（Final Yield）</span>：良率含返修品，好看但骗人；FPY/RTY 才反映过程真实水平。</li>
+      </ul>
+      <div class="case"><b>管理含义：</b>RTY 每低 1%，就是实打实的材料+人工浪费。要提升 RTY，优先攻「工位数量多 × FPY 低」的站——这也是为什么改善重点常用柏拉图 + 层别法锁定。</div>
+    </div>
+    </details>
+
+    <details id="k-d8">
+    <summary>📋 8D 问题解决流程</summary>
+    <div class="kbody">
+      <div class="oneline">一句话：客诉和重大品质问题的标准作业流程——先止血（D3），再挖根（D4），最后防复发（D7）。</div>
+      <table>
+        <tr><th>步骤</th><th>内容</th><th>关键点</th></tr>
+        <tr><td>D0</td><td>征兆与紧急反应</td><td>评估要不要走 8D</td></tr>
+        <tr><td>D1</td><td>成立小组</td><td>跨部门，有组长有分工</td></tr>
+        <tr><td>D2</td><td>问题描述</td><td>5W2H，用数据说话</td></tr>
+        <tr><td>D3</td><td>临时围堵</td><td>隔离/挑选/返工，先保客户！</td></tr>
+        <tr><td>D4</td><td>根因分析</td><td>发生原因 + 流出原因，5Why/鱼骨图</td></tr>
+        <tr><td>D5</td><td>选定永久对策</td><td>对策必须对应根因</td></tr>
+        <tr><td>D6</td><td>实施与验证</td><td>用前后数据证明有效</td></tr>
+        <tr><td>D7</td><td>预防再发</td><td>更新 FMEA/SOP/CP，横展同类产品产线</td></tr>
+        <tr><td>D8</td><td>结案表彰</td><td>总结经验，认可团队</td></tr>
+      </table>
+      <div class="case"><b>最常被审掉的两处：</b>D3 没有时效（客户已经收到不良了围堵还没启动）；D7 没横展（这条线改了，隔壁线一模一样的问题还在）。</div>
+    </div>
+    </details>
+
+    <details id="k-6sigma">
+    <summary>📊 六西格玛（Six Sigma）简介</summary>
+    <div class="kbody">
+      <div class="oneline">一句话：用 DMAIC 五步做数据驱动的深度改善，目标是把缺陷率压到 3.4 PPM。</div>
+      <ul>
+        <li><span class="kw">D 定义</span>：项目章程、CTQ（客户关键质量特性）、Y=f(x) 思路。</li>
+        <li><span class="kw">M 测量</span>：先确认量具可信（MSA/GRR），再收基线数据。</li>
+        <li><span class="kw">A 分析</span>：假设检验、回归、方差分析，用统计锁定关键少数因子 X。</li>
+        <li><span class="kw">I 改善</span>：DOE 试验设计找最优参数窗口。</li>
+        <li><span class="kw">C 控制</span>：SPC 管制图 + 控制计划，把改善成果锁住。</li>
+        <li>西格玛等级参考：3σ ≈ 66807 PPM，4σ ≈ 6210 PPM，5σ ≈ 233 PPM，6σ ≈ 3.4 PPM。</li>
+      </ul>
+      <div class="case"><b>什么时候用：</b>问题复杂、因子多、拍脑袋定不了因果关系时上六西格玛；日常 80% 的产线问题，QC 手法 + 8D 就够了——别拿大炮打蚊子，也别拿弹弓打坦克。</div>
+    </div>
+    </details>
+
+  </div>
+</section>
+
+<!-- ============ 流水线计时制 ============ -->
+<section id="tab-line" class="tabpane hidden">
+  <div class="card">
+    <h2>流水线标准工时 & 产能（计时制 · 线平衡）</h2>
+    <div class="desc">与单人计件不同：流水线整线产出由<b>最慢工位（瓶颈）</b>决定。这里按各工位实测时间，算线平衡率、平滑指数与整线产能。</div>
+    <div class="grid">
+      <div><label>每班作业时间（分钟）</label><input type="number" id="ln_shift" step="1" value="480"></div>
+      <div><label>稼动率（%）</label><input type="number" id="ln_act" step="1" value="90"></div>
+      <div><label>评比系数（%，统一套用）</label><input type="number" id="ln_rating" step="1" value="100"></div>
+      <div><label>宽放率（%，统一套用）</label><input type="number" id="ln_allow" step="0.1" value="15"></div>
+      <div><label>客户需求节拍 Takt（秒/件，可选）</label><input type="number" id="ln_takt" step="0.01" placeholder="如 32"></div>
+    </div>
+    <table id="ln_tbl">
+      <thead><tr><th style="width:32%">工位名称</th><th>观测时间（秒）</th><th>工位标准时间（秒）</th><th></th></tr></thead>
+      <tbody></tbody>
+    </table>
+    <button class="btn btn-ghost" style="margin-top:10px" onclick="lnAddRow()">+ 添加工位</button>
+    <button class="btn btn-primary" style="margin-top:10px;margin-left:8px" onclick="calcLine()">计算线平衡 & 产能</button>
+    <button class="btn btn-ghost" style="margin-top:10px;margin-left:8px" onclick="ecrsSuggest()">💡 一键 ECRS 建议</button>
+    <div class="result" id="ln_out"></div>
+    <div id="ln_bars" style="margin-top:10px"></div>
+    <div class="result" id="ecrs_out" style="border-left:4px solid #f59e0b;background:#fffbeb"></div>
+    <div class="mini">用法：先填各工位秒表观测时间 → 改评比/宽放看工位标准时间实时变化 → 点计算看瓶颈、平衡率、整线班产能。填了 Takt 还会判产能够不够。点「ECRS 建议」按 ECRS 四原则自动给改善方向。</div>
+  </div>
+</section>
+
+<!-- ============ 口袋工位（V1.2 同文档平铺嵌入） ============ -->
+<section id="tab-pocket" class="tabpane hidden">
+<style>
+#tab-pocket *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}#tab-pocket{
+--bg:#f4f6f9;--card:#fff;--card2:#f7f9fc;--line:#e2e8f0;--tx:#111827;--tx2:#64748b;
+--pri:#1668b3;--pri-l:#e9f2fb;--ok:#0f9d58;--ok-l:#e8f7ef;--warn:#e8890c;--warn-l:#fdf3e2;
+--bad:#d93025;--bad-l:#fdeceb;--rad:14px;
+--sh:0 1px 3px rgba(15,40,80,.07),0 6px 20px rgba(15,40,80,.045);
+--focus:0 0 0 3px rgba(22,104,179,.16);
+--hdr:linear-gradient(135deg,#1a72bd,#0e4f8f);
+}#tab-pocket.dk{
+--bg:#0f1319;--card:#181e27;--card2:#1e252f;--line:#2b3542;--tx:#e9eef5;--tx2:#93a1b1;
+--pri:#4da3e8;--pri-l:#132c42;--ok:#3ecf8e;--ok-l:#0f2720;--warn:#f0a83c;--warn-l:#2b2113;
+--bad:#f4706a;--bad-l:#2c1618;
+--sh:0 1px 3px rgba(0,0,0,.4),0 6px 20px rgba(0,0,0,.3);
+--focus:0 0 0 3px rgba(77,163,232,.22);
+--hdr:linear-gradient(135deg,#123a5c,#0c2740);
+}#tab-pocket{margin:0;padding:0}#tab-pocket{background:var(--bg);color:var(--tx);font:15px/1.55 -apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei","Helvetica Neue",Arial,sans-serif;
+padding-bottom:calc(66px + env(safe-area-inset-bottom));-webkit-text-size-adjust:100%}#tab-pocket header{position:sticky;top:0;z-index:20;background:var(--hdr);color:#fff;padding:calc(10px + env(safe-area-inset-top)) 14px 10px;
+display:flex;align-items:center;gap:11px;box-shadow:0 2px 12px rgba(10,30,60,.18)}#tab-pocket .logo{width:40px;height:40px;flex:0 0 40px;border-radius:11px;background:rgba(255,255,255,.16);
+display:flex;align-items:center;justify-content:center;font:800 14px/1 inherit;letter-spacing:.5px;border:1px solid rgba(255,255,255,.22)}#tab-pocket .ht{flex:1;min-width:0}#tab-pocket .t1{font-size:16.5px;font-weight:700;letter-spacing:.4px}#tab-pocket .t2{font-size:11.5px;opacity:.78;margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}#tab-pocket .icon-btn{flex:0 0 auto;width:36px;height:36px;border-radius:10px;border:1px solid rgba(255,255,255,.25);
+background:rgba(255,255,255,.1);color:#fff;font-size:16px;cursor:pointer;line-height:1}#tab-pocket nav{position:fixed;left:0;right:0;bottom:0;z-index:30;background:var(--card);border-top:1px solid var(--line);
+display:flex;overflow-x:auto;gap:2px;padding:6px 6px calc(6px + env(safe-area-inset-bottom));scrollbar-width:none;
+box-shadow:0 -2px 14px rgba(15,40,80,.07)}#tab-pocket nav::-webkit-scrollbar{display:none}#tab-pocket .tab{flex:0 0 auto;min-width:62px;border:0;background:none;color:var(--tx2);font:600 12px/1.1 inherit;
+padding:9px 7px;border-radius:11px;display:flex;flex-direction:column;align-items:center;gap:4px;cursor:pointer;transition:.15s}#tab-pocket .tab .dot{width:18px;height:3px;border-radius:2px;background:currentColor;opacity:.35}#tab-pocket .tab.on{color:var(--pri);background:var(--pri-l)}#tab-pocket .tab.on .dot{opacity:1;width:22px}#tab-pocket .page{display:none;padding:14px 13px 22px;max-width:760px;margin:0 auto}#tab-pocket .page.on{display:block;animation:pk-fade .18s ease}
+@keyframes pk-fade{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}#tab-pocket .card{background:var(--card);border:1px solid var(--line);border-radius:var(--rad);padding:14px;margin-bottom:12px;box-shadow:var(--sh)}#tab-pocket .card>h3{margin:0 0 11px;font-size:14px;display:flex;align-items:center;gap:8px;font-weight:700}#tab-pocket .card>h3::before{content:"";width:3px;height:14px;border-radius:2px;background:var(--pri);flex:0 0 3px}#tab-pocket .hint{font-size:12.5px;color:var(--tx2);line-height:1.6;margin:-4px 0 11px}#tab-pocket label.f{display:block;margin-bottom:10px}#tab-pocket label.f>span{display:block;font-size:12.5px;color:var(--tx2);margin-bottom:5px;font-weight:600}#tab-pocket input, #tab-pocket select, #tab-pocket textarea{width:100%;padding:10px 12px;border:1px solid var(--line);border-radius:10px;
+background:var(--card2);color:var(--tx);font:inherit;font-size:15px;outline:none;transition:.15s}#tab-pocket textarea{resize:vertical;min-height:74px;line-height:1.6}#tab-pocket input:focus, #tab-pocket select:focus, #tab-pocket textarea:focus{border-color:var(--pri);box-shadow:var(--focus);background:var(--card)}#tab-pocket input[type=range]{padding:0;height:26px;background:none;box-shadow:none!important;accent-color:var(--pri)}#tab-pocket button.btn{border:0;border-radius:11px;padding:11px 14px;font:600 14px inherit;background:var(--pri);color:#fff;cursor:pointer;transition:.15s}#tab-pocket button.btn:active{transform:scale(.98)}#tab-pocket .btn.g{background:var(--card2);color:var(--tx);border:1px solid var(--line)}#tab-pocket .btn.ok{background:var(--ok);color:#fff}#tab-pocket .btn.bad{background:var(--bad);color:#fff}#tab-pocket .btn.wa{background:var(--warn);color:#fff}#tab-pocket .btn.sm{padding:7px 11px;font-size:12.5px;border-radius:9px}#tab-pocket .row{display:flex;gap:9px}#tab-pocket .row>*{flex:1;min-width:0}#tab-pocket .g2{display:grid;grid-template-columns:1fr 1fr;gap:9px}#tab-pocket .g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:9px}#tab-pocket .res{display:grid;grid-template-columns:1fr 1fr;gap:8px}#tab-pocket .res>div{background:var(--card2);border:1px solid var(--line);border-radius:10px;padding:8px 10px}#tab-pocket .res b{display:block;font-size:19px;font-weight:700;font-variant-numeric:tabular-nums;line-height:1.3}#tab-pocket .res span{font-size:11.5px;color:var(--tx2)}#tab-pocket .big{text-align:center;padding:13px;border-radius:12px;background:var(--pri-l);border:1px solid var(--line)}#tab-pocket .big b{font-size:31px;display:block;font-variant-numeric:tabular-nums;color:var(--pri);line-height:1.15}#tab-pocket .big span{font-size:12px;color:var(--tx2)}#tab-pocket .big.ok{background:var(--ok-l)}#tab-pocket .big.ok b{color:var(--ok)}#tab-pocket .big.wa{background:var(--warn-l)}#tab-pocket .big.wa b{color:var(--warn)}#tab-pocket .big.bad{background:var(--bad-l)}#tab-pocket .big.bad b{color:var(--bad)}#tab-pocket .sw{font-size:46px;font-weight:700;text-align:center;font-variant-numeric:tabular-nums;letter-spacing:.5px;padding:2px 0 4px}#tab-pocket .sw.run{color:var(--ok)}#tab-pocket .laps{max-height:196px;overflow:auto;border:1px solid var(--line);border-radius:10px;margin-top:10px}#tab-pocket .laps .li{display:flex;justify-content:space-between;align-items:center;padding:7px 11px;font-size:13.5px;
+border-bottom:1px solid var(--line);font-variant-numeric:tabular-nums}#tab-pocket .laps .li:last-child{border-bottom:0}#tab-pocket .laps .li.hot{background:var(--ok-l);color:var(--ok);font-weight:700}#tab-pocket .laps .li b{font-weight:600}#tab-pocket .laps .empty{padding:14px;text-align:center;color:var(--tx2);font-size:13px}#tab-pocket .tag{display:inline-block;padding:2px 8px;border-radius:20px;font-size:11.5px;font-weight:700;line-height:1.7}#tab-pocket .tag.ok{background:var(--ok-l);color:var(--ok)}#tab-pocket .tag.wa{background:var(--warn-l);color:var(--warn)}#tab-pocket .tag.bad{background:var(--bad-l);color:var(--bad)}#tab-pocket .tag.pr{background:var(--pri-l);color:var(--pri)}#tab-pocket .sep{height:1px;background:var(--line);margin:13px 0}#tab-pocket .histwrap{position:relative;padding:6px 0 20px}#tab-pocket .hist{display:flex;align-items:flex-end;gap:2px;height:112px;border-bottom:1px solid var(--line)}#tab-pocket .hb{flex:1;height:100%;display:flex;align-items:flex-end;min-width:0}#tab-pocket .hb i{display:block;width:100%;background:linear-gradient(180deg,var(--pri),rgba(22,104,179,.55));border-radius:3px 3px 0 0;min-height:1px}#tab-pocket .spec{position:absolute;top:6px;height:112px;width:2px;background:var(--bad);border-radius:1px}#tab-pocket .spec::after{content:attr(data-l);position:absolute;bottom:-17px;left:50%;transform:translateX(-50%);
+font-size:10px;color:var(--bad);font-weight:700;white-space:nowrap}#tab-pocket .hist .mid{position:absolute;top:6px;height:112px;width:1px;background:var(--ok);opacity:.9}#tab-pocket .fm{border:1px solid var(--line);border-radius:12px;padding:11px;margin-bottom:9px;background:var(--card2)}#tab-pocket .fm.hi{border-color:var(--bad);background:var(--bad-l)}#tab-pocket .fm.wa2{border-color:var(--warn);background:var(--warn-l)}#tab-pocket .fm .top{display:flex;align-items:center;gap:9px;margin-bottom:9px}#tab-pocket .fm .rpn{flex:0 0 auto;min-width:62px;text-align:center;border-radius:9px;padding:5px 7px;background:var(--card);border:1px solid var(--line)}#tab-pocket .fm .rpn b{display:block;font-size:19px;font-weight:800;font-variant-numeric:tabular-nums;line-height:1.1}#tab-pocket .fm .rpn span{font-size:10px;color:var(--tx2);letter-spacing:.5px}#tab-pocket .fm .top .ttl{flex:1;min-width:0;font-weight:700;font-size:14px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}#tab-pocket .mini{font-size:11.5px;color:var(--tx2);margin-bottom:5px}#tab-pocket .sod{display:flex;align-items:center;gap:8px}#tab-pocket .sod .nm{flex:0 0 34px;font-size:12px;font-weight:700;color:var(--tx2)}#tab-pocket .sod .val{flex:0 0 46px;text-align:center}#tab-pocket .sod input[type=number]{padding:6px 4px;text-align:center;font-weight:700}#tab-pocket .rca-w{display:flex;gap:8px;align-items:flex-start;margin-bottom:8px}#tab-pocket .rca-w .idx{flex:0 0 44px;font-size:12px;font-weight:700;color:var(--pri);padding-top:11px}#tab-pocket .rca-w .idx2{flex:0 0 34px;font-size:12px;font-weight:700;color:var(--tx2);padding-top:11px}#tab-pocket .ck{display:flex;align-items:flex-start;gap:9px;padding:8px 10px;border:1px solid var(--line);border-radius:10px;
+margin-bottom:6px;background:var(--card2);font-size:13.5px;cursor:pointer;line-height:1.5}#tab-pocket .ck input{width:19px;height:19px;flex:0 0 19px;margin:1px 0 0;accent-color:var(--pri);padding:0}#tab-pocket .ck span{flex:1}#tab-pocket .ck.on{background:var(--warn-l);border-color:var(--warn)}#tab-pocket .m6{border:1px solid var(--line);border-radius:12px;margin-bottom:9px;overflow:hidden}#tab-pocket .m6>.h{padding:10px 12px;background:var(--card2);font-weight:700;font-size:13.5px;display:flex;justify-content:space-between;
+align-items:center;cursor:pointer;gap:8px}#tab-pocket .m6>.h .ar{font-size:11px;color:var(--tx2);transition:.2s}#tab-pocket .m6.open>.h .ar{transform:rotate(90deg)}#tab-pocket .m6>.b{display:none;padding:10px 12px 12px}#tab-pocket .m6.open>.b{display:block}#tab-pocket .cv{display:flex;align-items:center;gap:9px;padding:8px 0;border-bottom:1px solid var(--line)}#tab-pocket .cv:last-child{border-bottom:0}#tab-pocket .cv .u{flex:0 0 84px;font-size:13px;color:var(--tx2);font-weight:600}#tab-pocket .cv .v{flex:1;min-width:0;text-align:right;font-size:16px;font-weight:700;font-variant-numeric:tabular-nums;word-break:break-all}#tab-pocket .note{border:1px solid var(--line);border-radius:12px;padding:11px;margin-bottom:9px;background:var(--card2);position:relative}#tab-pocket .note .nh{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:7px}#tab-pocket .note .nh b{font-size:13px;color:var(--tx2);font-weight:600}#tab-pocket .note textarea{min-height:60px;background:var(--card);font-size:14px}#tab-pocket .foot{text-align:center;font-size:11.5px;color:var(--tx2);padding:8px 0 4px;line-height:1.8}#tab-pocket .toast{position:fixed;left:50%;bottom:calc(84px + env(safe-area-inset-bottom));transform:translate(-50%,14px);
+background:rgba(20,30,45,.94);color:#fff;padding:9px 17px;border-radius:22px;font-size:13.5px;z-index:99;
+opacity:0;pointer-events:none;transition:.22s;max-width:80vw;text-align:center}#tab-pocket .toast.on{opacity:1;transform:translate(-50%,0)}#tab-pocket .mono{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:13px}
+@media(max-width:360px){#tab-pocket .res{grid-template-columns:1fr}#tab-pocket .g3{grid-template-columns:1fr 1fr}}
+@media print{#tab-pocket header, #tab-pocket nav, #tab-pocket .noprint{display:none!important}#tab-pocket .page{padding:0}#tab-pocket .card{box-shadow:none;page-break-inside:avoid}}
+
+</style>
+<div class="card">
+    <h2>🧰 口袋工位 · 8 合 1 便携手册</h2>
+    <div class="desc">测时 · 制程(Cp/Cpk) · OEE · 根因 · FMEA · 8D · 换算 · 便签，整套装进宝箱。与上面各页数据互不干扰。</div>
+  </div>
+
+
+<header data-page-node-id="Z0qgjMCHEFxDtBS7GPoVn7">
+  <div class="logo" data-page-node-id="aUIx7ebgyimXTpmaH6LpDg">PIE</div>
+  <div class="ht" data-page-node-id="BOvD8LUaoibLBFrmsozwxx">
+    <div class="t1" data-page-node-id="Rruc3vC1iaynOmofiV0vUK">口袋工位</div>
+    <div class="t2" data-page-node-id="oGg8p6LB3WAiJsdBpRAkxQ">测时 · 工时 · 制程 · OEE · 根因 · FMEA · 8D</div>
+  </div>
+  <button class="icon-btn" id="themeBtn" title="明暗切换" data-page-node-id="D00P7fxPqruXxxPfl8vhT4">◐</button>
+</header>
+
+<nav data-page-node-id="Ej9ONNiR6eTtz9EQV4KVHm">
+  <button class="tab on" data-t="study" data-page-node-id="Adq3Cl08nSr4o3qtQxCUAJ"><i class="dot" data-page-node-id="6f0CLAPJ4mH0C5um2DMbLD"></i>测时</button>
+  <button class="tab" data-t="cap" data-page-node-id="eBdUkCrtLkZvNGkGWPtWKZ"><i class="dot" data-page-node-id="FkfgVf7JwcEdEUt2gNkjOV"></i>制程</button>
+  <button class="tab" data-t="oee" data-page-node-id="bPECBhkghLU7Yv3YtgFZ9b"><i class="dot" data-page-node-id="tj0zIB3XzCav6N3NtVOlqG"></i>OEE</button>
+  <button class="tab" data-t="rca" data-page-node-id="ishGDc6XolBwY1UuVLri3v"><i class="dot" data-page-node-id="ggJu2vxOk5JW4rJIrmgK2l"></i>根因</button>
+  <button class="tab" data-t="fmea" data-page-node-id="gK4er7dlCY5BVIy2Sn77Gm"><i class="dot" data-page-node-id="IB8fBZOtNi1lawnvtswzWL"></i>FMEA</button>
+  <button class="tab" data-t="d8" data-page-node-id="JODueFut5NWf3isuoJfqG4"><i class="dot" data-page-node-id="MTFYaLglUeeFNFVYuLoTjs"></i>8D</button>
+  <button class="tab" data-t="conv" data-page-node-id="LnCqQxC0KuED1ZDDFoRZnh"><i class="dot" data-page-node-id="pJ713bgsGhLPCsv3XoUtHd"></i>换算</button>
+  <button class="tab" data-t="note" data-page-node-id="TPOXn9KZKAPdfMRYWc2bqp"><i class="dot" data-page-node-id="C8Lv1RL9vwUZzmlgoMHQwr"></i>便签</button>
+</nav>
+
+<!-- ============ 测时 ============ -->
+<section class="page on" id="p-study" data-page-node-id="6rwYAlB8sQRscrOLYLbMrz">
+  <div class="card" data-page-node-id="pYxPliZsBAn9K7g2SQImK2">
+    <h3 data-page-node-id="X8WATzXpN8WJ24fRVhiJdC">循环测时秒表</h3>
+    <div class="hint" data-page-node-id="llvOuApFfFJlmnu7nxaHfJ">站到工位旁，按「开始」，每完成一个循环按一次「计次」。观察 10 个以上循环再停下来看结论。</div>
+    <div class="sw" id="swTime" data-page-node-id="N28GL5JY60wuxr6Em0XJWz">0.00s</div>
+    <div class="row" style="margin-top:6px" data-page-node-id="dZatOucjGFFWYQXRhJOazW">
+      <button class="btn ok" id="swGo" data-page-node-id="uEKlQVOuBMbNU0vG9WGOtm">开始</button>
+      <button class="btn" id="swLap" data-page-node-id="hyaRGLGODC9uBjnTuyjvS0">计次</button>
+      <button class="btn g" id="swRst" data-page-node-id="82alm9aF1943KHE6DB0fH9">清零</button>
+    </div>
+    <div class="laps" id="swLaps" data-page-node-id="CQKEnq95AsbYAvLU4eT6qf"></div>
+  </div>
+
+  <div class="card" data-page-node-id="B4Le42JMcWcsafZEP4Cphw">
+    <h3 data-page-node-id="sf3d4ADhCYd5soEHLx44ah">评比系数（西屋法）</h3>
+    <div class="hint" data-page-node-id="EwwMEYikTiJlSIYsQnhN9B">选「熟练度 / 努力度 / 工作条件 / 一致性」四档，加起来就是评比系数。拿不准就全选 D（=100%）。</div>
+    <div class="g2" id="westWrap" data-page-node-id="DQaKR7mjem4sUFZeZ5Dty0"></div>
+    <div class="res" style="margin-top:10px" data-page-node-id="BET09oYQ5siCi0XyLA3LcI">
+      <div data-page-node-id="dIZO6CREWf7GKN2P49ZtMl"><b id="prVal" data-page-node-id="HXHEEsZizVrzNaDl94CKTs">1.000</b><span data-page-node-id="ueQmveuWZFh8W6dR2JNqEt">评比系数 PR</span></div>
+      <div data-page-node-id="q4JGJqHvkbMNGkzNej8sHC"><b id="prAdj" data-page-node-id="ybDbGCrKsewCvQzFeJXN4w">0.0%</b><span data-page-node-id="aJnMM7vELaxvcKlYLNOMUO">相对标准快 / 慢</span></div>
+    </div>
+  </div>
+
+  <div class="card" data-page-node-id="L8DiGvHWQFpfdONH4eVjB0">
+    <h3 data-page-node-id="ddcBXRuSrsgwigPzIxC6OR">宽放率</h3>
+    <div class="hint" data-page-node-id="VCcnwFmAGGYtdHAmVeiHex">个人 + 疲劳 + 作业延迟 + 政策，四项累加。一般 12%～18%。</div>
+    <div class="g2" data-page-node-id="YQzLh3ey9RTaGBDIEBGCRJ">
+      <label class="f" data-page-node-id="vhckqDkwsjfDSMVhG8blCd"><span data-page-node-id="mxnWzg8NAyXKofWN4GYVkO">个人宽放 %</span><input type="number" id="al1" value="5" step="0.5" data-page-node-id="t7pQlJ0YZ1b04XZTyQ7YYa"></label>
+      <label class="f" data-page-node-id="VkPaidPlgvGu0y0XHs4GGs"><span data-page-node-id="3IdFrHyiGj0j7Tlva3ZDlC">疲劳宽放 %</span><input type="number" id="al2" value="4" step="0.5" data-page-node-id="2mnvb83cQlaITvky9XPREe"></label>
+      <label class="f" data-page-node-id="tSwt5SvG79HIZyJmyBSDXZ"><span data-page-node-id="m8gRheITtjO8qN7UrdBzlH">作业延迟 %</span><input type="number" id="al3" value="3" step="0.5" data-page-node-id="abLJr9XLEYaBzeTAo5ulwr"></label>
+      <label class="f" data-page-node-id="NXIcsi8IhGXxarM3aeonhb"><span data-page-node-id="Hi5VoBR9L3STHJE74AkDo2">政策 / 其他 %</span><input type="number" id="al4" value="2" step="0.5" data-page-node-id="ZgPoTOnXGkrIw0O0icInUw"></label>
+    </div>
+    <div class="res" data-page-node-id="ulB8CeLX2qFaHE3VzLAovc">
+      <div data-page-node-id="AVNIPFlNN3trjY9ngrqkun"><b id="alSum" data-page-node-id="E6igpF3SZjb0JRenN5dhUa">14.0%</b><span data-page-node-id="rsAnrQvaqhDzCer6n9X3Hi">合计宽放率</span></div>
+      <div data-page-node-id="6zq00J0lRbeQNaD5BEvgYP"><b id="alStd" data-page-node-id="8dybKClbKEaxXfwPynayXR">1.140</b><span data-page-node-id="KRCRZIAX86jT2QNmGZBVZj">宽放倍率</span></div>
+    </div>
+  </div>
+
+  <div class="card" data-page-node-id="N0Sv9eXrGzzIRXeGKAs0ts">
+    <h3 data-page-node-id="ex3XFAECPxcTIDNLpLu02G">标准工时结果</h3>
+    <label class="f" data-page-node-id="ehsVn6y5YqHmg2dAe2g2LI"><span data-page-node-id="S6K9JcNropoUm6ZjZ2MkfI">剔除异常值（超出 均值±3σ 的循环）</span>
+      <select id="swTrim" data-page-node-id="KWSpW6phJSikmeGDlushMz"><option value="0" data-page-node-id="4YDKUXusTfsrQzlJqzVfKC">不剔除</option><option value="1" data-page-node-id="mGln9DCsp3edhLJmGDg2RC">剔除并重算</option></select></label>
+    <div class="res" id="swStats" data-page-node-id="RlFbm36gYYSJEb7EiYshU5"></div>
+    <div class="sep" data-page-node-id="g2mNQAjQZ71F2L8KVjg5FE"></div>
+    <div class="res" data-page-node-id="7xkk9BvaVMfiuN2KRgyzYe">
+      <div data-page-node-id="sJVfuM03lIDtgMqbvGIy8g"><b id="rObs" data-page-node-id="l9fO4PXznr4phdeCqJ4T1T">—</b><span data-page-node-id="0UPjS0BdkEaRNuEA28w9oo">观测平均（秒）</span></div>
+      <div data-page-node-id="U63yYhGhFxTumTEKjSOFiQ"><b id="rNt" data-page-node-id="ZULOGEijkcFuLwEd5JUFju">—</b><span data-page-node-id="fE0Tnc3gr6CEYLRSgF4zTT">正常工时 NT（秒）</span></div>
+    </div>
+    <div class="big ok" style="margin-top:10px" data-page-node-id="NBwE77b2zgbCT7QPQTZgkB"><b id="rSt" data-page-node-id="l5014HRJ3qMcUHBpbPOdPD">—</b><span data-page-node-id="3S7Aeq5w2pg9KK1KshfESk">标准工时 ST = 观测 × PR × (1+宽放)</span></div>
+    <div class="row" style="margin-top:10px" data-page-node-id="HEfc96R3bKztDEmqz8wIVX">
+      <button class="btn g sm" id="swCsv" data-page-node-id="fRtiHiIh97ZLbpM9ulReuG">导出 CSV</button>
+      <button class="btn g sm" id="swCopy" data-page-node-id="eiePKMCWkFjp5zFw13gsyT">复制结论</button>
+      <button class="btn g sm" id="swSave" data-page-node-id="UPbyMdyobDRuATLLABYNjM">存为便签</button>
+    </div>
+  </div>
+
+  <div class="card" data-page-node-id="oyOPvsI5uR2g6SEOR5RIpn">
+    <h3 data-page-node-id="qMnSjNhXtjl7ujH2DiUwRU">需要测多少次？</h3>
+    <div class="hint" data-page-node-id="HiXOl2MXtQUlNHAyAYHFj7">按已测数据推算。达到建议次数前，先别急着定标准。</div>
+    <div class="g2" data-page-node-id="rU7DvHmDnq4D0eG5ZT4LRZ">
+      <label class="f" data-page-node-id="zfQt83hhxbV1BBTEOcCPT0"><span data-page-node-id="YJXRtyQ2L4F5iVZE17jBKS">精度要求 ±%</span><input type="number" id="nPrec" value="5" step="1" data-page-node-id="7zJ07V31KhrESoDNsC0aqH"></label>
+      <label class="f" data-page-node-id="9pRFoXaGv2RxqbKcYYypwg"><span data-page-node-id="KEGROWsFQqNdJPWRAV08E5">置信度</span><select id="nConf" data-page-node-id="l01GmSBF8Z9cn0PNgA1FWg"><option value="95" data-page-node-id="RrTDQTvmwdfpZWDsDHjlIO">95%</option><option value="99" data-page-node-id="pJNHzNbWfbJZ82Vdw2rSua">99%</option><option value="90" data-page-node-id="ZipfD5jDQKjT8mrxX8RkVY">90%</option></select></label>
+    </div>
+    <div class="res" data-page-node-id="En39XSb1BKZX8zzpKhLhsh">
+      <div data-page-node-id="cIx1AoEnfSUm6eWjQDQ9x5"><b id="nGe" data-page-node-id="CXkqgJCZNk6QLhP24cR982">—</b><span data-page-node-id="M8dhFJRJTT6GFfvIDMmHAZ">GE 经验公式建议次数</span></div>
+      <div data-page-node-id="3ZaW2przGSULSGeGRmcLLk"><b id="nT" data-page-node-id="OYKCAtKZl0O0fy4jBkkWKK">—</b><span data-page-node-id="nnVEGYOXMHc2qD7zQCpuEZ">t 分布法建议次数</span></div>
+    </div>
+  </div>
+
+  <div class="card" data-page-node-id="u5IMKiu8CWWsfBXn4fl01M">
+    <h3 data-page-node-id="3jHlGQPRhuxgPGqIgltQJi">产能推算</h3>
+    <div class="g3" data-page-node-id="O8QpsFtRG9PAHFZvF7iTRO">
+      <label class="f" data-page-node-id="12Kmrbcjkhqe6bDc93WSOC"><span data-page-node-id="kpi1aOVFuDEZNWThg7zXzF">班次时长（时）</span><input type="number" id="cH" value="8" step="0.5" data-page-node-id="HDpmYS3PK78KX1slg7Tv2p"></label>
+      <label class="f" data-page-node-id="gmjGIJztRk05xamT1dkAJE"><span data-page-node-id="IdMvKBy7dJ7vkmZYFHHXtG">利用率 %</span><input type="number" id="cU" value="90" step="1" data-page-node-id="ALuuxmPbwUxdWlt14hSXTT"></label>
+      <label class="f" data-page-node-id="uBK09DQCg614nfRzSNfbBW"><span data-page-node-id="ezCt8cj8s6y9zEjzCdWnrG">良率 %</span><input type="number" id="cY" value="98" step="0.5" data-page-node-id="ovxwmqcUFa4cYhv9dPOAqs"></label>
+    </div>
+    <div class="res" data-page-node-id="ZbPn1CnH2EETS82xIcAuH0">
+      <div data-page-node-id="cyYNvCHxO0Y9bjEUG2AzED"><b id="cPcs" data-page-node-id="X3HIjHrFPBvHbEBG0JdWOi">—</b><span data-page-node-id="vUNwGPSn4Gd0UAyFuBD5hE">理论产出（件/班）</span></div>
+      <div data-page-node-id="W2wYjG3LZ6UAGT9pC3c1wX"><b id="cGood" data-page-node-id="rMGcQ3fExGSiythrGB93z4">—</b><span data-page-node-id="aEVZTBZChQ8XrwxxSByBGo">良品产出（件/班）</span></div>
+      <div data-page-node-id="Xv1CcTKzWVvi63Rs0bJOYm"><b id="cTakt" data-page-node-id="xQ0JWEpDnnKtMN6dKjb7LJ">—</b><span data-page-node-id="eYKRxn9NMk7dor0M0AeME7">节拍（秒/件）</span></div>
+      <div data-page-node-id="svWHZFDKQbWCzejuHVz9sh"><b id="cPerH" data-page-node-id="EXALUjUwpxz9LU9I5d2YbP">—</b><span data-page-node-id="Gn5rowFBncr3Jqs03OH1Sg">产出（件/时）</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 制程能力 ============ -->
+<section class="page" id="p-cap" data-page-node-id="edesDYrLYkpVj8JyZaeLOr">
+  <div class="card" data-page-node-id="MPnaRS07jwE2EUwS7LE1De">
+    <h3 data-page-node-id="xWcqsGIqKoWlSDIKWcjhIw">制程能力 Cpk</h3>
+    <div class="hint" data-page-node-id="498pAnyxtFjDCHy0p4KhDH">把量测数据直接粘进来（换行、空格、逗号、制表符都认）。填上规格上下限，自动出 Cp / Cpk / Ca 和预估不良率。</div>
+    <label class="f" data-page-node-id="swEOQVCBPqB6Yr1FaFHx1h"><span data-page-node-id="g3Y25w2sRJZdkBt3G352KZ">量测数据</span><textarea id="capData" placeholder="10.02 10.05 9.98 10.01&#10;10.07 9.96 10.03 10.00"></textarea></label>
+    <div class="g3" data-page-node-id="oAet4RgIABqlZbPHMSK0uF">
+      <label class="f" data-page-node-id="Bwj3XO0msON6AirY3huLgD"><span data-page-node-id="jZ9t5jgRfkd55Mpl5ITw2e">USL 规格上限</span><input type="number" id="capUsl" step="any" placeholder="留空=不算" data-page-node-id="HUPh5WtdsaQnUvTQq5pwUS"></label>
+      <label class="f" data-page-node-id="d3H3Fz8Nb11Gb7hWNFHDoq"><span data-page-node-id="PEg1C7AEsONPJIGieU3AaF">LSL 规格下限</span><input type="number" id="capLsl" step="any" placeholder="留空=不算" data-page-node-id="pm2fHpKZkcT3juGuKEFTuV"></label>
+      <label class="f" data-page-node-id="RHV66MWsw6zfK3vYdsLmkF"><span data-page-node-id="HecEE3idjk1abGpF6BG0XY">目标值 T</span><input type="number" id="capT" step="any" placeholder="默认取中心" data-page-node-id="A8yqZ4ZyAHii4wPLDuB9XH"></label>
+    </div>
+    <label class="f" data-page-node-id="vcrYYGxKH52nCjACOx82Dp"><span data-page-node-id="JZsJ44TwnLVd5cvx8pBCXn">σ 估算法</span>
+      <select id="capSigma" data-page-node-id="E1yOtLh1fY1ZgHLZ2DRYKo">
+        <option value="s" data-page-node-id="FqWOXbf8Okh917q0TQ5LqQ">样本标准差 s（常用）</option>
+        <option value="mr" data-page-node-id="XFztUK4OL7AMvL2j7kXsUf">移动极差 MR̄/d₂（I-MR 管制图法）</option>
+      </select></label>
+    <button class="btn" id="capGo" style="width:100%" data-page-node-id="OAAHVQm6F2GBlRkFaAwDCX">开始计算</button>
+  </div>
+
+  <div class="card" id="capOut" style="display:none" data-page-node-id="riaIMQQug1ltvZDZnDgcQg">
+    <h3 data-page-node-id="zuy4GGohP6nuiG1PgnxIIH">结果</h3>
+    <div class="big" id="capBig" data-page-node-id="6yAUXshwBfcb6e6wcrqCSt"><b id="capCpk" data-page-node-id="XLJUMQvttsUPySOCgOEPna">—</b><span id="capGrade" data-page-node-id="gZdML1cDWP6MOtux0ZyjXE">—</span></div>
+    <div class="res" style="margin-top:11px" data-page-node-id="qe3656Whz2MIac2y7WHAng">
+      <div data-page-node-id="QGwgAJZ6ZxgEroXKCEkugN"><b id="capN" data-page-node-id="OG6HDnRfpZkm46LivvE2No">—</b><span data-page-node-id="IcEXR5xID4R6DG5Jqxk0Bp">样本数 n</span></div>
+      <div data-page-node-id="erDqKASIVHARVUDhH7QiWp"><b id="capMean" data-page-node-id="QAdmSbOLpw5YXVoEgzObMR">—</b><span data-page-node-id="cEDLyJJWz4lY4UHBCNqGOJ">均值 X̄</span></div>
+      <div data-page-node-id="QAkimBu90J91wstcWGJeyl"><b id="capS" data-page-node-id="oV6QUGazx2lErgaJuAj6yj">—</b><span data-page-node-id="5a6RSUuM3i3pwrIIsBRsQp">标准差 σ</span></div>
+      <div data-page-node-id="tKUY5l1Smm2b9SyT50cCv9"><b id="capRange" data-page-node-id="7utJqqxTofvE4L7DHN2atY">—</b><span data-page-node-id="VfhfIPFEoATHS8sMgPnLuE">极差 R</span></div>
+      <div data-page-node-id="tlBjxUaLi9CntBhHcgjySH"><b id="capCp" data-page-node-id="pt3laGYINFmlyb93whXLBr">—</b><span data-page-node-id="XCyVquT9u3x5eMsPAFCrXs">Cp 精密度</span></div>
+      <div data-page-node-id="8LeNVdNOKST6MLs1mKboSZ"><b id="capCa" data-page-node-id="xtvoNPxuZZM4aauXJXEJvl">—</b><span data-page-node-id="tHvydeVYnlk9ycN7Cp4V52">Ca 准确度</span></div>
+      <div data-page-node-id="b2z0EhRj7C7bhQ2gsx5myO"><b id="capCpu" data-page-node-id="UnwPiM5C60tYQCYOM515D9">—</b><span data-page-node-id="wHHYgCBKlMY6Hd8Ok9DZDD">Cpu 上限侧</span></div>
+      <div data-page-node-id="ph2KaYoL8dEdrk1Y6URUe6"><b id="capCpl" data-page-node-id="FA7SVjZ85sitixD5oE2m9p">—</b><span data-page-node-id="kX9fzO0YJbTVvxmOCNbcPZ">Cpl 下限侧</span></div>
+      <div data-page-node-id="axJhGUuLDfSecf1lXsDcmj"><b id="capPpm" data-page-node-id="MUbhsePEtrPhdq1IWEmll3">—</b><span data-page-node-id="Xnp4LGnd0lmU1ZvLZ4BKeD">预估不良 PPM</span></div>
+      <div data-page-node-id="Labc9JDrB32Ip51qbyRGU0"><b id="capSigmaLv" data-page-node-id="voQlr71Jsg7SYX1okyLF59">—</b><span data-page-node-id="fBETfz9SyV4LD0SmhaNB6D">σ 水平</span></div>
+    </div>
+    <div class="sep" data-page-node-id="qzQNtKl1DiIXJVmdWFc328"></div>
+    <div class="histwrap" id="capHist" data-page-node-id="fw7OrryGKuRrecODixoXmt"></div>
+    <div class="row noprint" style="margin-top:12px" data-page-node-id="SodCYqUUaWfdmMhCcBUDLG">
+      <button class="btn g sm" id="capCopy" data-page-node-id="jPQDNQfsIkDqovwn4uSikl">复制结论</button>
+      <button class="btn g sm" id="capDemo" data-page-node-id="oYDGOzksvivldubrEWY0JR">填示例数据</button>
+    </div>
+  </div>
+
+  <div class="card" data-page-node-id="WuFnlkhHXmjH3RFGwHIHBt">
+    <h3 data-page-node-id="ptXN5hm6cxswjmvG8Z8DLs">Cpk 判定速查</h3>
+    <div class="hint" data-page-node-id="3IVdVTbpct8c2VgYV62ij6">给客户看的口径，各家略有差别，以下是通行的等级划分：</div>
+    <div class="res" data-page-node-id="yjdz7FMsGNz0tCLhaCw4qP">
+      <div data-page-node-id="YGDVcpS2ale7lssbOQ2i2V"><b style="color:var(--ok)" data-page-node-id="KuiPymzKo3UCIrIrghBeEO">≥ 1.67</b><span data-page-node-id="7IP2RO674vReEtHeFCmwRY">A+ 特级 · 可放宽检验</span></div>
+      <div data-page-node-id="ddraVjKFzskfRo4cR2D8GB"><b style="color:var(--ok)" data-page-node-id="XSCo92Jnb8ahoKZB6rHGGd">1.33 ~ 1.67</b><span data-page-node-id="lE2IN3YhxXaeObI4QPcR4x">A 优 · 制程稳定</span></div>
+      <div data-page-node-id="jkX638ulIE38AamauELQGe"><b style="color:var(--pri)" data-page-node-id="9DED9q6tk7u1bpoLRcmS03">1.00 ~ 1.33</b><span data-page-node-id="59cVvseAaE4sCZkTLEWnJD">B 良 · 需注意趋势</span></div>
+      <div data-page-node-id="HlCCme5enF51kIChZQEysr"><b style="color:var(--warn)" data-page-node-id="CsFTGmTEAN6mmgDQ1qze6B">0.67 ~ 1.00</b><span data-page-node-id="d1SnbHXaAK4AFNiGlVVq3M">C 一般 · 需改善</span></div>
+      <div data-page-node-id="FLh0Pc5dMIYC0AzW3bn4HE"><b style="color:var(--bad)" data-page-node-id="92mjkCCk72jJFFMNqhjI5k">&lt; 0.67</b><span data-page-node-id="lE2r3eCaZuidmyFtCYVxPD">D 差 · 必须停线检讨</span></div>
+      <div data-page-node-id="kr5IdbolNLZ5PenMkBB6tA"><b style="color:var(--tx2)" data-page-node-id="7pyt9e9KL3kMGfW9DqJ4PH">Cpk=0</b><span data-page-node-id="S3Xf8dkJVaecr0z6k0GuZo">均值已压在规格线上</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ OEE ============ -->
+<section class="page" id="p-oee" data-page-node-id="N30XnZ57KgYSVkGDLZewKz">
+  <div class="card" data-page-node-id="ugXq39lUuaW0FGL73POsYI">
+    <h3 data-page-node-id="P2mVIhPBwzA26nUOa6ugK2">设备综合效率 OEE</h3>
+    <div class="hint" data-page-node-id="c08ducr9hBEAy2dL0Ize33">OEE = 时间稼动率 × 性能稼动率 × 良品率。三大损失会自动算成分钟数，一眼看出该先攻哪一块。</div>
+    <div class="g2" data-page-node-id="lFoYg5naUFXQzm3mCACPAK">
+      <label class="f" data-page-node-id="eNOkn5Pr141MBMAbtxuvTi"><span data-page-node-id="HH9EY9vq3xmhzLWs0XvrFd">计划生产时间（分）</span><input type="number" id="oeP" value="480" step="1" data-page-node-id="SpkpoDHzCijwVgqyfUhDGc"></label>
+      <label class="f" data-page-node-id="GWk6EbwiDbAwskL2dETJ4c"><span data-page-node-id="fzCQi7l7Nruwx3ZE8SpfUi">理论节拍（秒/件）</span><input type="number" id="oeC" value="12" step="any" data-page-node-id="Fk9lt20sB43fGb0EetpWyQ"></label>
+      <label class="f" data-page-node-id="vHCZsIn8Qx4ZASQwCi6KDq"><span data-page-node-id="PqTZcHFMW2jBs4W8VnZC24">计划停机（分）<br data-page-node-id="3Owt4HPOXoNqb0ckozY9F3"><i style="font-weight:400" data-page-node-id="9zIpLLcS4SggbuGcMEBBVj">保养、早会</i></span><input type="number" id="oeA" value="20" step="1" data-page-node-id="NWRQK9WLF35RJpHilEoMrM"></label>
+      <label class="f" data-page-node-id="V801KC1ohhphHgNt8LFo9H"><span data-page-node-id="KFIhbCbHi4fCAOYRD5jAoU">非计划停机（分）<br data-page-node-id="K5eSJVbXBZYfd3hMXkq1Th"><i style="font-weight:400" data-page-node-id="V1wKpAVY3KxfmwpfwHPL3J">故障、缺料</i></span><input type="number" id="oeB" value="30" step="1" data-page-node-id="eF99Srv2OBQt66ZbNiZTR6"></label>
+      <label class="f" data-page-node-id="M6IrvaRCaHE8uBTrpeNtlx"><span data-page-node-id="Q0iW2ctNK6SGjWqQiSUMgL">换型 / 调机（分）</span><input type="number" id="oeS" value="15" step="1" data-page-node-id="vSvGBXQQFivbnGbWi5Lsr1"></label>
+      <label class="f" data-page-node-id="ilG7HmNFVFU9SFgDDgoxJA"><span data-page-node-id="ajY67W5VlzyR2S3Eu0hE7F">总产出（件）</span><input type="number" id="oeQ" value="1800" step="1" data-page-node-id="EHzWww5SglFkRWcZpS2Z9B"></label>
+      <label class="f" data-page-node-id="YkMUDDyorPF38MB4WJ1pFK"><span data-page-node-id="cQ31XTm2SieurXzNJ1wAY3">良品数（件）</span><input type="number" id="oeG" value="1755" step="1" data-page-node-id="ZfeBH7CvNSYVe5udtfzdRu"></label>
+    </div>
+    <div class="big" id="oeeBig" data-page-node-id="m20V6AgV99yCgooNmKJY1j"><b id="oeeVal" data-page-node-id="sCWyGM22GOZ9zasPHDG1UD">—</b><span id="oeeGrade" data-page-node-id="YneBWkKmPO04tZHb0t5fyQ">OEE</span></div>
+    <div class="hint" id="oeeWeak" style="margin:11px 0 0" data-page-node-id="4d9FWYFBhJxZGFTIfuQ8IS"></div>
+    <div class="res" style="margin-top:11px" data-page-node-id="DorIHnZtbvp6o16Zy6Ogkz">
+      <div data-page-node-id="fX6xknXBOi9OKoXQCEy0oo"><b id="oeeAv" data-page-node-id="kS6BM8P98mUcGA7P6necGQ">—</b><span data-page-node-id="dNterjpqefjt3PblL9a5ld">时间稼动率 Availability</span></div>
+      <div data-page-node-id="Chx5tOHk9M4nfZeRcHGykd"><b id="oeePf" data-page-node-id="8fUxQomq1mbvK7VdCcQeAx">—</b><span data-page-node-id="xTvBG4IT5VwodMfIq5fDS6">性能稼动率 Performance</span></div>
+      <div data-page-node-id="veHryQVz8KJ0tfX1Ku2aRE"><b id="oeeQy" data-page-node-id="g27ro0Q9bTRLS9gZ5y0JM9">—</b><span data-page-node-id="4liNMz9uoGyQiIGzIclX0E">良品率 Quality</span></div>
+      <div data-page-node-id="DVqwxl4UIzi1bIvG5WrLdF"><b id="oeeTl" data-page-node-id="eA9C35RnAi67814W4Lzsn7">—</b><span data-page-node-id="LhdK5SgPZdCRaBlOrEzxKw">理论总工时（分）</span></div>
+    </div>
+    <div class="sep" data-page-node-id="rN5f8nVDBMFCAldPtwXD56"></div>
+    <div class="res" data-page-node-id="hqEu84vVJDc8kYv5IAsT9J">
+      <div data-page-node-id="UEH7zo7H8mrXJYjHBw7aXs"><b id="lStop" data-page-node-id="YlbZ2LZfBdMWmXgvY0tgRf">—</b><span data-page-node-id="RbolSsR2o4qZLeLwbP24GN">停机损失（分）</span></div>
+      <div data-page-node-id="rURXkj1a4vvy0H2lsnW185"><b id="lSpeed" data-page-node-id="EFg3nKysb5oozZZothalIG">—</b><span data-page-node-id="MtLtOMKvdyaYEZ3elj8DLP">速度损失（分）</span></div>
+      <div data-page-node-id="cs4t1kBKQ6vKFSkthwoWCM"><b id="lQual" data-page-node-id="2AKwUrs5KonIjq0EkXMiJU">—</b><span data-page-node-id="8DuqHqj4eodZMaeSZImoIx">质量损失（分）</span></div>
+      <div data-page-node-id="shEF9zM6EvGrEEdga4n4Ja"><b id="lRun" data-page-node-id="urplEWLbE20KEsiG2yYkeF">—</b><span data-page-node-id="tBydF6HGxBsypQcM7xV6Zm">实际运行（分）</span></div>
+    </div>
+    <div class="row noprint" style="margin-top:11px" data-page-node-id="b58uzGwfqCNeWuJYq4Hh3V">
+      <button class="btn g sm" id="oeeCopy" data-page-node-id="QcyJ1xhtaC34OADlyKeuIa">复制结论</button>
+    </div>
+  </div>
+  <div class="card" data-page-node-id="bUU2Q6qfIOu4vvmhua5Dq8">
+    <h3 data-page-node-id="jphLQIckQi75rcWQaKtFnQ">OEE 水平对照</h3>
+    <div class="res" data-page-node-id="wVdK3JpA7EFOYmsoLZB2eP">
+      <div data-page-node-id="FdzUxe79iXRwvWkTnGen7o"><b style="color:var(--ok)" data-page-node-id="b7Svef4Kh7HAcCoWv6GsL7">≥ 85%</b><span data-page-node-id="2STw9OV0XRIYHiT6XryH38">世界级</span></div>
+      <div data-page-node-id="h3OgwNo5C8V2gBBLfEMuGl"><b style="color:var(--pri)" data-page-node-id="fzjTRNjR6FJLkdb4N9e7js">70 ~ 85%</b><span data-page-node-id="9gUBlpEOhuZa1Q3vgZ4VVK">良好</span></div>
+      <div data-page-node-id="z7U060P9hXqXHD2CIpGH1M"><b style="color:var(--warn)" data-page-node-id="eAPOUr4SNvaKyp80yAcqjK">50 ~ 70%</b><span data-page-node-id="fj9PfyGGgDnQDuxy2ydOdd">一般，有明显改善空间</span></div>
+      <div data-page-node-id="MIwlyZmuokJfDM3AygD7j2"><b style="color:var(--bad)" data-page-node-id="t1FLKbKUrs10DyK5qKXWg8">&lt; 50%</b><span data-page-node-id="Nra8oxh9DwSf8ZHRxtVMm4">偏低，先抓最大那块损失</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 根因 ============ -->
+<section class="page" id="p-rca" data-page-node-id="1my3xZpmlYAS9dI8AE14n5">
+  <div class="card" data-page-node-id="5YzTHa1IZTYIvZfkUQqVc3">
+    <h3 data-page-node-id="SDtCHM8p69KCMaJlODaJD1">5Why 追问链</h3>
+    <div class="hint" data-page-node-id="NIe79yB2rOt3oIdiIzqaZX">从现象一层层往下问，问到"制度 / 流程 / 设计"这一层才算到底。问不到底，对策就只是灭火。</div>
+    <label class="f" data-page-node-id="tnCrzHefzU5ApgZLjaZgwd"><span data-page-node-id="am2waVCfbVvKUc5PQs8Lcs">现象（问题描述）</span><input id="w0" placeholder="例：3 号线 A 工序 10 月不良率由 1.2% 升到 3.8%" data-page-node-id="x5Azs0rY38eTMGahxAOlWh"></label>
+    <div id="whyWrap" data-page-node-id="CE1bpBfdgzU3BOTIty1tLl"></div>
+    <label class="f" data-page-node-id="pRqzSXpOYL4o8L1Or72Rw5"><span data-page-node-id="EKQsNPpUjyWm6MF0DQuKoU">根本原因（追问到底的那一条）</span><textarea id="wRoot" placeholder="例：点胶参数未纳入首件确认清单，换班后无复核"></textarea></label>
+    <label class="f" data-page-node-id="r9taxPn46n33VXS2OJDmuu"><span data-page-node-id="QHzU5i6syvRBfGoNl4jQlG">对策与责任人</span><textarea id="wFix" placeholder="例：把点胶量加入首件确认表 —— 张三，10/20 前完成"></textarea></label>
+    <div class="row noprint" data-page-node-id="p97dtUApSMYklFPzh6zWyf">
+      <button class="btn g sm" id="wCopy" data-page-node-id="CPHYhaoGo0Wgs5fqgFAgmp">复制全文</button>
+      <button class="btn g sm" id="wNote" data-page-node-id="mQpBePnRvREHR2H3C0aEzy">存为便签</button>
+      <button class="btn g sm" id="wClear" data-page-node-id="Ej9O4ni8eQUn1s8DVrN2J0">清空</button>
+    </div>
+  </div>
+
+  <div class="card" data-page-node-id="8dIKe9zYKZuyQFa5g86gyO">
+    <h3 data-page-node-id="ZzOvMm3AlAFgT7sZiq3r4B">鱼骨图 6M 检查表</h3>
+    <div class="hint" data-page-node-id="vkuDDIkhnJGdjFpK74vodX">点每个大骨展开，勾掉已排除的，留着还怀疑的。没检查完之前别下结论。</div>
+    <div id="fishWrap" data-page-node-id="GQ8UK3kmyjKXtFM2ridqai"></div>
+    <label class="f" style="margin-top:10px" data-page-node-id="YHRGDeLTrzmpZNY8UP96eZ"><span data-page-node-id="xN6xhaQks1kt0ViZ4EtOvY">我的补充怀疑点</span><textarea id="fishExtra" placeholder="每行一条，自己想到的、清单里没列的"></textarea></label>
+    <button class="btn g sm noprint" id="fishCopy" data-page-node-id="sOlxUWcNhuKGKObLvbRAuV">复制勾选结果</button>
+  </div>
+</section>
+
+<!-- ============ FMEA ============ -->
+<section class="page" id="p-fmea" data-page-node-id="fhFZJooK7wxhLMeI8SME5H">
+  <div class="card" data-page-node-id="OG5lPEKYvxiRtSjYbNGQHQ">
+    <h3 data-page-node-id="Eyon3yLg7RsYxZtSVFWHyQ">FMEA 失效模式分析</h3>
+    <div class="hint" data-page-node-id="nD7pdEjgFL9aK65vHwDATZ">S 严重度 / O 发生度 / D 侦测度，各 1~10 分。RPN = S×O×D，会自动排序并标红高风险项（RPN≥100 或 S≥9）。</div>
+    <div class="res" data-page-node-id="XE5Y10N5zkB9dGxmcrqH1r">
+      <div data-page-node-id="PjqsYtmpHAHCQgs1WDWrB8"><b id="fmN" data-page-node-id="AlGcncEaFmhiz0C55M3W9u">0</b><span data-page-node-id="1brutFS1H5nKGgvjMIuCFH">失效模式条目</span></div>
+      <div data-page-node-id="xrwrHeKkPqxCV7W1U40mrq"><b id="fmMax" data-page-node-id="zXk3oooYFDAmeTdsmUtLt1">—</b><span data-page-node-id="LcMBfXK4YY2Tkq6qFR1uCt">最高 RPN</span></div>
+    </div>
+    <div class="row noprint" style="margin-top:11px" data-page-node-id="S9hw8DgKs04ju8t99eF0kV">
+      <button class="btn" id="fmAdd" data-page-node-id="n5sucP4MEbyYgWQ44fDnun">＋ 新增一条</button>
+      <button class="btn g" id="fmCsv" data-page-node-id="Jr7hANaAvNtyALLsGxksfR">导出 CSV</button>
+    </div>
+  </div>
+  <div id="fmList" data-page-node-id="oqs5FzlSwkVuoXD6r77bkV"></div>
+  <div class="card noprint" id="fmEmpty" data-page-node-id="B6kzMRppUuDgvAUBdtS96m">
+    <div class="hint" style="margin:0" data-page-node-id="PomANDgHCLznafDCMMkAhE">还没有条目，点上面的「＋ 新增一条」开始。举几个常见例子：虚焊 / 尺寸超差 / 混料 / 漏装 / 划伤 / 参数漂移。</div>
+  </div>
+</section>
+
+<!-- ============ 8D ============ -->
+<section class="page" id="p-d8" data-page-node-id="o2FmMAeqiurhGyhyo3yKHn">
+  <div class="card" data-page-node-id="agREoQxYFdf16Jd0dOAuPe">
+    <h3 data-page-node-id="ipHzG7D2UQNpsmhFHpYZ2l">8D 问题解决报告</h3>
+    <div class="hint" data-page-node-id="oCtVS3Dr7wlbfAny1PjfC6">从上往下填。D1~D3 先救火，D4 找根因，D5~D7 才是真正不让它再发生。填完可直接打印或复制成报告。</div>
+    <label class="f" data-page-node-id="czk1COkhECuIES5u0tBNY9"><span data-page-node-id="NDCWhYRuqmPUSuxGkkbpYG">标题 / 案件编号</span><input id="d8Title" placeholder="例：A 工序外观不良专项改善" data-page-node-id="jVJJoLVnyrLB6t5709ytAW"></label>
+    <div id="d8Wrap" data-page-node-id="wqZ9uDFKShu3CEOrxm5d4b"></div>
+    <div class="row noprint" data-page-node-id="hefnUhlFv1TPVtcYAvlNvg">
+      <button class="btn g sm" id="d8Copy" data-page-node-id="XHdFv51jDNpNFSHaOAP3tQ">复制全文</button>
+      <button class="btn g sm" id="d8Print" data-page-node-id="pr7w8IJqsjyxBzbBXrv1A5">打印 / 存 PDF</button>
+      <button class="btn g sm" id="d8Clear" data-page-node-id="iiQFlChCPH3DcbdA8dXpuE">清空</button>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 换算 ============ -->
+<section class="page" id="p-conv" data-page-node-id="zR5oFVsRrjB0i3OkXV69BI">
+  <div class="card" data-page-node-id="p4nWNaNc8aw4vjIFyvKFCG">
+    <h3 data-page-node-id="i8LV4bcFdJcr8efQIEUuH4">节拍 / 产能换算</h3>
+    <div class="hint" data-page-node-id="La75ZdMKf3mvc9rnfEBaJU">填一个数，其他自动跟着变。</div>
+    <label class="f" data-page-node-id="XVfoR6Ire4HYLnhMPePRYt"><span data-page-node-id="jnG0bF69HtZdVM1dl5gfRF">节拍（秒 / 件）</span><input type="number" id="tkS" step="any" value="12" data-page-node-id="PHCw252uKth0IMaxBWEfpD"></label>
+    <div class="res" data-page-node-id="V7UZ9UZINqHVIaoKDyzcF9">
+      <div data-page-node-id="eft5GJ4bIcAfbbtvW3Nyye"><b id="tkH" data-page-node-id="VCb2q9tUDQXLAs3lggHjZP">—</b><span data-page-node-id="HJ92H3KA321nasNfilEQiS">件 / 小时</span></div>
+      <div data-page-node-id="B8OWqm0Jme0a1WkdzoshoB"><b id="tk8" data-page-node-id="9RmbrX40JbJZxKzNqlHRzI">—</b><span data-page-node-id="2Pms9QWVWKIiXCtshNhhtk">件 / 8 小时班</span></div>
+      <div data-page-node-id="pSk32JL2MllRuvikPOoRyR"><b id="tkD" data-page-node-id="dT4ty76aGT6nYZeJ28iJdg">—</b><span data-page-node-id="CzB9lAmrRAq9NJ9GqA22PV">件 / 22 小时三班</span></div>
+      <div data-page-node-id="yKYmbO8xSC4yMuUEbiFOLu"><b id="tkM" data-page-node-id="3uIrbIiGUYw3JPf76cYr0e">—</b><span data-page-node-id="M6cQoCHufi3WRMFRjlaBg0">秒 / 100 件</span></div>
+    </div>
+  </div>
+
+  <div class="card" data-page-node-id="myu3vS9ZNeeHIUDYc1wDOd">
+    <h3 data-page-node-id="OHXQHB0xNM0IVLAzXeSULD">长度</h3>
+    <label class="f" data-page-node-id="vwxy8HMLVY9kYEGXP0wVu9"><span data-page-node-id="ULbuV0GEAXotrXW5LhdRsG">输入数值</span><input type="number" id="cvL" step="any" value="1" data-page-node-id="0uYI5ItM3rdTUVfyZydydF"></label>
+    <div id="cvLout" data-page-node-id="rZWyPU0nhHK8PrQ6PLsZaY"></div>
+  </div>
+
+  <div class="card" data-page-node-id="TG7xzQ78WdvICEdqZbx99Y">
+    <h3 data-page-node-id="v7ZPGW25Jhf30uP0dN0Oj9">扭力</h3>
+    <label class="f" data-page-node-id="DVI3k4r1XdKQO9xzaEg5ao"><span data-page-node-id="iIeZ1DPo4icWNpG40rBiY4">输入数值</span><input type="number" id="cvT" step="any" value="1" data-page-node-id="ZrC2IhZ95SvNwEOACSzJ6G"></label>
+    <div id="cvTout" data-page-node-id="2DLEbKaPKt0JoN9yGYLxCo"></div>
+  </div>
+
+  <div class="card" data-page-node-id="seCiBeDKwVsl2qwGKxStVq">
+    <h3 data-page-node-id="YM7mLbAOU6dkPGCKCKMrN3">压力</h3>
+    <label class="f" data-page-node-id="okUC2iedEefI1ImqhlNwS7"><span data-page-node-id="NOMdAe0hV28YP8GqoPFYXt">输入数值</span><input type="number" id="cvP" step="any" value="1" data-page-node-id="71MZalNFy1fDkqat22jtqV"></label>
+    <div id="cvPout" data-page-node-id="KTNGBPwSGprGsDiwER12a3"></div>
+  </div>
+
+  <div class="card" data-page-node-id="POKp5VGkjJE4oyc7eQIjGV">
+    <h3 data-page-node-id="7HJBN0LVHuK3FvkETecAaw">质量</h3>
+    <label class="f" data-page-node-id="4hApWFbo9HCAG9EDfAUINx"><span data-page-node-id="gRLv3uLmFzgsXDA4kd8sxy">输入数值</span><input type="number" id="cvM" step="any" value="1" data-page-node-id="bSdzW5PSBGIAHkVw7yy1Ry"></label>
+    <div id="cvMout" data-page-node-id="exl9pRtrbv6KSSHswJMBoa"></div>
+  </div>
+
+  <div class="card" data-page-node-id="6nqEmgw2ATc9TT7mHjJB4P">
+    <h3 data-page-node-id="6aOcFsWZt6Kjjj0L23cxcV">温度</h3>
+    <label class="f" data-page-node-id="3rJutDan5VLOthEQBO7PoH"><span data-page-node-id="h9vpcQ49tSDHqO5exIp40m">输入数值</span><input type="number" id="cvC" step="any" value="25" data-page-node-id="lkwEp2WGnRsJjCe9TMZZEl"></label>
+    <div id="cvCout" data-page-node-id="v2snH8KRiRGXEF5Dja5jDu"></div>
+  </div>
+
+  <div class="card" data-page-node-id="3nJ5iyxy07mJplbfz4HqeI">
+    <h3 data-page-node-id="B0bP5PDixKwjcsxepMLBMV">常用公式速记</h3>
+    <div class="hint mono" style="line-height:2" data-page-node-id="NDSIBzKc1C9ceeCKJxZ0Mq">
+      标准工时 ST = 观测均值 × 评比系数 × (1 + 宽放率)<br data-page-node-id="w9Qh3cVP3MPGXm288EDDSS">
+      良率 Yield = 良品数 ÷ 投入数<br data-page-node-id="r3RismBI9m787FtyuKbSgp">
+      直通率 RTY = 各站良率相乘<br data-page-node-id="Jn9kRrNINhYHd39pYctNKb">
+      Cpk = min[(USL−X̄)/3σ, (X̄−LSL)/3σ]<br data-page-node-id="9zq9uo9r2D1BGEhMn6gKwb">
+      OEE = 时间稼动率 × 性能稼动率 × 良品率<br data-page-node-id="Ca7Klo05ViHGuA1GTVUA2m">
+      产能 = 可用工时 ÷ 标准工时 × 良率<br data-page-node-id="hL9JiaqcwxBjK6GfT3Roh3">
+      UPH = 3600 ÷ 节拍（秒）<br data-page-node-id="aa5Se6x72CQzt8QD9M0ydA">
+      DPMO = 缺陷数 ÷ (单位数 × 机会数) × 10⁶
+    </div>
+  </div>
+</section>
+
+<!-- ============ 便签 ============ -->
+<section class="page" id="p-note" data-page-node-id="0pURHdCF8mRA8k1yO8DPyS">
+  <div class="card" data-page-node-id="YVJHhhe9f2JWq2Uy0iRB2U">
+    <h3 data-page-node-id="JwcxvDGR2Js5hoVKhJcjCQ">现场便签</h3>
+    <div class="hint" data-page-node-id="yNL0jmbSLEm8BAGJVwnQRY">全部存在这台设备本地，不上传、不联网。手机浏览器里可「添加到主屏幕」当 App 用。</div>
+    <div class="row noprint" data-page-node-id="qv2i83b7C80w0frXo1fay1">
+      <button class="btn" id="ntAdd" data-page-node-id="znvA1e6pBp5nukejBxh6yR">＋ 新增便签</button>
+      <button class="btn g" id="ntClear" data-page-node-id="8ERsBZyHZHPFYuYBavSL5N">清空全部</button>
+    </div>
+  </div>
+  <div id="ntList" data-page-node-id="koFbKfe6fwGvFZRIAWBczr"></div>
+
+  <div class="card" data-page-node-id="jPGoclqbrCCj2CRLUE473r">
+    <h3 data-page-node-id="EMRcQf5tsyNkFkY8OFnbDG">数据备份</h3>
+    <div class="hint" data-page-node-id="O5APZbowppVNY6lD791HMt">换手机、清缓存前记得先导出。导出的是一个 JSON 文件，导入即可完整恢复。</div>
+    <div class="row noprint" data-page-node-id="FrfIZTBErapLe2DlIufj5C">
+      <button class="btn g sm" id="bkOut" data-page-node-id="UsAH0siJH6MqNeXSndZlFN">导出全部数据</button>
+      <button class="btn g sm" id="bkIn" data-page-node-id="qln91kLet7xdRoNOsusHXS">导入数据</button>
+    </div>
+    <input type="file" id="bkFile" accept=".json,application/json" style="display:none" data-page-node-id="niXF2xvSwg0wgPeuMzHKc9">
+  </div>
+
+  <div class="foot" data-page-node-id="HPuF3hoifaX2HpxSrVzcg7">
+    PIE 口袋工位 v1.0<br data-page-node-id="Qp3PXdwDrYBVrBwEjNqpvX">
+    离线可用 · 数据仅存本机<br data-page-node-id="b4fD57exMl8AZPIWUYnGyc">
+    <span id="usageStat" data-page-node-id="sH3LJgTqCJdXYh9NBjBxNH"></span>
+  </div>
+</section>
+
+<div class="toast" id="toast" data-page-node-id="DyCiJpwDEeCHaTlEUGACV7"></div>
+
+
+<script>
+(function(){
+"use strict";
+const PSEC = document.getElementById("tab-pocket");
+
+/* ===================== 基础设施 ===================== */
+const $ = (s, r) => (r || document).querySelector(s);
+const $$ = (s)=>PSEC.querySelectorAll(s);
+const LS = {
+  get(k, d) { try { const v = localStorage.getItem('pie.' + k); return v === null ? d : JSON.parse(v); } catch (e) { return d; } },
+  set(k, v) { try { localStorage.setItem('pie.' + k, JSON.stringify(v)); } catch (e) {} },
+  del(k) { try { localStorage.removeItem('pie.' + k); } catch (e) {} }
+};
+const num = v => { const n = parseFloat(v); return isFinite(n) ? n : NaN; };
+const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const fx = (v, n) => (typeof v === 'number' && isFinite(v)) ? v.toFixed(n === undefined ? 2 : n) : '—';
+
+let toastTimer = null;
+function toast(msg) {
+  const t = $('#toast'); t.textContent = msg; t.classList.add('on');
+  clearTimeout(toastTimer); toastTimer = setTimeout(() => t.classList.remove('on'), 2000);
+}
+function copyText(str, okMsg) {
+  const done = () => toast(okMsg || '已复制');
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(str).then(done, () => fallback());
+  } else fallback();
+  function fallback() {
+    const ta = document.createElement('textarea');
+    ta.value = str; ta.style.position = 'fixed'; ta.style.left = '-9999px';
+    PSEC.appendChild(ta); ta.select();
+    try { document.execCommand('copy'); done(); } catch (e) { toast('复制失败，请手动选择'); }
+    PSEC.removeChild(ta);
+  }
+}
+function download(name, text, mime) {
+  const blob = new Blob(['\ufeff' + text], { type: (mime || 'text/plain') + ';charset=utf-8' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob); a.download = name;
+  PSEC.appendChild(a); a.click();
+  setTimeout(() => { URL.revokeObjectURL(a.href); PSEC.removeChild(a); }, 500);
+}
+
+/* 正态分布 CDF（Abramowitz-Stegun 近似，精度约 1e-7） */
+function normCdf(z) {
+  const t = 1 / (1 + 0.2316419 * Math.abs(z));
+  const d = 0.3989422804 * Math.exp(-z * z / 2);
+  let p = d * t * (0.3193815 + t * (-0.3565638 + t * (1.7814779 + t * (-1.8212560 + t * 1.3302744))));
+  return z > 0 ? 1 - p : p;
+}
+function stats(arr) {
+  const n = arr.length;
+  if (!n) return null;
+  let s = 0, mn = Infinity, mx = -Infinity;
+  for (let i = 0; i < n; i++) { const v = arr[i]; s += v; if (v < mn) mn = v; if (v > mx) mx = v; }
+  const m = s / n;
+  let q = 0;
+  for (let i = 0; i < n; i++) q += (arr[i] - m) * (arr[i] - m);
+  const sd = n > 1 ? Math.sqrt(q / (n - 1)) : 0;
+  return { n: n, mean: m, sd: sd, min: mn, max: mx, range: mx - mn, sum: s };
+}
+/* t 分布双尾临界值 */
+const T95 = { 1: 12.706, 2: 4.303, 3: 3.182, 4: 2.776, 5: 2.571, 6: 2.447, 7: 2.365, 8: 2.306, 9: 2.262, 10: 2.228, 11: 2.201, 12: 2.179, 13: 2.160, 14: 2.145, 15: 2.131, 16: 2.120, 17: 2.110, 18: 2.101, 19: 2.093, 20: 2.086, 25: 2.060, 30: 2.042, 40: 2.021, 60: 2.000, 120: 1.980 };
+const T99 = { 1: 63.657, 2: 9.925, 3: 5.841, 4: 4.604, 5: 4.032, 6: 3.707, 7: 3.499, 8: 3.355, 9: 3.250, 10: 3.169, 12: 3.055, 15: 2.947, 20: 2.845, 25: 2.787, 30: 2.750, 40: 2.704, 60: 2.660, 120: 2.617 };
+const T90 = { 1: 6.314, 2: 2.920, 3: 2.353, 4: 2.132, 5: 2.015, 6: 1.943, 7: 1.895, 8: 1.860, 9: 1.833, 10: 1.812, 12: 1.782, 15: 1.753, 20: 1.725, 25: 1.708, 30: 1.697, 40: 1.684, 60: 1.671, 120: 1.658 };
+function tval(df, conf) {
+  const tab = conf === '99' ? T99 : (conf === '90' ? T90 : T95);
+  const keys = Object.keys(tab).map(Number).sort((a, b) => a - b);
+  if (df <= 0) return conf === '99' ? 63.657 : (conf === '90' ? 6.314 : 12.706);
+  for (let i = 0; i < keys.length; i++) if (df <= keys[i]) return tab[keys[i]];
+  return conf === '99' ? 2.576 : (conf === '90' ? 1.645 : 1.960);
+}
+
+/* ===================== 主题 / 导航 ===================== */
+(function initTheme() {
+  const dk = LS.get('dark', false);
+  if (dk) PSEC.classList.add('dk');
+  $('#themeBtn').onclick = () => {
+    const on = PSEC.classList.toggle('dk');
+    LS.set('dark', on);
+  };
+})();
+function showTab(t) {
+  $$('.tab').forEach(b => b.classList.toggle('on', b.dataset.t === t));
+  $$('.page').forEach(p => p.classList.toggle('on', p.id === 'p-' + t));
+  LS.set('tab', t);
+  window.scrollTo(0, 0);
+}
+$$('.tab').forEach(b => b.onclick = () => showTab(b.dataset.t));
+
+/* ===================== 1. 秒表测时 ===================== */
+const westDef = [
+  { k: 'skill', name: '熟练度', opts: [['A1 极熟练', 0.15], ['A2', 0.13], ['B1 优', 0.11], ['B2', 0.08], ['C1 良', 0.06], ['C2', 0.03], ['D 平均', 0], ['E1 中下', -0.05], ['E2', -0.10], ['F1 差', -0.16], ['F2', -0.22]] },
+  { k: 'effort', name: '努力度', opts: [['A1 极努力', 0.13], ['A2', 0.12], ['B1 优', 0.10], ['B2', 0.08], ['C1 良', 0.05], ['C2', 0.02], ['D 平均', 0], ['E1 中下', -0.04], ['E2', -0.08], ['F1 差', -0.12], ['F2', -0.17]] },
+  { k: 'cond', name: '工作条件', opts: [['A 理想', 0.06], ['B 优', 0.04], ['C 良', 0.02], ['D 平均', 0], ['E 中下', -0.03], ['F 差', -0.07]] },
+  { k: 'consis', name: '一致性', opts: [['A 完全一致', 0.04], ['B 优', 0.03], ['C 良', 0.01], ['D 平均', 0], ['E 中下', -0.02], ['F 差', -0.04]] }
+];
+(function buildWest() {
+  $('#westWrap').innerHTML = westDef.map(g =>
+    '<label class="f"><span>' + g.name + '</span><select data-w="' + g.k + '">' +
+    g.opts.map(o => '<option value="' + o[1] + '"' + (o[1] === 0 ? ' selected' : '') + '>' + o[0] + '</option>').join('') +
+    '</select></label>'
+  ).join('');
+  $$('[data-w]').forEach(s => s.onchange = renderStudy);
+})();
+
+const sw = { run: false, base: 0, start: 0, mark: 0 };
+let laps = LS.get('study.laps', []);
+function swTotal() { return sw.base + (sw.run ? performance.now() - sw.start : 0); }
+function fmtT(ms) {
+  if (ms < 60000) return (ms / 1000).toFixed(2) + 's';
+  const m = Math.floor(ms / 60000), s = (ms % 60000) / 1000;
+  return m + ':' + (s < 10 ? '0' : '') + s.toFixed(2);
+}
+function swTick() { $('#swTime').textContent = fmtT(swTotal()); }
+setInterval(swTick, 47);
+
+$('#swGo').onclick = function () {
+  if (!sw.run) {
+    sw.run = true; sw.start = performance.now();
+    this.textContent = '暂停'; this.className = 'btn wa';
+    $('#swTime').classList.add('run');
+  } else {
+    sw.base = swTotal(); sw.run = false; sw.mark = sw.base;
+    this.textContent = '继续'; this.className = 'btn ok';
+    $('#swTime').classList.remove('run');
+  }
+  swTick();
+};
+$('#swLap').onclick = () => {
+  const t = swTotal();
+  const lap = t - sw.mark;
+  if (lap <= 0) { toast('先按开始再计次'); return; }
+  sw.mark = t;
+  laps.push(lap / 1000);
+  LS.set('study.laps', laps);
+  renderLaps(); renderStudy();
+};
+$('#swRst').onclick = () => {
+  if (laps.length && !confirm('清空全部 ' + laps.length + ' 笔计时数据？')) return;
+  sw.run = false; sw.base = 0; sw.start = 0; sw.mark = 0; laps = [];
+  LS.set('study.laps', laps);
+  $('#swGo').textContent = '开始'; $('#swGo').className = 'btn ok';
+  $('#swTime').classList.remove('run');
+  swTick(); renderLaps(); renderStudy();
+};
+function renderLaps() {
+  const box = $('#swLaps');
+  if (!laps.length) { box.innerHTML = '<div class="empty">还没有计时数据</div>'; return; }
+  const st = stats(laps);
+  box.innerHTML = laps.map((v, i) => {
+    const hot = st.n >= 3 && Math.abs(v - st.mean) > 3 * st.sd ? ' hot' : '';
+    return '<div class="li' + hot + '"><span>第 ' + (i + 1) + ' 次</span><b>' + v.toFixed(2) + ' s</b></div>';
+  }).reverse().join('');
+}
+function renderStudy() {
+  const al = [num($('#al1').value) || 0, num($('#al2').value) || 0, num($('#al3').value) || 0, num($('#al4').value) || 0];
+  const allow = al.reduce((a, b) => a + b, 0);
+  $('#alSum').textContent = allow.toFixed(1) + '%';
+  $('#alStd').textContent = (1 + allow / 100).toFixed(3);
+
+  let pr = 1;
+  $$('[data-w]').forEach(s => pr += parseFloat(s.value) || 0);
+  $('#prVal').textContent = pr.toFixed(3);
+  const adj = (pr - 1) * 100;
+  $('#prAdj').textContent = (adj >= 0 ? '+' : '') + adj.toFixed(1) + '%';
+  $('#prAdj').style.color = adj >= 0 ? 'var(--ok)' : 'var(--bad)';
+
+  const box = $('#swStats');
+  let use = laps.slice();
+  let trimmed = 0;
+  if ($('#swTrim').value === '1' && use.length >= 4) {
+    const s0 = stats(use);
+    const f = use.filter(v => Math.abs(v - s0.mean) <= 3 * s0.sd);
+    trimmed = use.length - f.length;
+    if (f.length >= 2) use = f;
+  }
+  const st = stats(use);
+  if (!st) {
+    box.innerHTML = '<div><b>—</b><span>已测循环数</span></div><div><b>—</b><span>标准差 σ</span></div>';
+    $('#rObs').textContent = '—'; $('#rNt').textContent = '—'; $('#rSt').textContent = '—';
+    $('#nGe').textContent = '—'; $('#nT').textContent = '—';
+    $('#cPcs').textContent = '—'; $('#cGood').textContent = '—'; $('#cTakt').textContent = '—'; $('#cPerH').textContent = '—';
+    return;
+  }
+  box.innerHTML =
+    '<div><b>' + st.n + (trimmed ? ' <span style="font-size:12px;color:var(--warn)">(-' + trimmed + ')</span>' : '') + '</b><span>有效循环数 n</span></div>' +
+    '<div><b>' + fx(st.sd, 3) + '</b><span>标准差 σ（秒）</span></div>' +
+    '<div><b>' + fx(st.min, 2) + '</b><span>最短（秒）</span></div>' +
+    '<div><b>' + fx(st.max, 2) + '</b><span>最长（秒）</span></div>' +
+    '<div><b>' + fx(st.range, 2) + '</b><span>极差 R（秒）</span></div>' +
+    '<div><b>' + fx(st.sd / st.mean * 100, 1) + '%</b><span>变异系数 CV</span></div>';
+
+  const ot = st.mean, nt = ot * pr, stt = nt * (1 + allow / 100);
+  $('#rObs').textContent = fx(ot, 2);
+  $('#rNt').textContent = fx(nt, 2);
+  $('#rSt').textContent = fx(stt, 2) + ' s';
+
+  /* 建议次数 */
+  const prec = (num($('#nPrec').value) || 5) / 100;
+  const conf = $('#nConf').value;
+  const sxsq = use.reduce((a, v) => a + v * v, 0);
+  /* 经典式 n=(40√(n'Σx²-(Σx)²)/Σx)² ，系数 40 对应 ±5% 精度，故按 2/精度 缩放 */
+  const cGe = 2 / prec;
+  const geV = Math.pow(cGe * Math.sqrt(Math.max(0, st.n * sxsq - st.sum * st.sum)) / st.sum, 2);
+  $('#nGe').textContent = isFinite(geV) && geV > 0 ? Math.max(1, Math.ceil(geV)) + ' 次' : '—';
+  const tv = tval(st.n - 1, conf);
+  const tV = Math.pow(tv * st.sd / (prec * st.mean), 2);
+  $('#nT').textContent = isFinite(tV) && tV > 0 ? Math.max(1, Math.ceil(tV)) + ' 次' : '—';
+
+  /* 产能 */
+  const h = num($('#cH').value) || 8, u = (num($('#cU').value) || 100) / 100, y = (num($('#cY').value) || 100) / 100;
+  const availSec = h * 3600 * u;
+  const pcs = stt > 0 ? availSec / stt : NaN;
+  $('#cPcs').textContent = isFinite(pcs) ? Math.floor(pcs) + ' 件' : '—';
+  $('#cGood').textContent = isFinite(pcs) ? Math.floor(pcs * y) + ' 件' : '—';
+  $('#cTakt').textContent = isFinite(stt) ? fx(stt, 2) + ' s' : '—';
+  $('#cPerH').textContent = isFinite(stt) && stt > 0 ? Math.floor(3600 / stt) + ' 件' : '—';
+  LS.set('study.cfg', { pr: pr, allow: allow, h: h, u: u, y: y });
+}
+['#al1', '#al2', '#al3', '#al4', '#swTrim', '#nPrec', '#nConf', '#cH', '#cU', '#cY'].forEach(id => {
+  const el = $(id); if (el) el.addEventListener('input', renderStudy);
+});
+
+$('#swCsv').onclick = () => {
+  if (!laps.length) { toast('没有数据可导出'); return; }
+  const st = stats(laps);
+  let csv = '序号,循环时间(s)\n' + laps.map((v, i) => (i + 1) + ',' + v.toFixed(2)).join('\n');
+  csv += '\n\n样本数,' + st.n + '\n均值(s),' + st.mean.toFixed(4) + '\n标准差(s),' + st.sd.toFixed(4) + '\n最小值,' + st.min.toFixed(2) + '\n最大值,' + st.max.toFixed(2);
+  csv += '\n评比系数,' + ($('#prVal').textContent) + '\n宽放率(%),' + ($('#alSum').textContent) + '\n标准工时(s),' + ($('#rSt').textContent);
+  download('测时数据_' + stamp() + '.csv', csv, 'text/csv');
+};
+function studySummary() {
+  const st = stats(laps); if (!st) return null;
+  return '【标准工时测算 ' + stamp(true) + '】\n' +
+    '样本数 n = ' + st.n + '\n' +
+    '观测均值 = ' + st.mean.toFixed(2) + ' s（σ=' + st.sd.toFixed(3) + '，极差=' + st.range.toFixed(2) + '）\n' +
+    '评比系数 PR = ' + $('#prVal').textContent + '（西屋法）\n' +
+    '宽放率 = ' + $('#alSum').textContent + '\n' +
+    '正常工时 NT = ' + ($('#rNt').textContent) + ' s\n' +
+    '标准工时 ST = ' + ($('#rSt').textContent) + '\n' +
+    '产能（' + $('#cH').value + 'h/' + $('#cU').value + '%利用率/' + $('#cY').value + '%良率）= ' + $('#cGood').textContent + ' 良品';
+}
+$('#swCopy').onclick = () => { const s = studySummary(); if (!s) { toast('先测几个循环'); return; } copyText(s, '结论已复制'); };
+$('#swSave').onclick = () => { const s = studySummary(); if (!s) { toast('先测几个循环'); return; } addNote('标准工时测算', s); toast('已存入便签'); };
+
+/* ===================== 2. 制程能力 ===================== */
+function parseNums(str) {
+  return (String(str).match(/-?\d+(\.\d+)?([eE][-+]?\d+)?/g) || []).map(Number).filter(v => isFinite(v));
+}
+$('#capDemo').onclick = () => {
+  const d = [];
+  for (let i = 0; i < 50; i++) d.push((10 + (Math.random() - 0.5) * 0.13).toFixed(3));
+  $('#capData').value = d.join(' ');
+  $('#capUsl').value = '10.08'; $('#capLsl').value = '9.92';
+  $('#capGo').click();
+};
+$('#capGo').onclick = () => {
+  const data = parseNums($('#capData').value);
+  if (data.length < 2) { toast('至少需要 2 个数据'); return; }
+  const usl = num($('#capUsl').value), lsl = num($('#capLsl').value);
+  const hasU = isFinite(usl), hasL = isFinite(lsl);
+  if (!hasU && !hasL) { toast('请至少填一个规格限（USL 或 LSL）'); return; }
+  const st = stats(data);
+  let sd = st.sd;
+  const method = $('#capSigma').value;
+  if (method === 'mr' && data.length > 2) {
+    let s = 0, c = 0;
+    for (let i = 1; i < data.length; i++) { s += Math.abs(data[i] - data[i - 1]); c++; }
+    sd = (s / c) / 1.128;
+  }
+  if (!(sd > 0)) { toast('数据没有变异，无法计算'); return; }
+  const T = isFinite(num($('#capT').value)) ? num($('#capT').value) : (hasU && hasL ? (usl + lsl) / 2 : (hasU ? usl : lsl));
+  const cp = hasU && hasL ? (usl - lsl) / (6 * sd) : NaN;
+  const cpu = hasU ? (usl - st.mean) / (3 * sd) : NaN;
+  const cpl = hasL ? (st.mean - lsl) / (3 * sd) : NaN;
+  const cpk = Math.min(isFinite(cpu) ? cpu : Infinity, isFinite(cpl) ? cpl : Infinity);
+  const ca = (hasU && hasL) ? (st.mean - (usl + lsl) / 2) / ((usl - lsl) / 2) : NaN;
+  const zu = hasU ? (usl - st.mean) / sd : Infinity;
+  const zl = hasL ? (st.mean - lsl) / sd : -Infinity;
+  const yieldOk = normCdf(zu) - normCdf(zl);
+  const ppm = (1 - yieldOk) * 1e6;
+
+  $('#capOut').style.display = '';
+  $('#capCpk').textContent = fx(cpk, 3);
+  let grade, cls;
+  if (cpk >= 1.67) { grade = 'A+ 特级 · 制程能力充足'; cls = 'ok'; }
+  else if (cpk >= 1.33) { grade = 'A 优 · 制程稳定可行'; cls = 'ok'; }
+  else if (cpk >= 1.00) { grade = 'B 良 · 尚可，需留意趋势'; cls = 'wa'; }
+  else if (cpk >= 0.67) { grade = 'C 一般 · 必须改善'; cls = 'wa'; }
+  else { grade = 'D 差 · 建议停线检讨'; cls = 'bad'; }
+  $('#capGrade').textContent = grade;
+  $('#capBig').className = 'big ' + cls;
+
+  $('#capN').textContent = st.n;
+  $('#capMean').textContent = fx(st.mean, 4);
+  $('#capS').textContent = fx(sd, 4) + (method === 'mr' ? ' (MR)' : '');
+  $('#capRange').textContent = fx(st.range, 3);
+  $('#capCp').textContent = fx(cp, 3);
+  $('#capCa').textContent = isFinite(ca) ? fx(ca, 3) + ' (' + fx(Math.abs(ca) * 100, 1) + '%)' : '—';
+  $('#capCpu').textContent = fx(cpu, 3);
+  $('#capCpl').textContent = fx(cpl, 3);
+  $('#capPpm').textContent = ppm < 1 ? '< 1' : Math.round(ppm).toLocaleString();
+  $('#capSigmaLv').textContent = isFinite(cpk) ? fx(cpk * 3, 2) + ' σ' : '—';
+
+  drawHist(data, hasL ? lsl : NaN, hasU ? usl : NaN, st.mean);
+  LS.set('cap.data', $('#capData').value);
+  LS.set('cap.usl', $('#capUsl').value);
+  LS.set('cap.lsl', $('#capLsl').value);
+};
+function drawHist(data, lsl, usl, mean) {
+  const n = data.length;
+  let mn = Infinity, mx = -Infinity;
+  for (let i = 0; i < n; i++) { const v = data[i]; if (v < mn) mn = v; if (v > mx) mx = v; }
+  if (isFinite(lsl)) mn = Math.min(mn, lsl);
+  if (isFinite(usl)) mx = Math.max(mx, usl);
+  if (mx - mn < 1e-9) mx = mn + 1;
+  const pad = (mx - mn) * 0.06;
+  mn -= pad; mx += pad;
+  const k = Math.max(6, Math.min(16, Math.ceil(Math.log(n) / Math.LN2) + 1));
+  const w = (mx - mn) / k;
+  const bins = new Array(k).fill(0);
+  for (let i = 0; i < n; i++) {
+    let idx = Math.floor((data[i] - mn) / w);
+    if (idx < 0) idx = 0; if (idx >= k) idx = k - 1;
+    bins[idx]++;
+  }
+  const maxB = Math.max.apply(null, bins) || 1;
+  let h = '<div class="hist">';
+  for (let i = 0; i < k; i++) h += '<div class="hb"><i style="height:' + (bins[i] / maxB * 100) + '%"></i></div>';
+  h += '</div>';
+  const pos = v => ((v - mn) / (mx - mn) * 100);
+  if (isFinite(lsl)) h += '<div class="spec" data-l="LSL ' + lsl + '" style="left:' + pos(lsl) + '%"></div>';
+  if (isFinite(usl)) h += '<div class="spec" data-l="USL ' + usl + '" style="left:' + pos(usl) + '%"></div>';
+  h += '<div style="text-align:center;font-size:11.5px;color:var(--tx2);margin-top:36px">' +
+    '直方图 · <b style="color:var(--ok)">绿线</b>=均值 ' + fx(mean, 3) + ' · <b style="color:var(--bad)">红线</b>=规格限</div>';
+  const wrap = $('#capHist');
+  wrap.innerHTML = h;
+  /* 均值线 */
+  const line = document.createElement('div');
+  line.className = 'spec';
+  line.style.cssText = 'background:var(--ok);width:2px;left:' + pos(mean) + '%';
+  const hist = wrap.querySelector('.hist');
+  if (hist) hist.appendChild(line);
+}
+$('#capCopy').onclick = () => {
+  const t = '【制程能力分析】\n' +
+    'n=' + $('#capN').textContent + '  X̄=' + $('#capMean').textContent + '  σ=' + $('#capS').textContent + '\n' +
+    'Cp=' + $('#capCp').textContent + '  Cpk=' + $('#capCpk').textContent + '  Ca=' + $('#capCa').textContent + '\n' +
+    'Cpu=' + $('#capCpu').textContent + '  Cpl=' + $('#capCpl').textContent + '\n' +
+    '预估不良率 ' + $('#capPpm').textContent + ' PPM\n' +
+    '判定：' + $('#capGrade').textContent;
+  copyText(t, '结论已复制');
+};
+
+/* ===================== 3. OEE ===================== */
+function renderOee() {
+  const P = num($('#oeP').value) || 0;
+  const planned = num($('#oeA').value) || 0;
+  const unplanned = num($('#oeB').value) || 0;
+  const setup = num($('#oeS').value) || 0;
+  const takt = num($('#oeC').value) || 0;
+  const qty = num($('#oeQ').value) || 0;
+  const good = num($('#oeG').value) || 0;
+
+  const loadTime = P - planned;             // 负荷时间
+  const run = loadTime - unplanned - setup; // 实际运行时间
+  const av = loadTime > 0 ? run / loadTime : 0;
+  const ideal = takt * qty / 60;            // 理论总工时(分)
+  const pf = run > 0 ? ideal / run : 0;
+  const qy = qty > 0 ? good / qty : 0;
+  const oee = av * pf * qy;
+
+  $('#oeeAv').textContent = (av * 100).toFixed(1) + '%';
+  $('#oeePf').textContent = (pf * 100).toFixed(1) + '%';
+  $('#oeeQy').textContent = (qy * 100).toFixed(1) + '%';
+  $('#oeeTl').textContent = fx(ideal, 1) + ' 分';
+  $('#oeeVal').textContent = (oee * 100).toFixed(1) + '%';
+  let g, cls;
+  if (oee >= 0.85) { g = '世界级水平'; cls = 'ok'; }
+  else if (oee >= 0.70) { g = '良好，继续保持'; cls = 'ok'; }
+  else if (oee >= 0.50) { g = '一般，有明显改善空间'; cls = 'wa'; }
+  else { g = '偏低，先解决最大一块损失'; cls = 'bad'; }
+  $('#oeeGrade').textContent = g;
+  $('#oeeBig').className = 'big ' + cls;
+
+  $('#lStop').textContent = fx(unplanned + setup, 0) + ' 分';
+  $('#lSpeed').textContent = fx(Math.max(0, run - ideal), 1) + ' 分';
+  $('#lQual').textContent = fx(takt / 60 * (qty - good), 1) + ' 分';
+  $('#lRun').textContent = fx(run, 0) + ' 分';
+
+  const c = [['时间稼动率', av], ['性能稼动率', pf], ['良品率', qy]];
+  c.sort((a, b) => a[1] - b[1]);
+  const tip = { '时间稼动率': '先攻故障停机与换型调机时间', '性能稼动率': '先查小停机、降速与节拍设定是否合理', '良品率': '先抓不良集中项，可配合「制程」页一起看' };
+  $('#oeeWeak').innerHTML = '三率里最弱的是 <b style="color:var(--warn)">' + c[0][0] + '（' + (c[0][1] * 100).toFixed(1) + '%）</b> —— 改善优先从这里下手：' + (tip[c[0][0]] || '');
+  LS.set('oee.last', { oee: oee, weak: c[0][0] });
+}
+$$('#p-oee input').forEach(el => el.addEventListener('input', renderOee));
+$('#oeeCopy').onclick = () => {
+  copyText('【OEE 分析】\n时间稼动率 ' + $('#oeeAv').textContent + '\n性能稼动率 ' + $('#oeePf').textContent +
+    '\n良品率 ' + $('#oeeQy').textContent + '\nOEE = ' + $('#oeeVal').textContent + '（' + $('#oeeGrade').textContent + '）\n' +
+    '停机损失 ' + $('#lStop').textContent + ' / 速度损失 ' + $('#lSpeed').textContent + ' / 质量损失 ' + $('#lQual').textContent,
+    '结论已复制');
+};
+
+/* ===================== 4. 根因分析 ===================== */
+const WHY_N = 6;
+(function buildWhy() {
+  let h = '';
+  for (let i = 1; i <= WHY_N; i++) {
+    h += '<div class="rca-w"><div class="idx2">Why' + i + '</div><input id="w' + i + '" placeholder="' +
+      (i === 1 ? '为什么会发生？' : i === 2 ? '再问一层——为什么上一层的答案是那样？' : '继续往下问...') + '"></div>';
+  }
+  $('#whyWrap').innerHTML = h;
+  for (let i = 0; i <= WHY_N; i++) { const el = $('#w' + i); if (el) { el.value = LS.get('why.' + i, ''); el.addEventListener('input', () => LS.set('why.' + i, el.value)); } }
+  ['wRoot', 'wFix'].forEach(k => {
+    const el = $('#' + k); el.value = LS.get(k, ''); el.addEventListener('input', () => LS.set(k, el.value));
+  });
+})();
+function whyText() {
+  let t = '【5Why 根因分析 ' + stamp(true) + '】\n现象：' + ($('#w0').value || '（未填）') + '\n';
+  for (let i = 1; i <= WHY_N; i++) {
+    const v = $('#w' + i).value;
+    if (v) t += 'Why' + i + '：' + v + '\n';
+  }
+  t += '根本原因：' + ($('#wRoot').value || '（未填）') + '\n对策：' + ($('#wFix').value || '（未填）');
+  return t;
+}
+$('#wCopy').onclick = () => copyText(whyText(), '全文已复制');
+$('#wNote').onclick = () => { addNote('5Why 分析', whyText()); toast('已存入便签'); };
+$('#wClear').onclick = () => {
+  if (!confirm('清空全部 5Why 内容？')) return;
+  for (let i = 0; i <= WHY_N; i++) { const el = $('#w' + i); if (el) { el.value = ''; LS.del('why.' + i); } }
+  ['wRoot', 'wFix'].forEach(k => { $('#' + k).value = ''; LS.del(k); });
+  toast('已清空');
+};
+
+const FISH = [
+  ['人 Man', ['作业员疲劳 / 状态波动', '新人未经认证独立作业', '未按 SOP 操作 / 凭经验', '培训内容与实际不符', '人员流动 / 频繁换班']],
+  ['机 Machine', ['设备参数漂移未点检', '保养周期与实际不符', '治具 / 夹具磨损松动', '设备精度不足', '机台间差异未校正']],
+  ['料 Material', ['来料批次间差异', '物料储存 / 环境影响', '供应商变更未通知', '混料 / 标识不清', '超期料未管控']],
+  ['法 Method', ['工艺参数未优化', 'SOP 描述模糊无量化', '换线首件确认缺失', '参数变更未经验证', '作业顺序设计不合理']],
+  ['测 Measurement', ['量具未校准 / GRR 超标', '测量方法不统一', '检验标准定义模糊', '抽检频次不足', '检出后未追溯']],
+  ['环 Environment', ['温湿度 / 洁净度超标', '照明不足', '振动 / 静电干扰', '场地拥挤动线交叉', '噪音影响沟通确认']]
+];
+(function buildFish() {
+  const saved = LS.get('fish', {});
+  $('#fishWrap').innerHTML = FISH.map((g, gi) =>
+    '<div class="m6' + (saved['open' + gi] ? ' open' : '') + '" data-g="' + gi + '">' +
+    '<div class="h" data-tog="' + gi + '"><span>' + esc(g[0]) + '</span><span class="ar">▶</span></div>' +
+    '<div class="b">' + g[1].map((q, qi) => {
+      const key = gi + '_' + qi;
+      return '<label class="ck' + (saved[key] ? ' on' : '') + '"><input type="checkbox" data-ck="' + key + '"' + (saved[key] ? ' checked' : '') + '><span>' + esc(q) + '</span></label>';
+    }).join('') + '</div></div>'
+  ).join('');
+  $$('[data-tog]').forEach(h => h.onclick = () => {
+    const g = h.dataset.tog;
+    const box = h.parentNode;
+    box.classList.toggle('open');
+    const s = LS.get('fish', {}); s['open' + g] = box.classList.contains('open'); LS.set('fish', s);
+  });
+  $$('[data-ck]').forEach(c => c.onchange = () => {
+    const s = LS.get('fish', {});
+    s[c.dataset.ck] = c.checked; LS.set('fish', s);
+    c.parentNode.classList.toggle('on', c.checked);
+  });
+  const ex = $('#fishExtra');
+  ex.value = LS.get('fish.extra', '');
+  ex.addEventListener('input', () => LS.set('fish.extra', ex.value));
+})();
+$('#fishCopy').onclick = () => {
+  let t = '【鱼骨图 6M 排查 ' + stamp(true) + '】\n';
+  const s = LS.get('fish', {});
+  FISH.forEach((g, gi) => {
+    const hit = g[1].filter((q, qi) => s[gi + '_' + qi]);
+    if (hit.length) t += '\n◆ ' + g[0] + '\n' + hit.map(q => '  · ' + q).join('\n') + '\n';
+  });
+  if ($('#fishExtra').value.trim()) t += '\n◆ 补充怀疑点\n' + $('#fishExtra').value.trim().split('\n').map(x => '  · ' + x).join('\n') + '\n';
+  if (t.indexOf('◆') < 0) { toast('还没勾选任何项'); return; }
+  copyText(t, '已复制勾选结果');
+};
+
+/* ===================== 5. FMEA ===================== */
+let fmea = LS.get('fmea', []);
+function fmeaSave() { LS.set('fmea', fmea); }
+function fmeaRender() {
+  $('#fmEmpty').style.display = fmea.length ? 'none' : '';
+  const sorted = fmea.slice().sort((a, b) => (b.s * b.o * b.d) - (a.s * a.o * a.d));
+  $('#fmN').textContent = fmea.length;
+  $('#fmMax').textContent = fmea.length ? Math.max.apply(null, fmea.map(x => x.s * x.o * x.d)) : '—';
+  $('#fmList').innerHTML = sorted.map(it => {
+    const rpn = it.s * it.o * it.d;
+    const cls = (rpn >= 100 || it.s >= 9) ? ' hi' : (rpn >= 60 ? ' wa2' : '');
+    return '<div class="fm' + cls + '" data-id="' + it.id + '">' +
+      '<div class="top"><div class="rpn"><b>' + rpn + '</b><span>RPN</span></div>' +
+      '<div class="ttl">' + (esc(it.fm) || '<span style="color:var(--tx2);font-weight:400">未填失效模式</span>') + '</div>' +
+      '<button class="btn bad sm" data-del="' + it.id + '">删</button></div>' +
+      '<label class="f"><span>失效模式 / 工序</span><input data-f="fm" data-id="' + it.id + '" value="' + esc(it.fm) + '" placeholder="例：回流焊后虚焊"></label>' +
+      '<label class="f"><span>失效后果（客户或下工序会怎样）</span><input data-f="eff" data-id="' + it.id + '" value="' + esc(it.eff) + '" placeholder="例：功能失效，客户退货"></label>' +
+      '<div class="sod" style="margin-bottom:9px"><div class="nm">S</div><input type="range" min="1" max="10" data-f="s" data-id="' + it.id + '" value="' + it.s + '"><div class="val"><input type="number" min="1" max="10" data-f="s" data-id="' + it.id + '" value="' + it.s + '"></div><div class="mini" style="margin:0">严重度</div></div>' +
+      '<label class="f"><span>失效原因</span><input data-f="cause" data-id="' + it.id + '" value="' + esc(it.cause) + '" placeholder="例：钢网开口堵塞，锡膏量不足"></label>' +
+      '<div class="sod" style="margin-bottom:9px"><div class="nm">O</div><input type="range" min="1" max="10" data-f="o" data-id="' + it.id + '" value="' + it.o + '"><div class="val"><input type="number" min="1" max="10" data-f="o" data-id="' + it.id + '" value="' + it.o + '"></div><div class="mini" style="margin:0">发生度</div></div>' +
+      '<label class="f"><span>现行控制方法</span><input data-f="ctrl" data-id="' + it.id + '" value="' + esc(it.ctrl) + '" placeholder="例：每 2 小时抽检 5 片"></label>' +
+      '<div class="sod"><div class="nm">D</div><input type="range" min="1" max="10" data-f="d" data-id="' + it.id + '" value="' + it.d + '"><div class="val"><input type="number" min="1" max="10" data-f="d" data-id="' + it.id + '" value="' + it.d + '"></div><div class="mini" style="margin:0">侦测度</div></div>' +
+      '</div>';
+  }).join('');
+}
+$('#fmList').addEventListener('input', e => {
+  const t = e.target, f = t.dataset.f;
+  if (!f) return;
+  const it = fmea.find(x => x.id === t.dataset.id);
+  if (!it) return;
+  const isSod = ['s', 'o', 'd'].indexOf(f) >= 0;
+  if (isSod) {
+    const v = Math.max(1, Math.min(10, parseInt(t.value, 10) || 1));
+    it[f] = v;
+    /* 同步滑条与数字框；跳过正在操作的那个，否则会打断拖动 */
+    $$('[data-f="' + f + '"][data-id="' + it.id + '"]').forEach(el => { if (el !== t) el.value = v; });
+  } else it[f] = t.value;
+  fmeaSave();
+  /* 局部更新，不整表重建 —— 重建会让滑条拖动中断 */
+  const card = t.closest('.fm');
+  if (!card) return;
+  const rpn = it.s * it.o * it.d;
+  card.querySelector('.rpn b').textContent = rpn;
+  card.classList.toggle('hi', rpn >= 100 || it.s >= 9);
+  card.classList.toggle('wa2', !(rpn >= 100 || it.s >= 9) && rpn >= 60);
+  if (!isSod) card.querySelector('.ttl').innerHTML = it.fm ? esc(it.fm) : '<span style="color:var(--tx2);font-weight:400">未填失效模式</span>';
+  $('#fmMax').textContent = fmea.length ? Math.max.apply(null, fmea.map(x => x.s * x.o * x.d)) : '—';
+});
+/* 松手（change）后再按 RPN 重排，避免拖动过程中卡片乱跳 */
+$('#fmList').addEventListener('change', e => {
+  if (['s', 'o', 'd'].indexOf(e.target.dataset.f) >= 0) fmeaRender();
+});
+$('#fmList').addEventListener('click', e => {
+  const id = e.target.dataset.del;
+  if (!id) return;
+  if (!confirm('删除这一条？')) return;
+  fmea = fmea.filter(x => x.id !== id);
+  fmeaSave(); fmeaRender();
+});
+$('#fmAdd').onclick = () => {
+  fmea.push({ id: 'f' + Date.now() + Math.random().toString(36).slice(2, 6), fm: '', eff: '', s: 5, cause: '', o: 5, ctrl: '', d: 5 });
+  fmeaSave(); fmeaRender();
+  const box = $('#fmList'); if (box.lastElementChild) box.lastElementChild.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  toast('已新增，点开填内容');
+};
+$('#fmCsv').onclick = () => {
+  if (!fmea.length) { toast('没有条目'); return; }
+  const rows = fmea.slice().sort((a, b) => (b.s * b.o * b.d) - (a.s * a.o * a.d));
+  let csv = '序号,失效模式/工序,失效后果,S,失效原因,O,现行控制,D,RPN,风险等级\n';
+  rows.forEach((it, i) => {
+    const rpn = it.s * it.o * it.d;
+    const lv = (rpn >= 100 || it.s >= 9) ? '高' : (rpn >= 60 ? '中' : '低');
+    csv += [i + 1, q(it.fm), q(it.eff), it.s, q(it.cause), it.o, q(it.ctrl), it.d, rpn, lv].join(',') + '\n';
+  });
+  download('FMEA_' + stamp() + '.csv', csv, 'text/csv');
+  function q(v) { v = String(v || ''); return '"' + v.replace(/"/g, '""') + '"'; }
+};
+fmeaRender();
+
+/* ===================== 6. 8D ===================== */
+const D8DEF = [
+  ['D1', '团队成员', '跨部门成员与职责：工艺 / 品质 / 生产 / 设备 / 研发'],
+  ['D2', '问题描述', '5W2H：什么产品、什么不良、何时发现、在哪条线、多少数量、如何发现、影响范围'],
+  ['D3', '临时对策', '围堵措施：库存隔离、在制品全检、加严抽检、客户通知、临时工艺调整'],
+  ['D4', '根本原因', '用 5Why + 鱼骨定位到系统原因，并说明如何验证它就是根因'],
+  ['D5', '永久对策', '针对根因的对策，逐条写清责任人与完成日期'],
+  ['D6', '实施与验证', '执行日期、验证数据（改善前后对比）、效果确认结论'],
+  ['D7', '预防再发', '标准化落地：SOP / 控制计划 / FMEA / 点检表 更新，横向展开到同类工序'],
+  ['D8', '团队认可', '结案确认、经验教训分享、对团队的肯定']
+];
+(function buildD8() {
+  $('#d8Wrap').innerHTML = D8DEF.map(d =>
+    '<label class="f"><span>' + d[0] + ' · ' + d[1] + '</span>' +
+    '<textarea id="d8_' + d[0] + '" placeholder="' + esc(d[2]) + '"></textarea></label>'
+  ).join('');
+  $('#d8Title').value = LS.get('d8.title', '');
+  $('#d8Title').addEventListener('input', () => LS.set('d8.title', $('#d8Title').value));
+  D8DEF.forEach(d => {
+    const el = $('#d8_' + d[0]);
+    el.value = LS.get('d8.' + d[0], '');
+    el.addEventListener('input', () => LS.set('d8.' + d[0], el.value));
+  });
+})();
+function d8Text() {
+  let t = '【8D 问题解决报告】\n标题：' + ($('#d8Title').value || '（未填）') + '\n日期：' + new Date().toLocaleDateString('zh-CN') + '\n';
+  D8DEF.forEach(d => {
+    const v = $('#d8_' + d[0]).value;
+    if (v.trim()) t += '\n' + d[0] + ' ' + d[1] + '：\n' + v + '\n';
+  });
+  return t;
+}
+$('#d8Copy').onclick = () => copyText(d8Text(), '报告已复制');
+$('#d8Print').onclick = () => window.print();
+$('#d8Clear').onclick = () => {
+  if (!confirm('清空整份 8D 报告？')) return;
+  $('#d8Title').value = ''; LS.del('d8.title');
+  D8DEF.forEach(d => { $('#d8_' + d[0]).value = ''; LS.del('d8.' + d[0]); });
+  toast('已清空');
+};
+
+/* ===================== 7. 换算 ===================== */
+function convRender(id, units, base, inputId) {
+  const v = num($('#' + inputId).value);
+  const box = $('#' + id);
+  if (!isFinite(v)) { box.innerHTML = ''; return; }
+  const baseVal = v * units[0][1];
+  box.innerHTML = units.map(u => {
+    const r = baseVal / u[1];
+    let disp;
+    if (Math.abs(r) >= 1e6 || (Math.abs(r) < 1e-4 && r !== 0)) disp = r.toExponential(4);
+    else disp = parseFloat(r.toPrecision(8)).toString();
+    return '<div class="cv"><div class="u">' + u[0] + '</div><div class="v">' + disp + '</div></div>';
+  }).join('');
+  void base;
+}
+const U_L = [['mm', 1], ['cm', 10], ['m', 1000], ['inch', 25.4], ['mil (thou)', 0.0254], ['ft', 304.8], ['μm', 0.001]];
+const U_T = [['N·m', 1], ['kgf·m', 9.80665], ['kgf·cm', 0.0980665], ['lbf·in', 0.11298483], ['lbf·ft', 1.35581795]];
+const U_P = [['MPa', 1], ['kPa', 0.001], ['bar', 0.1], ['psi', 0.006894757], ['kgf/cm²', 0.0980665], ['atm', 0.101325]];
+const U_M = [['g', 1], ['kg', 1000], ['lb', 453.59237], ['oz', 28.3495231], ['t', 1000000]];
+function renderAllConv() {
+  convRender('cvLout', U_L, 1, 'cvL');
+  convRender('cvTout', U_T, 1, 'cvT');
+  convRender('cvPout', U_P, 1, 'cvP');
+  convRender('cvMout', U_M, 1, 'cvM');
+  const c = num($('#cvC').value);
+  $('#cvCout').innerHTML = isFinite(c) ? [
+    ['℃ 摄氏', c],
+    ['℉ 华氏', c * 9 / 5 + 32],
+    ['K 开尔文', c + 273.15],
+    ['°R 兰氏', (c + 273.15) * 9 / 5]
+  ].map(x => '<div class="cv"><div class="u">' + x[0] + '</div><div class="v">' + parseFloat(x[1].toPrecision(8)) + '</div></div>').join('') : '';
+}
+['cvL', 'cvT', 'cvP', 'cvM', 'cvC'].forEach(id => $('#' + id).addEventListener('input', renderAllConv));
+function renderTakt() {
+  const s = num($('#tkS').value);
+  if (!isFinite(s) || s <= 0) { ['tkH', 'tk8', 'tkD', 'tkM'].forEach(i => $('#' + i).textContent = '—'); return; }
+  $('#tkH').textContent = Math.floor(3600 / s).toLocaleString() + ' 件';
+  $('#tk8').textContent = Math.floor(28800 / s).toLocaleString() + ' 件';
+  $('#tkD').textContent = Math.floor(79200 / s).toLocaleString() + ' 件';
+  $('#tkM').textContent = fx(s * 100, 1) + ' s';
+}
+$('#tkS').addEventListener('input', renderTakt);
+
+/* ===================== 8. 便签 ===================== */
+let notes = LS.get('notes', []);
+function addNote(title, body) {
+  notes.unshift({ id: 'n' + Date.now(), title: title, body: body, t: new Date().toLocaleString('zh-CN', { month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' }) });
+  if (notes.length > 60) notes.length = 60;
+  LS.set('notes', notes); renderNotes();
+}
+function renderNotes() {
+  $('#ntList').innerHTML = notes.length ? notes.map(n =>
+    '<div class="note" data-id="' + n.id + '">' +
+    '<div class="nh"><b>' + esc(n.title) + ' · ' + esc(n.t) + '</b>' +
+    '<span><button class="btn g sm" data-cp="' + n.id + '">复制</button> <button class="btn bad sm" data-rm="' + n.id + '">删</button></span></div>' +
+    '<textarea data-nt="' + n.id + '">' + esc(n.body) + '</textarea></div>'
+  ).join('') : '<div class="card"><div class="hint" style="margin:0">还没有便签。测时结论、5Why 全文都可以一键存进来。</div></div>';
+  $('#usageStat').textContent = '已存 ' + notes.length + ' 条便签 · ' + fmea.length + ' 条 FMEA · ' + laps.length + ' 笔计时';
+}
+$('#ntList').addEventListener('input', e => {
+  const id = e.target.dataset.nt;
+  if (!id) return;
+  const n = notes.find(x => x.id === id); if (n) { n.body = e.target.value; LS.set('notes', notes); }
+});
+$('#ntList').addEventListener('click', e => {
+  const cp = e.target.dataset.cp, rm = e.target.dataset.rm;
+  if (cp) { const n = notes.find(x => x.id === cp); if (n) copyText(n.body, '便签已复制'); }
+  if (rm) { if (!confirm('删除这条便签？')) return; notes = notes.filter(x => x.id !== rm); LS.set('notes', notes); renderNotes(); }
+});
+$('#ntAdd').onclick = () => { addNote('随手记', ''); toast('已新增'); };
+$('#ntClear').onclick = () => {
+  if (!notes.length) { toast('本来就是空的'); return; }
+  if (!confirm('清空全部 ' + notes.length + ' 条便签？此操作不可恢复。')) return;
+  notes = []; LS.set('notes', notes); renderNotes(); toast('已清空');
+};
+
+/* ===================== 备份 / 导入 ===================== */
+const BACKUP_KEYS = ['study.laps', 'study.cfg', 'cap.data', 'cap.usl', 'cap.lsl', 'notes', 'fmea', 'd8.title',
+  'd8.D1', 'd8.D2', 'd8.D3', 'd8.D4', 'd8.D5', 'd8.D6', 'd8.D7', 'd8.D8', 'fish', 'fish.extra', 'dark', 'tab',
+  'w0', 'w1', 'w2', 'w3', 'w4', 'w5', 'w6', 'wRoot', 'wFix'];
+$('#bkOut').onclick = () => {
+  const o = { app: 'pie-pocket', ver: 1, at: new Date().toISOString(), data: {} };
+  BACKUP_KEYS.forEach(k => { const v = LS.get(k, undefined); if (v !== undefined) o.data[k] = v; });
+  download('口袋工位备份_' + stamp() + '.json', JSON.stringify(o, null, 2), 'application/json');
+  toast('已导出备份文件');
+};
+$('#bkIn').onclick = () => $('#bkFile').click();
+$('#bkFile').onchange = e => {
+  const f = e.target.files[0]; if (!f) return;
+  const r = new FileReader();
+  r.onload = () => {
+    try {
+      const o = JSON.parse(r.result);
+      if (!o || !o.data) throw new Error('格式不对');
+      if (!confirm('导入将覆盖当前全部数据，确定继续？')) return;
+      Object.keys(o.data).forEach(k => LS.set(k, o.data[k]));
+      toast('导入完成，正在刷新');
+      setTimeout(() => location.reload(), 700);
+    } catch (err) { toast('文件打不开，可能不是本工具的备份'); }
+  };
+  r.readAsText(f);
+  e.target.value = '';
+};
+function stamp(withTime) {
+  const d = new Date();
+  const p = n => String(n).padStart(2, '0');
+  const s = d.getFullYear() + p(d.getMonth() + 1) + p(d.getDate());
+  return withTime ? s + ' ' + p(d.getHours()) + ':' + p(d.getMinutes()) : s;
+}
+
+/* ===================== 启动 ===================== */
+(function boot() {
+  renderLaps();
+  renderStudy();
+  renderOee();
+  renderAllConv();
+  renderTakt();
+  renderNotes();
+  const capD = LS.get('cap.data', ''); if (capD) $('#capData').value = capD;
+  const u = LS.get('cap.usl', ''); if (u) $('#capUsl').value = u;
+  const l = LS.get('cap.lsl', ''); if (l) $('#capLsl').value = l;
+  const cfg = LS.get('study.cfg', {});
+  if (cfg.h) $('#cH').value = cfg.h;
+  if (cfg.u) $('#cU').value = cfg.u;
+  if (cfg.y) $('#cY').value = cfg.y;
+  showTab(LS.get('tab', 'study'));
+  swTick();
+  if (!LS.get('seen', false)) {
+    LS.set('seen', true);
+    setTimeout(() => toast('建议先「添加到主屏幕」，随时开随时用'), 900);
+  }
+})();
+
+})();
+</script>
+</section>
+
+</main>
+<div class="footer" data-page-node-id="YGOeI2XxLXabWkmQhomSOo">PIE 工艺百宝箱 · 为归工运踢桃定制 · 所有输入自动存本机（localStorage），清浏览器缓存才会丢</div>
+
+<script>
+/* ---------- tabs ---------- */
+document.getElementById('tabs').addEventListener('click',e=>{
+  if(e.target.tagName!=='BUTTON'||e.target.classList.contains('ext'))return;
+  document.querySelectorAll('#tabs button').forEach(b=>b.classList.remove('active'));
+  e.target.classList.add('active');
+  document.querySelectorAll('.tabpane').forEach(p=>p.classList.add('hidden'));
+  document.getElementById('tab-'+e.target.dataset.tab).classList.remove('hidden');
+});
+
+/* ---------- persistence ---------- */
+function saveAll(){
+  const d={};
+  document.querySelectorAll('input,textarea,select').forEach(el=>{
+    if(el.closest('#tab-pocket'))return;
+    if(el.id)d[el.id]=el.value;
+  });
+  d.__fpy=JSON.stringify(fpyRows);
+  d.__par=JSON.stringify(parRows);
+  d.__line=JSON.stringify(lineRows);
+  localStorage.setItem('pie_toolbox',JSON.stringify(d));
+}
+function loadAll(){
+  try{
+    const d=JSON.parse(localStorage.getItem('pie_toolbox')||'{}');
+    for(const k in d){ if(k!=='__fpy'){const el=document.getElementById(k); if(el)el.value=d[k];} }
+    if(d.__fpy)try{fpyRows=JSON.parse(d.__fpy)}catch(e){}
+    if(d.__par)try{parRows=JSON.parse(d.__par)}catch(e){}
+    if(d.__line)try{lineRows=JSON.parse(d.__line)}catch(e){}
+  }catch(e){}
+}
+
+/* ---------- 流水线计时制 ---------- */
+let lineRows=[{n:'取料',o:5},{n:'装配',o:12},{n:'锁螺丝',o:18},{n:'检测',o:8},{n:'包装',o:6}];
+let __lnDrawn=false;
+function lnRender(){
+  const rt=+ln_rating.value/100, al=+ln_allow.value/100;
+  document.querySelector('#ln_tbl tbody').innerHTML=lineRows.map((r,idx)=>{
+    const st=(+r.o||0)*rt*(1+al);
+    return `<tr><td><input value="${r.n}" oninput="lineRows[${idx}].n=this.value;saveAll()" style="border:none;background:none"></td>
+    <td><input type="number" value="${r.o}" oninput="lineRows[${idx}].o=+this.value;lnRender();saveAll()" style="border:none;background:none;width:80px"></td>
+    <td>${st.toFixed(2)}</td>
+    <td><button class="del" onclick="lnDel(${idx})">✕</button></td></tr>`;
+  }).join('');
+  if(__lnDrawn)drawLnBars();
+}
+function lnAddRow(){lineRows.push({n:'工位'+(lineRows.length+1),o:0});lnRender();saveAll()}
+function lnDel(i){lineRows.splice(i,1);lnRender();saveAll()}
+function drawLnBars(){
+  const rt=+ln_rating.value/100, al=+ln_allow.value/100;
+  const sts=lineRows.filter(r=>(+r.o||0)>0).map(r=>({n:r.n,v:(+r.o)*rt*(1+al)}));
+  if(!sts.length){ln_bars.innerHTML='';return}
+  const max=Math.max(...sts.map(s=>s.v));
+  ln_bars.innerHTML=sts.map(s=>{
+    const w=Math.max(4,s.v/max*100), isBott=s.v===max;
+    return `<div style="display:flex;align-items:center;gap:8px;margin:3px 0;font-size:12.5px">
+      <span style="width:72px;text-align:right;color:#334155">${s.n}</span>
+      <div style="flex:1;background:#eef2f7;border-radius:4px;height:18px;overflow:hidden">
+        <div style="width:${w}%;height:100%;background:${isBott?'#b42318':'#0f6cbd'};border-radius:4px"></div></div>
+      <span style="width:58px;color:${isBott?'#b42318':'#334155'};font-weight:${isBott?'700':'400'}">${s.v.toFixed(1)}s${isBott?' 🔻':''}</span></div>`;
+  }).join('');
+}
+function calcLine(){
+  const rt=+ln_rating.value/100, al=+ln_allow.value/100;
+  const rows=lineRows.filter(r=>(+r.o||0)>0).map(r=>({n:r.n,st:(+r.o)*rt*(1+al)}));
+  if(rows.length<2){ln_out.innerHTML='流水线至少填 2 个有效工位';ln_bars.innerHTML='';return}
+  const sumST=rows.reduce((a,b)=>a+b.st,0);
+  const bottleneck=Math.max(...rows.map(r=>r.st));
+  const n=rows.length;
+  const lbr=sumST/(bottleneck*n)*100;
+  const idle=(bottleneck*n-sumST)/(bottleneck*n)*100;
+  const si=Math.sqrt(rows.reduce((a,b)=>a+(bottleneck-b.st)**2,0));
+  const shift=+ln_shift.value, act=+ln_act.value/100;
+  const lineCap=Math.floor(shift*60*act/bottleneck);
+  const takt=+ln_takt.value;
+  let taktMsg='';
+  if(takt>0){
+    const reqN=Math.ceil(sumST/takt);
+    if(bottleneck>takt) taktMsg=`<br>客户需求节拍 ${takt}s &lt; 瓶颈 ${bottleneck.toFixed(1)}s → <span class="pill pill-bad">产能不足</span> 整线追不上需求，需拆瓶颈站或增线`;
+    else taktMsg=`<br>客户需求节拍 ${takt}s ≥ 瓶颈 ${bottleneck.toFixed(1)}s → <span class="pill pill-ok">产能有余</span> 理论最少工位 ${reqN} 个（现 ${n} 个，编成合理）`;
+  }
+  const balCls=lbr>=85?'pill-ok':lbr>=70?'pill-warn':'pill-bad';
+  const balTag=lbr>=85?'平衡良好':lbr>=70?'有待改善':'严重不平衡';
+  ln_out.innerHTML=`整线节拍（瓶颈）= <b>${bottleneck.toFixed(2)} 秒/件</b> ｜ 线标准工时（每产出 1 件）= ${bottleneck.toFixed(2)} 秒 ｜ 班产能 = <b>${lineCap.toLocaleString()}</b> 件<br>
+    线平衡率 = <b>${lbr.toFixed(1)}%</b><span class="pill ${balCls}">${balTag}</span>
+    空闲率 ${idle.toFixed(1)}% ｜ 平滑指数 SI = ${si.toFixed(2)}（越小越平衡）｜ 总工位标准时间 ${sumST.toFixed(1)} 秒
+    ${taktMsg}
+    <div class="mini">线平衡率 = Σ各站标准时间 ÷ (瓶颈×工位数)。&lt;85% 说明工时分配不均，用 ECRS 把瓶颈站动作拆给空闲站；SI 越大代表各站时间落差越大。</div>`;
+  __lnDrawn=true; drawLnBars();
+}
+
+/* ECRS 一键改善建议 */
+function ecrsSuggest(){
+  const rt=+ln_rating.value/100, al=+ln_allow.value/100;
+  const rows=lineRows.filter(r=>(+r.o||0)>0).map(r=>({n:r.n,st:(+r.o)*rt*(1+al)}));
+  if(rows.length<2){ecrs_out.innerHTML='流水线至少填 2 个有效工位';return}
+  const sumST=rows.reduce((a,b)=>a+b.st,0), n=rows.length;
+  const bottleneck=Math.max(...rows.map(r=>r.st));
+  const bn=rows.find(r=>r.st===bottleneck);
+  const avg=sumST/n;
+  const idle=rows.filter(r=>r.st<bottleneck).map(r=>({n:r.n,st:r.st,slack:+(bottleneck-r.st).toFixed(1)}))
+                 .sort((a,b)=>b.slack-a.slack);
+  const totalSlack=idle.reduce((a,b)=>a+b.slack,0);
+  const nearZero=rows.filter(r=>r.st<avg*0.3).map(r=>r.n);
+  const curLbr=(sumST/(bottleneck*n)*100).toFixed(0);
+  let h=`<div style="font-weight:700;margin-bottom:4px">🔻 瓶颈站：<span style="color:#b42318">${bn.n}（${bottleneck.toFixed(1)}s）</span> ＞ 平均 ${avg.toFixed(1)}s，超出约 ${(bottleneck-avg).toFixed(1)}s</div>`;
+  h+=`<div style="margin:4px 0 2px;color:#475569">各站相对瓶颈的空闲余量：</div>`;
+  h+=idle.map(s=>`<span class="pill pill-warn" style="margin:2px">${s.n} 余 ${s.slack}s</span>`).join('');
+  if(totalSlack<=0.05){
+    h+=`<div style="margin-top:8px"><b>E（取消）/S（简化）</b>：各站时间已贴近瓶颈，站内重分配无空间。优先压缩瓶颈站「${bn.n}」的无效动作（拿取路径、等待、翻面），或上治具/防错；仍不足则<b>增线或并行作业</b>。</div>`;
+  }else{
+    const move=(bottleneck-avg);
+    const recv=idle[0];
+    const newBott=avg;
+    const newLbr=Math.min(100,(sumST/(newBott*n)*100)).toFixed(0);
+    let recvTxt=`「${recv.n}」（现 ${recv.st.toFixed(1)}s，余 ${recv.slack}s，可吸收）`;
+    const afterRecv=recv.st+move;
+    if(afterRecv>avg+0.05 && idle[1]){
+      recvTxt+=`；若单站吃不下，再分 ${ (afterRecv-avg).toFixed(1) }s 给「${idle[1].n}」`;
+    }
+    h+=`<div style="margin-top:8px"><b>R（重排）</b>：把瓶颈站「${bn.n}」约 <b>${move.toFixed(1)}s</b> 的作业（取放/预锁/自检等可剥离动作）转移给空闲最多的 ${recvTxt}。重排后瓶颈≈<b>${newBott.toFixed(1)}s</b>，线平衡率可升至 ≈ <b>${newLbr}%</b>（现 ${curLbr}%）。</div>`;
+    if(nearZero.length){
+      h+=`<div style="margin-top:6px"><b>C（合并）</b>：「${nearZero.join('、')}」工时过小（＜${avg*0.3}s），可并入邻站，省掉一人/一站，进一步释放余量。</div>`;
+    }
+    h+=`<div style="margin-top:6px"><b>S（简化）/E（取消）</b>：若瓶颈动作含等待、搬动、翻面等无附加价值步骤，直接简化或取消，比重排更治本。</div>`;
+  }
+  h+=`<div class="mini" style="margin-top:8px">ECRS 顺序：先 E 取消 → 再 C 合并 → 再 R 重排 → 最后 S 简化。别一上来就买设备，先把站内动作理干净。</div>`;
+  ecrs_out.innerHTML=h;
+}
+
+/* ---------- 标准工时 ---------- */
+function calcST(){
+  const ot=+so_ot.value, rt=+so_rating.value/100, al=+so_allow.value/100;
+  const st=ot*rt*(1+al);
+  const uph=3600/st;
+  const cap=Math.floor(+so_shift.value*60*+so_act.value/100/+so_ppl.value/st*Math.max(1,+so_ppl.value)); // per line simplified
+  const lineCap=Math.floor(+so_shift.value*60*+so_act.value/100/st); // 单人产能
+  so_out.innerHTML=`标准工时 <b>${st.toFixed(2)} 秒/件</b><br>
+   理论 UPH：${uph.toFixed(0)} 件/人·小时 ｜ 单人班产：${Math.floor(lineCap)} 件<br>
+   ${+so_ppl.value} 人、稼动率 ${so_act.value}% 时，全组班产约 <b>${(lineCap*+so_ppl.value).toLocaleString()}</b> 件`;
+  saveAll();
+}
+
+/* ---------- FPY ---------- */
+let fpyRows=[{n:'工位1',i:1000,o:980},{n:'工位2',i:980,o:965},{n:'工位3',i:965,o:958}];
+function fpyRender(){
+  const tb=document.querySelector('#fpy_tbl tbody');
+  tb.innerHTML=fpyRows.map((r,idx)=>`<tr>
+    <td><input value="${r.n}" oninput="fpyRows[${idx}].n=this.value;saveAll()" style="border:none;background:none"></td>
+    <td><input type="number" value="${r.i}" oninput="fpyRows[${idx}].i=+this.value;saveAll()" style="border:none;background:none;width:80px"></td>
+    <td><input type="number" value="${r.o}" oninput="fpyRows[${idx}].o=+this.value;saveAll()" style="border:none;background:none;width:80px"></td>
+    <td>${r.i>0?(r.o/r.i*100).toFixed(2)+'%':'-'}</td>
+    <td><button class="del" onclick="fpyDel(${idx})">✕</button></td></tr>`).join('');
+}
+function fpyAddRow(){fpyRows.push({n:'工位'+(fpyRows.length+1),i:0,o:0});fpyRender();saveAll()}
+function fpyDel(i){fpyRows.splice(i,1);fpyRender();saveAll()}
+function calcFPY(){
+  let fpy=1,any=false,rows=fpyRows.map(r=>{
+    if(r.i>0){any=true;const y=r.o/r.i;fpy*=y;return `<tr><td>${r.n}</td><td>${r.i}</td><td>${r.o}</td><td>${(y*100).toFixed(2)}%</td></tr>`}
+    return '';
+  }).join('');
+  if(!any){fpy_out.innerHTML='请先填写各工位投入数';return}
+  let cls=fpy>=0.98?'pill-ok':fpy>=0.92?'pill-warn':'pill-bad';
+  let tag=fpy>=0.98?'良好':fpy>=0.92?'需改善':'重点攻关';
+  fpy_out.innerHTML=`总直通率 FPY = <b>${(fpy*100).toFixed(2)}%</b><span class="pill ${cls}">${tag}</span><br>
+   累计不良率 ${(100-fpy*100).toFixed(2)}%　若投入 10,000 件，预计一次合格 <b>${Math.round(fpy*10000)}</b> 件
+   <table><thead><tr><th>工位</th><th>投入</th><th>一次合格</th><th>良率</th></tr></thead><tbody>${rows}</tbody></table>`;
+  saveAll();
+}
+
+/* ---------- CPK ---------- */
+function calcCPK(){
+  const data=cpk_data.value.split(/[\s,;，；\n]+/).map(Number).filter(v=>!isNaN(v)&&v!=='');
+  if(data.length<5){cpk_out.innerHTML='数据不足 5 个，再采一点样';return}
+  const n=data.length,mean=data.reduce((a,b)=>a+b,0)/n;
+  const sd=Math.sqrt(data.reduce((a,b)=>a+(b-mean)**2,0)/(n-1));
+  const t=cpk_type.value, usl=+cpk_usl.value, lsl=+cpk_lsl.value;
+  let cpu,cp,cpl,cpk;
+  if(t==='both'&&usl>lsl){
+    cpu=(usl-mean)/(3*sd);cpl=(mean-lsl)/(3*sd);cp=(usl-lsl)/(6*sd);cpk=Math.min(cpu,cpl);
+  }else if(t==='upper'&&usl){
+    cpu=(usl-mean)/(3*sd);cpk=cpu;cp=cpu;
+  }else if(t==='lower'&&lsl){
+    cpl=(mean-lsl)/(3*sd);cpk=cpl;cp=cpl;
+  }else{cpk_out.innerHTML='请检查规格类型与上下限';return}
+  const ooc=data.filter(v=>(t!=='lower'&&usl&&v>usl)||(t!=='upper'&&lsl&&v<lsl)).length;
+  const grade=cpk>=1.67?['A+ 过程能力充足','pill-ok']:cpk>=1.33?['A 能力充分','pill-ok']:cpk>=1.0?['B 能力尚可，需监控','pill-warn']:cpk>=0.67?['C 能力不足，需改善','pill-warn']:['D 严重不足，需停线分析','pill-bad'];
+  const zU=(t!=='lower'&&usl)?(usl-mean)/sd:Infinity;
+  const zL=(t!=='upper'&&lsl)?(lsl-mean)/sd:-Infinity;
+  const pDef=1-norms(zU)+norms(zL);
+  cpk_out.innerHTML=`样本 n=${n} ｜ 均值 X̄ = <b>${mean.toFixed(4)}</b> ｜ 标准差 σ = ${sd.toFixed(4)}<br>
+   ${t==='both'?`Cp = ${cp.toFixed(2)}　Cpk = <b>${cpk.toFixed(2)}</b>　（Cpu=${cpu.toFixed(2)} / Cpl=${cpl.toFixed(2)}）`:`Cpk = <b>${cpk.toFixed(2)}</b>`}
+   <span class="pill ${grade[1]}">${grade[0]}</span><br>
+   超出规格：${ooc} / ${n} 件（实测 ${(ooc/n*100).toFixed(1)}%）　按正态分布估算不良率约 <b>${(pDef*100).toFixed(3)}%</b>（≈ ${(pDef>0?1000000*pDef:0).toFixed(0)} PPM）
+   <div class="mini">经验值：Cpk≥1.33 客户普遍接受；1.0~1.33 需加严管控；&lt;1.0 建议启动 8D。</div>`;
+  saveAll();
+}
+function norms(z){return 0.5*(1+erf(z/Math.SQRT2))}
+function erf(x){const s=x<0?-1:1;x=Math.abs(x);const a1=0.254829592,a2=-0.284496736,a3=1.421413741,a4=-1.453152027,a5=1.061405429,p=0.3275911;const t=1/(1+p*x);const y=1-((((a5*t+a4)*t+a3)*t+a2)*t+a1)*t*Math.exp(-x*x);return s*y}
+
+/* ---------- OEE ---------- */
+function calcOEE(){
+  const load=+oe_load.value,down=+oe_down.value,ct=+oe_ct.value,out=+oe_out.value,good=+oe_good.value;
+  if(load<=down||ct<=0){oe_out.innerHTML='请检查输入：停机时间不能超过负荷时间';return}
+  const run=load-down;
+  const av=run/load, pf=ct*out/(run*60), q=out>0?good/out:0;
+  const oee=av*pf*q;
+  const grade=oee>=0.85?['世界级水平 🏆','pill-ok']:oee>=0.65?['一般水平，有空间','pill-warn']:['偏低，建议专项改善','pill-bad'];
+  oe_out.innerHTML=`时间稼动率 ${(av*100).toFixed(1)}% × 性能稼动率 ${(Math.min(pf,1.5)*100).toFixed(1)}% × 良品率 ${(q*100).toFixed(1)}%<br>
+   OEE = <b>${(oee*100).toFixed(1)}%</b><span class="pill ${grade[1]}">${grade[0]}</span><br>
+   损失拆解：停机损失 ${down} 分钟；性能损失约 ${Math.max(0,Math.round(run*60-ct*out))} 秒；不良损失 ${out-good} 件`;
+  saveAll();
+}
+
+/* ---------- 鱼骨图 ---------- */
+let fishSVG=null;
+function parseCauses(s){return s.split(/[；;\n]+/).map(x=>x.trim()).filter(Boolean)}
+function drawFish(){
+  const head=fish_head.value||'问题';
+  const cats=[
+    {name:'人',id:'fish_man'},{name:'机',id:'fish_mch'},{name:'料',id:'fish_mat'},
+    {name:'法',id:'fish_mtd'},{name:'环',id:'fish_env'},{name:'测',id:'fish_mea'}];
+  let top=[],bot=[];
+  cats.forEach((c,idx)=>{const causes=parseCauses(document.getElementById(c.id).value);(idx<3?top:bot).push({name:c.name,causes})});
+  const W=860,H=520,midY=H/2,spineX1=60,spineX2=W-160;
+  let g=`<svg id="fishSVG" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${W} ${H}" style="width:100%;background:#fff;border:1px solid var(--line);border-radius:10px">
+  <line x1="${spineX1}" y1="${midY}" x2="${spineX2}" y2="${midY}" stroke="#1c2733" stroke-width="2.5"/>
+  <polygon points="${spineX2-4},${midY-7} ${spineX2-4},${midY+7} ${spineX2+14},${midY}" fill="#1c2733"/>
+  <rect x="${spineX2+18}" y="${midY-28}" width="120" height="56" rx="8" fill="#0f6cbd"/>
+  <text x="${spineX2+78}" y="${midY-5}" text-anchor="middle" fill="#fff" font-size="14" font-weight="bold">${head.slice(0,8)}</text>
+  ${head.length>8?`<text x="${spineX2+78}" y="${midY+13}" text-anchor="middle" fill="#fff" font-size="12">${head.slice(8,16)}</text>`:''}`;
+  const drawBranch=(b,up,x)=>{
+    const dir=up?-1:1, sy=midY, ey=up?70:H-70;
+    g+=`<line x1="${x}" y1="${sy}" x2="${x-60}" y2="${ey}" stroke="#64748b" stroke-width="2"/>
+    <rect x="${x-92}" y="${up?ey-24:ey-24}" width="52" height="30" rx="6" fill="#0a4d85"/>
+    <text x="${x-66}" y="${ey-4}" text-anchor="middle" fill="#fff" font-size="15" font-weight="bold">${b.name}</text>`;
+    b.causes.forEach((c,i)=>{
+      const t=0.28+i*0.26; if(t>0.9)return;
+      const cx=x-60*(1-t)- (60*t*0)+ -60*(0)+ (x - 60) * (1-t) + (x-60)*(0);
+      const bx=x-(60)*t, by=sy+(ey-sy)*t;
+      const off=up?-1:1;
+      g+=`<line x1="${bx}" y1="${by}" x2="${bx-70}" y2="${by}" stroke="#94a3b8" stroke-width="1.2"/>
+      <text x="${bx-72}" y="${by+off*4-4}" text-anchor="end" font-size="11.5" fill="#334155">${c.length>14?c.slice(0,14)+'…':c}</text>`;
+    });
+  };
+  top.forEach((b,i)=>drawBranch(b,true,spineX2-120-i*220));
+  bot.forEach((b,i)=>drawBranch(b,false,spineX2-120-i*220));
+  g+='</svg>';
+  fish_box.innerHTML=g; fishSVG=document.getElementById('fishSVG'); saveAll();
+}
+function downloadFish(){
+  if(!fishSVG){alert('先生成鱼骨图');return}
+  const c=document.createElement('canvas');c.width=1720;c.height=1040;
+  const ctx=c.getContext('2d');ctx.fillStyle='#fff';ctx.fillRect(0,0,c.width,c.height);
+  const img=new Image();
+  img.onload=()=>{ctx.drawImage(img,0,0,c.width,c.height);
+    const a=document.createElement('a');a.download='鱼骨图.png';a.href=c.toDataURL('image/png');a.click()};
+  img.src='data:image/svg+xml;charset=utf-8,'+encodeURIComponent(new XMLSerializer().serializeToString(fishSVG));
+}
+
+/* ---------- 8D ---------- */
+const d8=[
+ ['D0','现象征兆与紧急反应','客户投诉/内部发现的现象、影响范围、是否需要紧急围堵'],
+ ['D1','成立小组','组长、成员、职责分工'],
+ ['D2','问题描述（5W2H）','What/When/Where/Who/Why/How/How many'],
+ ['D3','临时围堵措施','隔离、挑选、返工等措施及效果验证'],
+ ['D4','根本原因分析','使用 5Why / 鱼骨图，指出发生原因与流出原因'],
+ ['D5','永久对策选定','针对根因的纠正措施与验证计划'],
+ ['D6','对策实施与效果确认','实施日期、验证数据（如良率/CPK 变化）'],
+ ['D7','预防再发与标准化','更新 FMEA、SOP、控制计划、横展'],
+ ['D8','结案与表彰','总结、关闭日期、团队认可']];
+const d8form=document.getElementById('d8form');
+d8form.innerHTML=d8.map(d=>`<div style="margin-bottom:10px"><label>${d[0]}　${d[1]}</label><textarea id="d_${d[0]}" placeholder="${d[2]}" style="min-height:50px"></textarea></div>`).join('');
+function gen8D(){
+  let md=`# 8D 报告 — ${document.getElementById('d_D2').value.split('\n')[0]||'未命名问题'}\n\n`;
+  d8.forEach(d=>{md+=`## ${d[0]}　${d[1]}\n${document.getElementById('d_'+d[0]).value||'（待填写）'}\n\n`});
+  d8out.textContent=md; d8out.style.display='block'; saveAll();
+}
+function copy8D(){navigator.clipboard.writeText(d8out.textContent).then(()=>alert('已复制到剪贴板'))}
+function dl8D(){
+  const blob=new Blob([d8out.textContent],{type:'text/markdown'});
+  const a=document.createElement('a');a.download='8D报告.md';a.href=URL.createObjectURL(blob);a.click();
+}
+
+/* ---------- 秒表 ---------- */
+let swRun=false,swStart=0,swAcc=0,laps=[],swTimer=null;
+function swNow(){return swAcc+(swRun?performance.now()-swStart:0)}
+function swFmt(ms){
+  const s=ms/1000, m=Math.floor(s/60), sec=s-m*60;
+  return String(m).padStart(2,'0')+':'+sec.toFixed(2).padStart(5,'0');
+}
+function swTick(){
+  sw_disp.textContent=swFmt(swNow());
+  if(laps.length){
+    const prev=laps.reduce((a,b)=>a+b,0);
+    sw_lapdisp.textContent='上圈时间：'+swFmt(swNow()-prev);
+  }
+}
+function swToggle(){
+  if(!swRun){
+    swStart=performance.now(); swRun=true; sw_startbtn.textContent='暂停';
+    swTimer=setInterval(swTick,31); swTick();
+  }else{
+    swAcc+=performance.now()-swStart; swRun=false; sw_startbtn.textContent='继续';
+    clearInterval(swTimer);
+  }
+}
+function swLap(){
+  if(!swRun&&!swAcc&&!laps.length)return; // 未开始
+  if(!swRun)swToggle(); // 暂停状态下记圈=继续计时
+  const cur=swNow(), prev=laps.reduce((a,b)=>a+b,0);
+  laps.push(cur-prev); swRenderLaps();
+}
+function swRenderLaps(){
+  let acc=0;
+  document.querySelector('#sw_tbl tbody').innerHTML=laps.map((ms,i)=>{
+    acc+=ms;
+    return `<tr><td>第 ${i+1} 圈</td><td>${(ms/1000).toFixed(2)}</td><td>${swFmt(acc)}</td>
+      <td><button class="del" onclick="swDel(${i})">✕</button></td></tr>`;
+  }).reverse().join('');
+  const arr=laps.map(x=>x/1000);
+  if(arr.length){
+    const avg=arr.reduce((a,b)=>a+b,0)/arr.length;
+    const mx=Math.max(...arr),mn=Math.min(...arr);
+    const cv=avg>0?(mx-mn)/avg*100:0;
+    sw_stat.textContent=`共 ${arr.length} 圈 ｜ 平均 ${(avg).toFixed(2)} 秒 ｜ 最大 ${mx.toFixed(2)} ｜ 最小 ${mn.toFixed(2)} ｜ 极差比 ${cv.toFixed(1)}%（>30% 说明动作不稳定，需再测）`;
+  }else sw_stat.textContent='';
+}
+function swDel(i){laps.splice(i,1);swRenderLaps()}
+function swDelLast(){laps.pop();swRenderLaps()}
+function swReset(){
+  swRun=false;clearInterval(swTimer);swAcc=0;laps=[];
+  sw_startbtn.textContent='开始';sw_disp.textContent='00:00.00';sw_lapdisp.textContent='上圈时间：--';
+  swRenderLaps();
+}
+function swToST(){
+  if(!laps.length){alert('先记几圈再填');return}
+  so_ot.value=(laps.reduce((a,b)=>a+b,0)/laps.length/1000).toFixed(2);
+  calcST();
+  document.querySelector('#tabs button[data-tab="stdhours"]').click();
+}
+
+/* ---------- 5Why ---------- */
+let wyCount=5;
+function wyInit(){
+  wy_rows.innerHTML='';
+  for(let i=1;i<=wyCount;i++)wyAddRow(i);
+}
+function wyAddRow(n){
+  const div=document.createElement('div');
+  div.style.marginBottom='8px';div.dataset.wy=n;
+  div.innerHTML=`<label>Why ${n}（为什么会…？）</label>
+  <div style="display:flex;gap:8px"><textarea id="wy_${n}" style="min-height:46px"></textarea>
+  ${n>5?`<button class="del" onclick="this.closest('div[data-wy]').remove()">✕</button>`:''}</div>`;
+  wy_rows.appendChild(div);
+}
+function wyAdd(){wyCount=Math.max(wyCount,wy_rows.querySelectorAll('[data-wy]').length)+1;wyAddRow(wyCount)}
+function gen5W(){
+  const rows=[...wy_rows.querySelectorAll('[data-wy]')].map(d=>+d.dataset.wy);
+  let md=`# 5Why 分析 — ${wy_prob.value||'（未填问题）'}\n\n## 问题描述\n${wy_prob.value||'（待填写）'}\n\n`;
+  rows.forEach(n=>{
+    md+=`## Why ${n}\n${document.getElementById('wy_'+n).value||'（待填写）'}\n\n`;
+  });
+  md+=`## 根本原因\n${wy_root.value||'（待填写）'}\n\n## 对策\n${wy_action.value||'（待填写）'}\n`;
+  wy_out.textContent=md; wy_out.style.display='block'; saveAll();
+}
+function copy5W(){navigator.clipboard.writeText(wy_out.textContent).then(()=>alert('已复制到剪贴板'))}
+
+/* ---------- 柏拉图 ---------- */
+let parRows=[{n:'划伤',c:62},{n:'脏污',c:38},{n:'尺寸超差',c:21},{n:'毛边',c:12},{n:'其他',c:7}];
+let parSVG=null;
+function parRender(){
+  const total=parRows.reduce((a,b)=>a+(+b.c||0),0);
+  document.querySelector('#par_tbl tbody').innerHTML=parRows.map((r,idx)=>`<tr>
+    <td><input value="${r.n}" oninput="parRows[${idx}].n=this.value" style="border:none;background:none"></td>
+    <td><input type="number" value="${r.c}" oninput="parRows[${idx}].c=+this.value" style="border:none;background:none;width:80px"></td>
+    <td>${total>0?(r.c/total*100).toFixed(1)+'%':'-'}</td>
+    <td><button class="del" onclick="parDel(${idx})">✕</button></td></tr>`).join('');
+}
+function parAddRow(){parRows.push({n:'',c:0});parRender()}
+function parDel(i){parRows.splice(i,1);parRender()}
+function drawPareto(){
+  const data=parRows.filter(r=>r.n&&r.c>0).map(r=>({n:r.n,c:+r.c})).sort((a,b)=>b.c-a.c);
+  if(data.length<2){par_out.style.display='block';par_out.textContent='至少填 2 个有效项目（名称+数量>0）';return}
+  const total=data.reduce((a,b)=>a+b.c,0);
+  const W=880,H=420,ml=55,mr=55,mt=30,mb=70;
+  const bw=(W-ml-mr)/data.length, maxC=data[0].c;
+  const y=H-mb; // 基线
+  let g=`<svg id="parSVG" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${W} ${H}" style="width:100%;background:#fff;border:1px solid var(--line);border-radius:10px">
+  <line x1="${ml}" y1="${y}" x2="${W-mr}" y2="${y}" stroke="#334155" stroke-width="1.5"/>
+  <line x1="${ml}" y1="${mt}" x2="${ml}" y2="${y}" stroke="#334155" stroke-width="1.5"/>
+  <text x="${ml-6}" y="${mt+10}" text-anchor="end" font-size="11" fill="#64748b">${maxC}</text>
+  <text x="${ml-6}" y="${y-4}" text-anchor="end" font-size="11" fill="#64748b">0</text>
+  <text x="${W-20}" y="${mt+10}" font-size="11" fill="#b45309">100%</text>`;
+  let cum=0, pts=[], hit80=null;
+  data.forEach((d,i)=>{
+    const bh=(d.c/maxC)*(y-mt), bx=ml+i*bw+bw*0.15, bwi=bw*0.7;
+    g+=`<rect x="${bx}" y="${y-bh}" width="${bwi}" height="${bh}" fill="#0f6cbd" rx="3"/>
+    <text x="${bx+bwi/2}" y="${y-bh-6}" text-anchor="middle" font-size="11.5" fill="#1c2733" font-weight="bold">${d.c}</text>
+    <text x="${bx+bwi/2}" y="${y+16}" text-anchor="middle" font-size="11.5" fill="#334155">${d.n.length>6?d.n.slice(0,6)+'…':d.n}</text>`;
+    cum+=d.c;
+    const pct=cum/total*100, cy=mt+(100-pct)/100*(y-mt);
+    pts.push([bx+bwi/2,cy]);
+    g+=`<text x="${bx+bwi/2}" y="${cy-6}" text-anchor="middle" font-size="10.5" fill="#b45309">${pct.toFixed(1)}%</text>`;
+    if(!hit80&&pct>=80)hit80=i;
+  });
+  g+=`<polyline points="${pts.map(p=>p.join(',')).join(' ')}" fill="none" stroke="#b45309" stroke-width="2"/>`;
+  pts.forEach(p=>g+=`<circle cx="${p[0]}" cy="${p[1]}" r="3.5" fill="#b45309"/>`);
+  // 80% 虚线
+  const y80=mt+(100-80)/100*(y-mt);
+  g+=`<line x1="${ml}" y1="${y80}" x2="${W-mr}" y2="${y80}" stroke="#b45309" stroke-width="1" stroke-dasharray="6 4"/>
+  <text x="${ml}" y="${y80-5}" font-size="10.5" fill="#b45309">80%</text>`;
+  g+='</svg>';
+  const topItems=data.slice(0,(hit80===null?data.length-1:hit80)+1).map(d=>d.n);
+  par_out.style.display='block';
+  par_out.innerHTML=`不良总数 <b>${total}</b>　重点改善项（累计占比达 80% 前）：<b>${topItems.join('、')}</b>　先啃这几块硬骨头`;
+  par_box.innerHTML=g; parSVG=document.getElementById('parSVG'); document.getElementById('par_dl').style.display='inline-block';
+}
+function downloadPareto(){
+  if(!parSVG)return;
+  const c=document.createElement('canvas');c.width=1760;c.height=840;
+  const ctx=c.getContext('2d');ctx.fillStyle='#fff';ctx.fillRect(0,0,c.width,c.height);
+  const img=new Image();
+  img.onload=()=>{ctx.drawImage(img,0,0,c.width,c.height);
+    const a=document.createElement('a');a.download='柏拉图.png';a.href=c.toDataURL('image/png');a.click()};
+  img.src='data:image/svg+xml;charset=utf-8,'+encodeURIComponent(new XMLSerializer().serializeToString(parSVG));
+}
+
+/* ---------- init ---------- */
+loadAll(); fpyRender(); calcST(); wyInit(); parRender(); lnRender();
+</script>
+<script>
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', function () {
+    navigator.serviceWorker.register('./sw.js').catch(function () {});
+  });
+}
+</script>
+</body>
+</html>

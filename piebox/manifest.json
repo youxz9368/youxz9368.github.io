@@ -1,0 +1,17 @@
+{
+  "name": "PIE工艺百宝箱",
+  "short_name": "PIE百宝",
+  "description": "PIE 工程师随身工具箱：工时测算、工艺速查、标准查询",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#ffffff",
+  "theme_color": "#1f3a5f",
+  "lang": "zh-CN",
+  "icons": [
+    {"src": "icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any"},
+    {"src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any"},
+    {"src": "apple-touch-icon.png", "sizes": "180x180", "type": "image/png"}
+  ]
+}
