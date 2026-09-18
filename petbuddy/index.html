@@ -1,0 +1,600 @@
+<!DOCTYPE html>
+<html lang="zh-Hant" data-page-node-id="h5CGagaOkZU7LUUogMALBe">
+<head data-page-node-id="jGhjAK5RH5MA5IB8ZqYxo6">
+<meta charset="UTF-8" data-page-node-id="FXpD6SFv8Iy37wDPXIpYFV">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" data-page-node-id="TfDYX7vVN6hX362d9fuyTI">
+<meta name="theme-color" content="#ffd66b" data-page-node-id="hAnwydicumfcfvCmq9LZYK">
+<title>阿福 · 珠珠 · 小答 — 你的萌宠家族</title>
+<style>
+  :root{
+    --bg1:#fff4d6; --bg2:#ffe2a8; --card:#fffdf7; --ink:#5a4632; --ink2:#9b8466;
+    --acc:#ff8a5b; --acc2:#ffc24b; --ok:#46c08a; --bad:#ef6f6f; --warn:#f0a93b;
+    --line:#f0e2c4; --shadow:rgba(150,110,40,.18);
+  }
+  [data-theme="dark"]{
+    --bg1:#2a2238; --bg2:#1d1830; --card:#342b48; --ink:#f3e9d8; --ink2:#b9a98f;
+    --acc:#ff9a6b; --acc2:#ffce5e; --ok:#5fd6a0; --bad:#ff8585; --warn:#ffc15e;
+    --line:#463a5e; --shadow:rgba(0,0,0,.35);
+  }
+  *{box-sizing:border-box; -webkit-tap-highlight-color:transparent}
+  html,body{margin:0;height:100%}
+  body{
+    font-family:-apple-system,"PingFang SC","Microsoft YaHei","Heiti SC",sans-serif;
+    color:var(--ink); background:linear-gradient(160deg,var(--bg1),var(--bg2));
+    min-height:100%; overflow-x:hidden; transition:background .4s;
+    -webkit-user-select:none; user-select:none;
+  }
+  #bg{position:fixed; inset:0; z-index:0; pointer-events:none}
+  .wrap{position:relative; z-index:1; max-width:460px; margin:0 auto; padding:14px 14px 26px}
+  .top{display:flex; align-items:center; gap:10px; margin-bottom:6px}
+  .top .nm{font-size:20px; font-weight:800; letter-spacing:.5px}
+  .top .spacer{flex:1}
+  .icbtn{width:38px;height:38px;border:none;border-radius:12px;background:var(--card);
+    color:var(--ink); font-size:17px; box-shadow:0 3px 8px var(--shadow); cursor:pointer; transition:transform .12s}
+  .icbtn:active{transform:scale(.9)}
+  .age{font-size:12px;color:var(--ink2);margin:2px 0 12px;display:flex;gap:8px;flex-wrap:wrap}
+  .age b{color:var(--acc);font-weight:800}
+  .petswitch{display:flex; gap:8px; margin-bottom:10px}
+  .petswitch button{flex:1;border:none;border-radius:14px;padding:9px;font-weight:800;font-size:14px;
+    background:var(--card);color:var(--ink2);box-shadow:0 3px 8px var(--shadow);cursor:pointer;transition:.15s}
+  .petswitch button.on{background:var(--acc);color:#fff}
+  /* 舞台 */
+  .stage{position:relative; height:300px; border-radius:24px; overflow:hidden;
+    background:radial-gradient(120% 90% at 50% 8%, #ffffff55, transparent 60%), var(--card);
+    box-shadow:0 10px 26px var(--shadow); margin-bottom:14px}
+  [data-theme="dark"] .stage{background:radial-gradient(120% 90% at 50% 8%, #ffffff10, transparent 60%), var(--card)}
+  .floor{position:absolute; left:0; right:0; bottom:0; height:64px; background:linear-gradient(180deg, transparent, #00000010)}
+  #pet{position:absolute; left:50%; top:46%; transform:translate(-50%,-50%);
+    width:180px; height:180px; cursor:pointer; transition:filter .3s}
+  #pet .body{transform-origin:50% 80%; animation:float 3.2s ease-in-out infinite}
+  @keyframes float{0%,100%{transform:translateY(0) rotate(-1deg)}50%{transform:translateY(-12px) rotate(1deg)}}
+  #pet.happy .body{animation:hop .55s ease-in-out infinite}
+  @keyframes hop{0%,100%{transform:translateY(0) scale(1,1)}30%{transform:translateY(-22px) scale(.96,1.06)}60%{transform:translateY(0) scale(1.06,.94)}}
+  #pet.sad .body{animation:none; transform:translateY(6px)}
+  #pet.sleep .body{animation:breathe 3.6s ease-in-out infinite}
+  @keyframes breathe{0%,100%{transform:scale(1,1)}50%{transform:scale(1.03,.97)}}
+  .blink{transform-origin:center; animation:blink .14s ease}
+  @keyframes blink{0%,100%{transform:scaleY(1)}50%{transform:scaleY(.08)}}
+  .zzz{position:absolute; font-size:22px; color:var(--ink2); opacity:0; font-weight:800}
+  .zzz.go{animation:zzz 3s ease-out infinite}
+  @keyframes zzz{0%{opacity:0;transform:translate(0,0) scale(.6)}30%{opacity:.9}100%{opacity:0;transform:translate(26px,-44px) scale(1.1)}}
+  .bubble{position:absolute; left:50%; top:8px; transform:translateX(-50%);
+    background:var(--ink); color:#fff; padding:8px 14px; border-radius:16px; font-size:14px; font-weight:600;
+    max-width:84%; text-align:center; box-shadow:0 6px 14px var(--shadow); opacity:0; transition:opacity .25s, transform .25s; pointer-events:none; white-space:nowrap}
+  .bubble.show{opacity:1; transform:translateX(-50%) translateY(0); animation:pop .3s ease}
+  .bubble:after{content:""; position:absolute; left:50%; bottom:-7px; transform:translateX(-50%);
+    border:7px solid transparent; border-top-color:var(--ink)}
+  @keyframes pop{0%{transform:translateX(-50%) scale(.7)}60%{transform:translateX(-50%) scale(1.06)}100%{transform:translateX(-50%) scale(1)}}
+  .stats{display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:14px}
+  .stat{background:var(--card); border-radius:16px; padding:10px 12px; box-shadow:0 4px 10px var(--shadow)}
+  .stat .l{font-size:12px; color:var(--ink2); display:flex; justify-content:space-between; margin-bottom:6px}
+  .stat .l b{font-size:13px;color:var(--ink);font-weight:800}
+  .bar{height:9px; border-radius:6px; background:var(--line); overflow:hidden}
+  .bar i{display:block; height:100%; border-radius:6px; transition:width .5s ease, background .3s}
+  .acts{display:grid; grid-template-columns:repeat(4,1fr); gap:9px; margin-bottom:14px}
+  .act{border:none; border-radius:16px; padding:12px 4px 9px; background:var(--card); color:var(--ink);
+    box-shadow:0 4px 10px var(--shadow); cursor:pointer; transition:transform .12s; text-align:center}
+  .act:active{transform:scale(.9)}
+  .act .e{font-size:24px; display:block; line-height:1}
+  .act .t{font-size:12px; font-weight:700; margin-top:5px; display:block}
+  .act .d{font-size:10px; color:var(--ink2)}
+  .fortune{background:linear-gradient(135deg,var(--acc2),var(--acc)); color:#5a3410; border-radius:18px;
+    padding:14px 16px; box-shadow:0 8px 18px var(--shadow); margin-bottom:14px; position:relative; overflow:hidden}
+  .fortune h3{margin:0 0 6px; font-size:14px; font-weight:800; display:flex; align-items:center; gap:6px}
+  .fortune .poem{font-size:15px; font-weight:700; line-height:1.5}
+  .fortune .ex{font-size:12px; margin-top:7px; opacity:.85}
+  .fortune .lot{position:absolute; right:-18px; top:-18px; font-size:90px; opacity:.18; font-weight:900; transform:rotate(12deg)}
+  .fortune .re{margin-top:10px; font-size:11px; background:#ffffff55; border:none; border-radius:10px; padding:6px 10px; font-weight:700; color:#5a3410; cursor:pointer}
+  .fortune .re:active{transform:scale(.94)}
+  .mini{background:var(--card); border-radius:16px; padding:12px 14px; box-shadow:0 4px 10px var(--shadow); margin-bottom:14px}
+  .mini .hd{display:flex; align-items:center; gap:8px; font-size:13px; font-weight:800}
+  .mini .hd .sc{margin-left:auto; font-size:13px; color:var(--acc); font-weight:800}
+  .mini p{font-size:11.5px; color:var(--ink2); margin:6px 0 0}
+  .taparea{position:relative; height:120px; margin-top:10px; border-radius:14px; overflow:hidden;
+    background:linear-gradient(180deg,#fff7e6,#ffe9c4)}
+  [data-theme="dark"] .taparea{background:linear-gradient(180deg,#3a3050,#2c2440)}
+  .tgt{position:absolute; width:46px; height:46px; border-radius:50%; cursor:pointer; font-size:26px;
+    display:flex; align-items:center; justify-content:center; background:var(--acc); box-shadow:0 4px 10px var(--shadow);
+    transition:transform .1s}
+  .tgt:active{transform:scale(.8)}
+  .set{background:var(--card); border-radius:16px; padding:12px 14px; box-shadow:0 4px 10px var(--shadow); font-size:13px; margin-bottom:14px}
+  .set .row{display:flex; align-items:center; padding:7px 0; border-bottom:1px dashed var(--line)}
+  .set .row:last-child{border-bottom:none}
+  .set .row span{font-weight:700}
+  .set .row .v{margin-left:auto; color:var(--ink2); font-size:12px}
+  .set .row button{border:none; background:var(--line); color:var(--ink); border-radius:20px; padding:5px 12px; font-weight:700; cursor:pointer; font-size:12px}
+  .set .row button.on{background:var(--ok); color:#fff}
+  .foot{text-align:center; font-size:11px; color:var(--ink2); margin-top:14px; line-height:1.6}
+  .toast{position:fixed; left:50%; bottom:24px; transform:translateX(-50%) translateY(20px); z-index:30;
+    background:var(--ink); color:#fff; padding:10px 18px; border-radius:20px; font-size:13px; font-weight:700;
+    opacity:0; transition:.3s; box-shadow:0 8px 20px var(--shadow); pointer-events:none}
+  .toast.show{opacity:1; transform:translateX(-50%) translateY(0)}
+  canvas#fx{position:fixed; inset:0; z-index:20; pointer-events:none}
+  /* 聊天 */
+  #chatView{display:none}
+  .chat{background:var(--card); border-radius:18px; box-shadow:0 8px 20px var(--shadow); overflow:hidden;
+    display:flex; flex-direction:column; height:64vh; min-height:440px}
+  .chatHead{padding:12px 14px; font-weight:800; font-size:14px; display:flex; align-items:center; gap:6px; border-bottom:1px solid var(--line)}
+  .chatHead button{margin-left:auto; border:none; background:var(--line); color:var(--ink); border-radius:14px; padding:5px 10px; font-weight:700; font-size:12px; cursor:pointer}
+  .chatMsgs{flex:1; overflow-y:auto; padding:14px; display:flex; flex-direction:column; gap:10px}
+  .msg{max-width:78%; padding:9px 13px; border-radius:16px; font-size:14px; line-height:1.5; word-break:break-word; white-space:pre-wrap}
+  .msg.me{align-self:flex-end; background:var(--acc); color:#fff; border-bottom-right-radius:5px}
+  .msg.bot{align-self:flex-start; background:var(--bg2); color:var(--ink); border-bottom-left-radius:5px}
+  .typing{align-self:flex-start; background:var(--bg2); border-radius:16px; padding:11px 14px; font-size:13px; color:var(--ink2)}
+  .typing i{display:inline-block; width:6px; height:6px; border-radius:50%; background:var(--ink2); margin:0 1px; animation:blink2 1s infinite}
+  .typing i:nth-child(2){animation-delay:.2s} .typing i:nth-child(3){animation-delay:.4s}
+  @keyframes blink2{0%,100%{opacity:.3}50%{opacity:1}}
+  .chatInput{display:flex; gap:8px; padding:10px; border-top:1px solid var(--line)}
+  .chatInput input{flex:1; border:none; background:var(--bg2); border-radius:14px; padding:11px 14px; font-size:14px; color:var(--ink); outline:none}
+  .chatInput button{border:none; background:var(--acc); color:#fff; border-radius:14px; padding:0 18px; font-weight:800; font-size:14px; cursor:pointer}
+  .chatInput button:active{transform:scale(.94)}
+</style>
+<link rel="manifest" href="manifest.json">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="虚拟宠物">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="icon" href="favicon.png">
+<meta name="theme-color" content="#e91e63">
+</head>
+<body data-page-node-id="fFXPhAEaXmWhFynYzUEAm6">
+<canvas id="bg" data-page-node-id="QVX2GApwspjuwG4tbvu2TO"></canvas>
+<canvas id="fx" data-page-node-id="CjInV5UoxCVLidjjLmnJCg"></canvas>
+<div class="wrap" data-page-node-id="jASQr4jSmq5h5Psu3wxOCl">
+  <div class="top" data-page-node-id="VKk3wqXMrJWGUieoCWCfCA">
+    <div class="nm" id="petName" data-page-node-id="ER2F7hGm5qOSVE9FZvebjn">阿福 🧡 你的小宝贝</div>
+    <div class="spacer" data-page-node-id="X7Q9xprYygF6WPIst8CBQX"></div>
+    <button class="icbtn" id="btnChat" title="聊天" data-page-node-id="1gvwT45A3BlVWWGafDqFG7">💬</button>
+    <button class="icbtn" id="btnTheme" title="日/夜" data-page-node-id="EQMLB624liaRJJWExeUnIH">🌙</button>
+    <button class="icbtn" id="btnReset" title="重新养" data-page-node-id="K9RqF1h3CJTRnZy6aE3HYq">🐣</button>
+  </div>
+
+  <!-- 宠物视图 -->
+  <div id="petView" data-page-node-id="c1SLkx2CXeS5I8mSSRQIVQ">
+    <div class="petswitch" id="petswitch" data-page-node-id="I5dgXkjIIZaTYig9pW9d56">
+      <button data-pet="afu" class="on" data-page-node-id="tQ1ApoG9IUocE5V9Ytz1Sv">🧡 阿福</button>
+      <button data-pet="zhu" data-page-node-id="IDMxoDhPyvJng0vEhqOolG">🐷 珠珠</button>
+    </div>
+    <div class="age" id="ageLine" data-page-node-id="myK0VjKQppvunB33EafCrb"></div>
+
+    <div class="stage" id="stage" data-page-node-id="EGGsEeT905qadgZYFCdrDX">
+      <div class="bubble" id="bubble" data-page-node-id="PEeKD9h19fLByLULgf0mlr"></div>
+      <svg id="pet" viewBox="0 0 200 200" aria-label="宠物" data-page-node-id="QJ3r0HQmhfnfCzkUUxRtOk">
+        <g class="body" id="petBody" data-page-node-id="26hq4T5mv5xq0ChxxY8meA">
+          <g id="bodyStatic" data-page-node-id="eRgLD2ehGG1vb1VjgI2D95"></g>
+          <g id="eyes" data-page-node-id="z0yWvHHKFVsdGcYq2qY4p9"></g>
+          <g id="mouth" data-page-node-id="xNPXfPz9oFu6yhEs5eIt0g"></g>
+        </g>
+        <defs data-page-node-id="b9GU8ySdQ34S63JAV1PhmI">
+          <radialGradient id="bd-afu" cx="42%" cy="34%" r="75%" data-page-node-id="e90WPAttWDjE3EgRLEy7O6">
+            <stop offset="0%" stop-color="#ffd98a" data-page-node-id="zYCKiGwQxfwJme5uDErbsc"></stop>
+            <stop offset="60%" stop-color="#ffb84d" data-page-node-id="AK8xQJJIZwklXKvhVogHkl"></stop>
+            <stop offset="100%" stop-color="#ff9a3c" data-page-node-id="82s2ptiXOH4ov3Ce9s7J6g"></stop>
+          </radialGradient>
+          <radialGradient id="bd-zhu" cx="42%" cy="34%" r="75%" data-page-node-id="nWjm6vhVK4G4RgioVOA35F">
+            <stop offset="0%" stop-color="#ffd1e6" data-page-node-id="rWoF6UdDWSKktVt9J1GunI"></stop>
+            <stop offset="60%" stop-color="#ffaed2" data-page-node-id="iwdy7OniN4TxcqlpDDZ6lm"></stop>
+            <stop offset="100%" stop-color="#ff8fc0" data-page-node-id="JYVP4yRPd09UcYJOwM7yHX"></stop>
+          </radialGradient>
+        </defs>
+      </svg>
+      <div class="zzz" id="zzz1" style="left:128px;top:60px" data-page-node-id="EPEmAbZGuRm1TscOTCZePT">Z</div>
+      <div class="zzz" id="zzz2" style="left:142px;top:48px" data-page-node-id="uoLv1Sz7XfEHSm6jULBcTC">z</div>
+      <div class="floor" data-page-node-id="4zxvwCjy2hHI9Szy614pOL"></div>
+    </div>
+
+    <div class="stats" data-page-node-id="Y6dTRCiTpxZNqVSq7XzFjp">
+      <div class="stat" data-page-node-id="gqxwqFArtTxYcx1tDCQrza"><div class="l" data-page-node-id="2kVcJtb6umvgjDZ62swFKV"><span data-page-node-id="oL4wRONv79Gc3izDLmeWoU">🍚 饱食</span><b id="vFull" data-page-node-id="zgA1WeLOab7iyan38w0M1b">—</b></div><div class="bar" data-page-node-id="S5Szn7wz5J8wwoO3uMy2HC"><i id="bFull" data-page-node-id="X8PoM9r8EiSFDZEbKKD2C4"></i></div></div>
+      <div class="stat" data-page-node-id="oMmC1JQIOFYHVzA4z0LIEB"><div class="l" data-page-node-id="vM2CGCpwsKerQO18SgrFj1"><span data-page-node-id="xwBNysChb94jgyTSCsA0s4">💛 心情</span><b id="vMood" data-page-node-id="lsbl9f9873SkL0QIXVNQxJ">—</b></div><div class="bar" data-page-node-id="OKXpmm9tWAV6NirGQZf8Hc"><i id="bMood" data-page-node-id="Nkkl3BaQqQMWHiI40JcnkE"></i></div></div>
+      <div class="stat" data-page-node-id="kBjiBp1tb95AAEYS13Ghqh"><div class="l" data-page-node-id="4c9I4wMp4LaG7tyMSTVKg6"><span data-page-node-id="xbji2nOzn3ML1LwZrraTU0">⚡ 体力</span><b id="vEng" data-page-node-id="tfjU4ItG9mGBqWbOD7cS32">—</b></div><div class="bar" data-page-node-id="BcnTS4VkzX7mn7jVX62aR6"><i id="bEng" data-page-node-id="xFEDYsHDJklz7FqmXzcwiB"></i></div></div>
+      <div class="stat" data-page-node-id="bRXOj7qeClLvTmfrfqlCJj"><div class="l" data-page-node-id="2FIAz3e8ToTLABDTjLqCKE"><span data-page-node-id="u3t1QZb4rNztGqFrw6K2GF">🤝 亲密</span><b id="vBond" data-page-node-id="UDXDSNedJMG47fMyw7atdR">—</b></div><div class="bar" data-page-node-id="Q7OECYYChIh1u8KyBPFKMW"><i id="bBond" data-page-node-id="QWrPBbvk1uasl3OuVBsox5"></i></div></div>
+    </div>
+
+    <div class="acts" data-page-node-id="H27CGSbN4ifql2sZyIfYJU">
+      <button class="act" data-act="feed" data-page-node-id="0F5qxJdKJs5H6q5ebSciOP"><span class="e" data-page-node-id="54vcEP1UklefQ4HSUduXj4">🍙</span><span class="t" data-page-node-id="NcXBEE7Q3SiFJfCa3d9JI3">饲饭</span><span class="d" data-page-node-id="KqX0IyVvsR4VzFvLcjwQ4h">+饱食</span></button>
+      <button class="act" data-act="pet" data-page-node-id="F6JeOJM8ItxSDgkn2JPsE2"><span class="e" data-page-node-id="hKhpd9JzUVwD1H7hCUo5SG">🤗</span><span class="t" data-page-node-id="Ly22M0Tqa0h89WRqZvtYNB">摸囡</span><span class="d" data-page-node-id="y8iIo5HWe3ubqo5rswGeWg">+亲密</span></button>
+      <button class="act" data-act="play" data-page-node-id="IVp8dCRSZU565xjQOMfbd6"><span class="e" data-page-node-id="T5vhKXGKI4BUOEVBcWxMhI">🎮</span><span class="t" data-page-node-id="0PRbnxQwD1zXAd5aMwwUv2">耍一下</span><span class="d" data-page-node-id="Qa3gzD0pbQyuNBIDqerZJO">+心情</span></button>
+      <button class="act" data-act="sleep" data-page-node-id="HZPmDk6IFslrvGkJVwjuCt"><span class="e" data-page-node-id="gA9aD6Wgzj4QDjlG1NVwlv">🌙</span><span class="t" data-page-node-id="vUjOQdplGNRxXW9UeyI4LY">困一下</span><span class="d" data-page-node-id="SgOOst9Sgo7lrHsAjOCy3f">+体力</span></button>
+    </div>
+
+    <div class="fortune" id="fortune" data-page-node-id="AG5qJee4geD4mjj7vBE6D6">
+      <div class="lot" data-page-node-id="DkeYn7drwXXZaeiG5gpXFB">福</div>
+      <h3 data-page-node-id="EntENuDZiIchLFtoSSl2As">📜 今日运势签</h3>
+      <div class="poem" id="fortunePoem" data-page-node-id="QGo4uuLLoYTQgCpfArtyqa">—— 点下面翻一签 ——</div>
+      <div class="ex" id="fortuneEx" data-page-node-id="y2rdGgTgGg0Xxl0jdmMDV4"></div>
+      <button class="re" id="btnFortune" data-page-node-id="5EdWUwfAFEzEwT3cX0WKRr">抽一支 🎲</button>
+    </div>
+
+    <div class="mini" data-page-node-id="0GlNoTg1ZmmklOOKQRynLZ">
+      <div class="hd" data-page-node-id="ZN85mXZdly3doaWadbhDtQ">🪀 拍苍蝇小游戏 <span class="sc" id="miniScore" data-page-node-id="keHGYkAuY6OAvPCCt1NdHB">0 分</span></div>
+      <p data-page-node-id="9BzyjD3CWzIAiql6TSTwm1">苍蝇会出现在框里，快点击它！连击越高，宠物越欢喜、亲密也涨。</p>
+      <div class="taparea" id="taparea" data-page-node-id="8Dqa3i8Y2BkBeWyVfGPLmP"></div>
+    </div>
+
+    <div class="set" data-page-node-id="5dhTXZMcimXKy8Uk9Ly8P2">
+      <div class="row" data-page-node-id="dzgQ1agTWoQQveMqJ1rr15"><span data-page-node-id="VjPAsrTmLu9GNXMprhj1w7">🔊 音效</span><span class="v" data-page-node-id="UbOq9zLVqmdEIURvtTNMKo">点击反馈声</span><button id="btnSound" class="on" data-page-node-id="KIjJDf1ZE7skpASCdXhmqA">开</button></div>
+      <div class="row" data-page-node-id="LEzqn1phZL6BLesEmSS9lk"><span data-page-node-id="FwC4LWfW15UJSePQyWXhec">🌈 主题</span><span class="v" data-page-node-id="ENO1AfBHxCu05NnLjGzG0T">跟随右上角</span><button id="btnTheme2" data-page-node-id="tUDmYMuVoI0PeXAmBjpOR5">切换</button></div>
+      <div class="row" data-page-node-id="Fs7k34C1CGMlyEMEUkJRal"><span data-page-node-id="d2wKI8FCYMlOStp8ZulOLE">💾 数据</span><span class="v" data-page-node-id="NuDoDN50jq9FPeF2zmFqRW">存本机浏览器</span><button id="btnSave" data-page-node-id="TmH1Hs2k9zkHgwKjxMHiM7">立即存</button></div>
+    </div>
+
+    <div class="foot" data-page-node-id="cNXX63m5Ziu32QY5G3VC6T">阿福和珠珠是你的小宝贝，离线养、不联网。<br data-page-node-id="MR9DJmVLjnyLkDH1Q1tsj5">关掉网页牠们也会自己过日子，下次打开就回来啦～</div>
+  </div>
+
+  <!-- 聊天视图 -->
+  <div id="chatView" data-page-node-id="ofl5SvPCExXZ7GbACG9hGl">
+    <div class="chat" data-page-node-id="yWF1yd05GBWWczyipdFgcA">
+      <div class="chatHead" data-page-node-id="UwApFHHBHvFYC4nQegBcuO">💬 小答 · 你的闲聊伙计 <button id="chatClear" data-page-node-id="gbNEmqtRLRAVlSPeEFAxEd">清空</button></div>
+      <div class="chatMsgs" id="chatMsgs" data-page-node-id="GUB4YdZikC1DpYt63blAgC"></div>
+      <div class="chatInput" data-page-node-id="4FwezdPJvCj9DNdAbKkOJr">
+        <input id="chatText" placeholder="讲啥拢好…（试：教我一句闽南话）" maxlength="120" autocomplete="off" data-page-node-id="GRWGzzLBwTVzrTMU3r3tIX">
+        <button id="chatSend" data-page-node-id="2E1lfVgG87LXBx5IYszs1v">送</button>
+      </div>
+    </div>
+    <div class="foot" data-page-node-id="2HaolmJxhWkOcCBDO3Vo82">小答是离线规则机器人，陪你闲聊、教闽南话、讲笑佮抽签。<br data-page-node-id="n7Jfek4dBw2lLKCGK8z9mk">伊毋会记你的私事，聊天记录只存这架电脑。</div>
+  </div>
+</div>
+<div class="toast" id="toast" data-page-node-id="en3mLL7xmgF5VKEsn105oT"></div>
+
+<script>
+"use strict";
+const $ = s => document.querySelector(s);
+const $$ = s => Array.from(document.querySelectorAll(s));
+const LS = {
+  get(k, d){ try{ const v = localStorage.getItem('afu.'+k); return v==null?d:JSON.parse(v); }catch(e){ return d; } },
+  set(k, v){ try{ localStorage.setItem('afu.'+k, JSON.stringify(v)); }catch(e){} }
+};
+const clamp = (v,a,b)=>Math.max(a,Math.min(b,v));
+const rnd = (a,b)=>a+Math.random()*(b-a);
+const ri = (a,b)=>Math.floor(rnd(a,b+1));
+const pick = arr => arr[Math.floor(Math.random()*arr.length)];
+const esc = s => String(s).replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+
+/* ============ 宠物定义 ============ */
+const PETS = {
+  afu: {
+    name:'阿福', emoji:'🧡',
+    talk:{
+      back:["嗨！你转来矣！","你阁来啰，我等好久","嘿嘿，你终于阁出现"],
+      hungry:["腹肚枵矣，爱食饭～","枵甲头昏，饲我一下唷","咕噜咕噜…爱食饭"],
+      sad:["今仔日无啥畅","恁仔喂，陪我一下嘛","我心情有影淡"],
+      sleepy:["眼稠稠，爱困矣","我休困一下，你免烦恼","想困，先歇睏"],
+      happy:["哇～真欢喜！","嘻嘻，阁来阁来","今仔日足畅欸"],
+      love:["你上盖疼我～","摸甲我酥酥","我爱死你矣啦"],
+      feed:["呜咪～好食","呷饱饱，谢谢","这味足赞"],
+      pet:["嘿嘿，爱我个","摸甲真舒服","再摸一下嘛"],
+      play:["耍足好耍！","抓到了！哈哈","过瘾过瘾"],
+      sleep:["困一下，明仔载见","我困矣，你爱顾身体","好困，先躺哩"],
+      born:["我出世啰！我是阿福","你好，我是你个小宝贝","以后你饲我啦"]
+    },
+    buildBody: ()=>`
+      <ellipse cx="100" cy="178" rx="46" ry="9" fill="#000" opacity=".10"></ellipse>
+      <line x1="100" y1="46" x2="100" y2="26" stroke="#caa86a" stroke-width="4" stroke-linecap="round"></line>
+      <circle class="accent" cx="100" cy="22" r="9" fill="var(--acc)" opacity=".9"></circle>
+      <circle class="accent" cx="100" cy="22" r="14" fill="var(--acc)" opacity=".25"></circle>
+      <ellipse cx="100" cy="112" rx="62" ry="58" fill="url(#bd-afu)"></ellipse>
+      <ellipse cx="100" cy="112" rx="62" ry="58" fill="none" stroke="#00000010" stroke-width="2"></ellipse>
+      <ellipse cx="100" cy="124" rx="38" ry="34" fill="#fff" opacity=".55"></ellipse>
+      <circle id="cheekL" cx="62" cy="120" r="11" fill="var(--bad)" opacity=".28"></circle>
+      <circle id="cheekR" cx="138" cy="120" r="11" fill="var(--bad)" opacity=".28"></circle>
+      <ellipse id="handL" cx="44" cy="118" rx="13" ry="16" fill="url(#bd-afu)"></ellipse>
+      <ellipse id="handR" cx="156" cy="118" rx="13" ry="16" fill="url(#bd-afu)"></ellipse>`
+  },
+  zhu: {
+    name:'珠珠', emoji:'🐷',
+    talk:{
+      back:["哼哼！你转来矣","珠珠等你好久，腹肚枵","嗨～天顶猪仔我上盖水"],
+      hungry:["哼哼～枵矣，爱食饭","我胃空空，饲我泔糜","咕噜，爱食饭饭"],
+      sad:["今仔日无畅，哼","陪我耍一下嘛","我心情淡淡淡"],
+      sleepy:["眼皮重，爱困","珠珠欲困，你免等","困一下，明仔载阁来"],
+      happy:["嘻嘻，足欢喜","哼哼，畅欸","今日足好料"],
+      love:["你上疼我，哼","爱我个猪猪","珠珠爱死你"],
+      feed:["呜咪～泔糜好食","呷饱饱，谢谢主人","这味足赞，阁来"],
+      pet:["嘿嘿，摸我尪仔","摸甲真舒服，哼","再摸一下下"],
+      play:["耍佮意！","追尾尾，哈哈","过瘾过瘾"],
+      sleep:["困矣，你免烦恼","珠珠困，明仔载见","好困，先躺哩"],
+      born:["哼！我是珠珠，上盖水个猪","你好，我是你个猪猪","以后你饲我泔糜啦"]
+    },
+    buildBody: ()=>`
+      <ellipse cx="100" cy="180" rx="50" ry="9" fill="#000" opacity=".10"></ellipse>
+      <path d="M58 64 Q44 30 70 44 Q74 58 70 70 Z" fill="url(#bd-zhu)" stroke="#e06fa0" stroke-width="2"></path>
+      <path d="M142 64 Q156 30 130 44 Q126 58 130 70 Z" fill="url(#bd-zhu)" stroke="#e06fa0" stroke-width="2"></path>
+      <ellipse class="accent" cx="100" cy="50" rx="9" ry="7" fill="var(--acc)"></ellipse>
+      <ellipse cx="100" cy="116" rx="64" ry="58" fill="url(#bd-zhu)"></ellipse>
+      <ellipse cx="100" cy="116" rx="64" ry="58" fill="none" stroke="#00000010" stroke-width="2"></ellipse>
+      <ellipse cx="100" cy="128" rx="40" ry="34" fill="#fff" opacity=".45"></ellipse>
+      <ellipse cx="100" cy="120" rx="22" ry="16" fill="#ffb3d2" stroke="#e06fa0" stroke-width="2"></ellipse>
+      <ellipse cx="92" cy="120" rx="3.4" ry="5" fill="#b5443a"></ellipse>
+      <ellipse cx="108" cy="120" rx="3.4" ry="5" fill="#b5443a"></ellipse>
+      <circle id="cheekL" cx="60" cy="124" r="11" fill="var(--bad)" opacity=".22"></circle>
+      <circle id="cheekR" cx="140" cy="124" r="11" fill="var(--bad)" opacity=".22"></circle>
+      <path d="M160 120 q22 -2 18 -18 q-4 -14 -18 -8 q-10 4 -4 12" fill="none" stroke="#e06fa0" stroke-width="4" stroke-linecap="round"></path>
+      <ellipse id="handL" cx="42" cy="124" rx="13" ry="16" fill="url(#bd-zhu)"></ellipse>
+      <ellipse id="handR" cx="158" cy="124" rx="13" ry="16" fill="url(#bd-zhu)"></ellipse>`
+  }
+};
+
+/* ============ 全局状态 ============ */
+const hadG = LS.get('g', null);
+function freshPet(over){ return Object.assign({full:80,mood:75,eng:85,bond:30,fed:0,playBest:0,born:Date.now(),last:Date.now()}, over||{}); }
+let G = hadG || {
+  cur:'afu', view:'pet', sound:true, theme:'light',
+  pets:{ afu:freshPet(), zhu:freshPet({full:90,mood:80,eng:80,bond:20}) },
+  chat:[]
+};
+const P = ()=>G.pets[G.cur];
+function save(){ P().last = Date.now(); LS.set('g', G); }
+function setSpecies(){ $('#bodyStatic').innerHTML = PETS[G.cur].buildBody(); }
+
+/* ============ 闽南语对话 ============ */
+function say(key){ const arr = (PETS[G.cur].talk[key]||PETS[G.cur].talk.happy); showBubble(pick(arr)); }
+let bubbleTimer=null;
+function showBubble(text){ const b=$('#bubble'); b.textContent=text; b.classList.add('show'); clearTimeout(bubbleTimer); bubbleTimer=setTimeout(()=>b.classList.remove('show'),2600); }
+
+/* ============ 表情 ============ */
+const EYE = {
+  open:(gx)=>`<g class="eye"><ellipse cx="${74+gx}" cy="98" rx="15" ry="19" fill="#fff" stroke="#3a2c1a" stroke-width="2"/><ellipse cx="${126+gx}" cy="98" rx="15" ry="19" fill="#fff" stroke="#3a2c1a" stroke-width="2"/><circle cx="${74+gx}" cy="100" r="8" fill="#2a2017"/><circle cx="${126+gx}" cy="100" r="8" fill="#2a2017"/><circle cx="${77+gx}" cy="96" r="3" fill="#fff"/><circle cx="${129+gx}" cy="96" r="3" fill="#fff"/></g>`,
+  happy:()=>`<g class="eye" fill="none" stroke="#2a2017" stroke-width="4" stroke-linecap="round"><path d="M60 100 Q74 84 88 100"/><path d="M112 100 Q126 84 140 100"/></g>`,
+  sleep:()=>`<g class="eye" fill="none" stroke="#2a2017" stroke-width="4" stroke-linecap="round"><path d="M62 102 Q74 110 86 102"/><path d="M114 102 Q126 110 138 102"/></g>`,
+  love:()=>`<g class="eye" fill="var(--bad)" stroke="none"><path d="M74 92 c-7 -10 -22 -3 -22 7 c0 9 16 16 22 22 c6 -6 22 -13 22 -22 c0 -10 -15 -17 -22 -7 z" transform="translate(0,2)"/><path d="M126 92 c-7 -10 -22 -3 -22 7 c0 9 16 16 22 22 c6 -6 22 -13 22 -22 c0 -10 -15 -17 -22 -7 z" transform="translate(0,2)"/></g>`,
+  surprise:()=>`<g class="eye"><ellipse cx="74" cy="98" rx="17" ry="20" fill="#fff" stroke="#3a2c1a" stroke-width="2"/><ellipse cx="126" cy="98" rx="17" ry="20" fill="#fff" stroke="#3a2c1a" stroke-width="2"/><circle cx="74" cy="100" r="6" fill="#2a2017"/><circle cx="126" cy="100" r="6" fill="#2a2017"/></g>`
+};
+const MOUTH = {
+  smile:'<path d="M82 132 Q100 150 118 132" fill="none" stroke="#3a2c1a" stroke-width="4" stroke-linecap="round"/>',
+  big:'<path d="M76 130 Q100 158 124 130 Q100 144 76 130 Z" fill="#b5443a"/>',
+  flat:'<path d="M84 136 Q100 140 116 136" fill="none" stroke="#3a2c1a" stroke-width="4" stroke-linecap="round"/>',
+  frown:'<path d="M82 142 Q100 126 118 142" fill="none" stroke="#3a2c1a" stroke-width="4" stroke-linecap="round"/>',
+  o:'<ellipse cx="100" cy="138" rx="9" ry="11" fill="#b5443a"/>',
+  sleep:'<path d="M88 138 Q100 143 112 138" fill="none" stroke="#3a2c1a" stroke-width="4" stroke-linecap="round"/>'
+};
+function moodOf(){
+  const p=P();
+  if(p.eng<18) return 'sleepy';
+  if(p.full<22) return 'hungry';
+  if(p.mood<25) return 'sad';
+  if(p.bond>80 && Math.random()<0.4) return 'love';
+  return 'normal';
+}
+const MOOD_FACE = {
+  normal:{eye:'open',mouth:'smile',color:'var(--acc)'},
+  happy:{eye:'happy',mouth:'big',color:'var(--ok)'},
+  hungry:{eye:'open',mouth:'flat',color:'var(--warn)'},
+  sad:{eye:'open',mouth:'frown',color:'var(--bad)'},
+  sleepy:{eye:'sleep',mouth:'sleep',color:'#9b8466'},
+  love:{eye:'love',mouth:'smile',color:'var(--bad)'},
+  surprise:{eye:'surprise',mouth:'o',color:'var(--acc)'}
+};
+let gaze=0, blinkTimer=null, gazeTimer=null, faceTimer=null;
+function drawFace(force){
+  const m = force || moodOf();
+  const f = MOOD_FACE[m] || MOOD_FACE.normal;
+  $('#eyes').innerHTML = (EYE[f.eye]||EYE.open)(gaze);
+  $('#mouth').innerHTML = MOUTH[f.mouth] || MOUTH.smile;
+  $('#mouth').setAttribute('transform', G.cur==='zhu' ? 'translate(0,12)' : '');
+  $$('.accent').forEach(el=>el.setAttribute('fill', f.color));
+  const pet=$('#pet'); pet.classList.remove('happy','sad','sleep');
+  if(m==='happy') pet.classList.add('happy');
+  else if(m==='sad') pet.classList.add('sad');
+  else if(m==='sleepy') pet.classList.add('sleep');
+  $('#zzz1').classList.toggle('go', m==='sleepy');
+  $('#zzz2').classList.toggle('go', m==='sleepy');
+  const blush = (m==='happy'||m==='love') ? .42 : (m==='sad'? .12 : .26);
+  const cl=$('#cheekL'), cr=$('#cheekR'); if(cl) cl.setAttribute('opacity',blush); if(cr) cr.setAttribute('opacity',blush);
+}
+function blink(){ const e=$('#eyes'); if(!e) return; e.classList.add('blink'); setTimeout(()=>e.classList.remove('blink'),150); }
+function startFaceLife(){ clearInterval(blinkTimer); clearInterval(gazeTimer); clearInterval(faceTimer);
+  blinkTimer=setInterval(()=>{ if(Math.random()<0.7) blink(); },3200);
+  gazeTimer=setInterval(()=>{ gaze=pick([-3,0,0,3]); drawFace(); },2600);
+  faceTimer=setInterval(()=>drawFace(),9000);
+}
+
+/* ============ 状态条 ============ */
+function barColor(v){ return v>60?'var(--ok)':v>25?'var(--warn)':'var(--bad)'; }
+function render(){
+  const p=P();
+  [['Full',p.full],['Mood',p.mood],['Eng',p.eng],['Bond',p.bond]].forEach(([k,v])=>{
+    $('#b'+k).style.width=clamp(v,0,100)+'%';
+    $('#b'+k).style.background=barColor(v);
+    $('#v'+k).textContent=Math.round(v);
+  });
+  const days=Math.max(0,Math.floor((Date.now()-p.born)/86400000));
+  const hrs=Math.floor((Date.now()-p.born)/3600000);
+  $('#ageLine').innerHTML=`<span>🎂 陪你 <b>${days}</b> 天</span><span>⏱ 出生 <b>${hrs}</b> 小时前</span><span>🍙 已饲 <b>${p.fed}</b> 餐</span><span>🏆 拍蝇最高 <b>${p.playBest}</b></span>`;
+}
+
+/* ============ 动作 ============ */
+function beep(freq,dur,type){
+  if(!G.sound) return;
+  try{
+    const ac=beep._ac||(beep._ac=new (window.AudioContext||window.webkitAudioContext)());
+    const o=ac.createOscillator(), g=ac.createGain();
+    o.type=type||'sine'; o.frequency.value=freq; o.connect(g); g.connect(ac.destination);
+    g.gain.setValueAtTime(.0001,ac.currentTime);
+    g.gain.exponentialRampToValueAtTime(.18,ac.currentTime+.02);
+    g.gain.exponentialRampToValueAtTime(.0001,ac.currentTime+(dur||.18));
+    o.start(); o.stop(ac.currentTime+(dur||.18)+.02);
+  }catch(e){}
+}
+function action(act){
+  const p=P();
+  if(act==='feed'){ p.full=clamp(p.full+22,0,100); p.mood=clamp(p.mood+6,0,100); p.fed++; drawFace('happy'); say('feed'); beep(660,.12); burst(14); }
+  else if(act==='pet'){ p.bond=clamp(p.bond+5,0,100); p.mood=clamp(p.mood+3,0,100); G.petStreak=(G.petStreak||0)+1; drawFace(G.petStreak>=4?'love':'happy'); say('pet'); beep(880,.1); if(G.petStreak>=4){ burst(18); G.petStreak=0; } }
+  else if(act==='play'){ p.mood=clamp(p.mood+16,0,100); p.eng=clamp(p.eng-8,0,100); p.bond=clamp(p.bond+3,0,100); drawFace('happy'); say('play'); beep(520,.1,'triangle'); burst(10); }
+  else if(act==='sleep'){ p.eng=clamp(p.eng+30,0,100); p.mood=clamp(p.mood+4,0,100); drawFace('sleepy'); say('sleep'); beep(330,.25,'sine'); }
+  setTimeout(()=>drawFace(),1400); save(); render();
+}
+
+/* ============ 时间流逝 ============ */
+function tick(){
+  const p=P(); const now=Date.now(), dt=Math.max(0, now-(p.last||now)); const mins=dt/60000;
+  p.full=clamp(p.full-Math.min(mins*0.18,40),0,100);
+  p.eng=clamp(p.eng-Math.min(mins*0.10,30),0,100);
+  p.mood=clamp(p.mood-Math.min(mins*0.06,25),0,100);
+  render();
+  const m=moodOf();
+  if(m==='hungry'&&Math.random()<0.5) say('hungry');
+  else if(m==='sad'&&Math.random()<0.4) say('sad');
+  else if(m==='sleepy'&&Math.random()<0.3) say('sleepy');
+  else if(Math.random()<0.12) say('happy');
+}
+
+/* ============ 粒子 ============ */
+const fx=$('#fx'); const fxc=fx.getContext('2d'); let parts=[];
+function resizeFx(){ fx.width=innerWidth; fx.height=innerHeight; }
+addEventListener('resize',resizeFx); resizeFx();
+function burst(n){
+  const rect=$('#pet').getBoundingClientRect();
+  const cx=rect.left+rect.width/2, cy=rect.top+rect.height/2;
+  const cols=['#ff8a5b','#ffc24b','#46c08a','#6aa9ff','#ff6f9c','#b48bff'];
+  for(let i=0;i<n;i++){ const a=Math.random()*Math.PI*2, sp=rnd(2,7);
+    parts.push({x:cx,y:cy,vx:Math.cos(a)*sp,vy:Math.sin(a)*sp-rnd(1,4),life:1,col:pick(cols),sz:rnd(4,9),rot:Math.random()*6,vr:rnd(-.3,.3)}); }
+}
+function fxLoop(){ fxc.clearRect(0,0,fx.width,fx.height); parts=parts.filter(p=>p.life>0);
+  parts.forEach(p=>{ p.x+=p.vx; p.y+=p.vy; p.vy+=.18; p.vx*=.99; p.life-=.018; p.rot+=p.vr;
+    fxc.save(); fxc.translate(p.x,p.y); fxc.rotate(p.rot); fxc.globalAlpha=Math.max(0,p.life); fxc.fillStyle=p.col; fxc.fillRect(-p.sz/2,-p.sz/2,p.sz,p.sz*0.6); fxc.restore(); });
+  requestAnimationFrame(fxLoop); }
+fxLoop();
+
+/* ============ 背景球 ============ */
+const bg=$('#bg'); const bgc=bg.getContext('2d'); let blobs=[];
+function resizeBg(){ bg.width=innerWidth; bg.height=innerHeight; }
+addEventListener('resize',resizeBg); resizeBg();
+for(let i=0;i<14;i++) blobs.push({x:Math.random()*innerWidth,y:Math.random()*innerHeight,r:rnd(6,22),vy:rnd(.2,.7),vx:rnd(-.3,.3),a:rnd(.05,.16)});
+function bgLoop(){ bgc.clearRect(0,0,bg.width,bg.height); const dark=document.documentElement.getAttribute('data-theme')==='dark';
+  blobs.forEach(b=>{ b.y-=b.vy; b.x+=b.vx; if(b.y<-30){b.y=bg.height+30; b.x=Math.random()*bg.width;}
+    bgc.beginPath(); bgc.arc(b.x,b.y,b.r,0,Math.PI*2); bgc.fillStyle=dark?`rgba(255,220,150,${b.a})`:`rgba(255,160,80,${b.a})`; bgc.fill(); });
+  requestAnimationFrame(bgLoop); }
+bgLoop();
+
+/* ============ 运势签 ============ */
+const FORTUNE=[
+  {p:"日出东山万丈高，行运著步勿相挠。",e:"今天做事顺，但该一步一步来，免急。"},
+  {p:"园中花果适时开，等待就有好采头。",e:"想达成的，给它一点时间，会开花。"},
+  {p:"船过水无痕，心宽路自平。",e:"别钻牛角尖，放宽心，路自然顺。"},
+  {p:"三杯酒未冷，知己在眼前。",e:"今天适合找老朋友，话会投机。"},
+  {p:"细汉勿看轻，积少会变成大。",e:"小步骤一直做，久了就成大事。"},
+  {p:"风平浪静好行船，稳稳著免惊。",e:"今天平稳，照计划走就好。"},
+  {p:"乌云罩山顶，一阵雨就清。",e:"小困难一下就过，免烦恼。"},
+  {p:"金柑一粒甜到心，欢喜自然来。",e:"今天心情会很好，享受就好。"}
+];
+function drawFortune(){ const f=pick(FORTUNE); $('#fortunePoem').textContent=f.p; $('#fortuneEx').textContent=f.e; say('happy'); beep(700,.12); burst(8); }
+
+/* ============ 拍苍蝇 ============ */
+let miniScore=0, miniTimer=null, miniActive=false; const taparea=$('#taparea');
+function spawnFly(){ if(!miniActive) return; taparea.querySelectorAll('.tgt').forEach(t=>t.remove());
+  const t=document.createElement('div'); t.className='tgt'; t.textContent=pick(['🪰','🐝','🦟']);
+  t.style.left=rnd(6,taparea.clientWidth-52)+'px'; t.style.top=rnd(6,taparea.clientHeight-52)+'px';
+  let alive=true;
+  t.addEventListener('pointerdown',ev=>{ ev.preventDefault(); if(!alive) return; alive=false;
+    miniScore++; const p=P(); p.bond=clamp(p.bond+1,0,100); p.mood=clamp(p.mood+1,0,100);
+    $('#miniScore').textContent=miniScore+' 分'; t.style.transform='scale(0)'; t.remove(); beep(900+rnd(0,200),.06,'square');
+    if(miniScore>p.playBest) p.playBest=miniScore; save(); render(); });
+  taparea.appendChild(t);
+  miniTimer=setTimeout(()=>{ if(alive) t.remove(); spawnFly(); }, rnd(900,1500)); }
+taparea.addEventListener('pointerdown',e=>{ if(e.target.classList.contains('tgt')) return;
+  if(miniScore>0){ P().bond=clamp(P().bond-1,0,100); save(); render(); } miniScore=0; $('#miniScore').textContent='0 分'; });
+function miniStart(){ if(miniActive) return; miniActive=true; miniScore=0; spawnFly();
+  setTimeout(()=>{ miniActive=false; clearTimeout(miniTimer); taparea.querySelectorAll('.tgt').forEach(t=>t.remove());
+    showBubble(miniScore>5?`足好耍！拍著 ${miniScore} 只`:'阁练习一下嘛'); },20000); }
+
+/* ============ 聊天机器人 小答 ============ */
+function botReply(t){
+  t=(t||'').toLowerCase();
+  const has=(...ks)=>ks.some(k=>t.includes(k));
+  if(has('早','morning','起床')) return pick(['早安喔～今仔日精神否？','天光饱饱，欲食啥物早餐？','早啊，阿福佮珠珠犹咧困']);
+  if(has('晚安','困','休息','睡','暗眠')) return pick(['晚安～你爱顾身体，困饱饱','好困就困，明仔载阁陪你','困饱饱，梦着好料']);
+  if(has('你好','嗨','哈啦','hi','hello','在吗','在唔','在不在')) return pick(['嗨！我是小答，欲佮我讲啥？','你好啊～今仔日想欲聊啥物？','哼哼，我伫这啦']);
+  if(has('闽南','台语','方言','怎样说','怎么讲','教我')) return pick(['教你看一句：「食饱未？」是问你食饭了未','闽南话「枵」就是饿，「畅」就是开心','想学闽南话，讲一个词互我，我教你讲','「恁仔喂」是「喂」的亲切叫法，欲试看看无？']);
+  if(has('阿福','珠珠','猪','宠物','饲','萌')) return pick(['阿福佮珠珠是咱家己养的，你摸伊嘛欢喜','珠珠足枵，紧去饲伊','阿福这马佇遐蹦蹦跳，你看嘛','两只我都佮意，你爱饲啥只？']);
+  if(has('心情','难过','烦','郁闷','累','压力','哭','无采工')) return pick(['免烦恼啦，事情慢慢做就有','一句老话：「船过水无痕」，放宽心','我陪你，讲予我听啥物事','深呼吸一下，魏欸']);
+  if(has('笑话','好玩','笑','趣味','梗')) return pick(['知影無？珠珠讲伊上盖水，因为伊是「珠」珠😄','阿福身份证欲写「精灵」两个字','听讲阿福佮珠珠咧相借问：今仔日欲食啥']);
+  if(has('签','运势','运气','顺')) return pick(FORTUNE.map(f=>f.p+' — '+f.e));
+  if(has('饿','枵','食','饭','呷','泔糜','料')) return pick(['枵就紧去食，勿体滇滇','欲食啥？我共你讲一款泉州的','食饱未？这是上闽南的关心']);
+  if(has('谢谢','多谢','感恩','感激')) return pick(['免客气啦～','感恩你','应该的，阁欲聊啥']);
+  if(has('名字','你谁','你是','称呼','叫啥')) return pick(['我是小答，阿福佮珠珠的伴','我叫小答，陪你闲聊个','我是你的小聊天伙计']);
+  if(has('拜拜','再见','走了','掰','离开')) return pick(['拜拜～紧去饲阿福','下摆阁来聊，爱顾身体','再见啦，珠珠欲想你']);
+  if(has('爱','喜欢','欢喜','宝贝')) return pick(['我嘛欢喜陪你','咱做伙足好','你讲这，我足开心']);
+  if(has('电脑','软件','写','程式','code','代码','app','程序')) return pick(['写软件真趣味，一步一步来就好','你那几款软件我拢知影，阿福看诚多项','欲做啥软件，讲予我听，我替你想']);
+  const fb=['唔知你讲啥，但是我佮意听你讲','继续讲，我伫这','呵，你真趣味','你想欲聊啥？我陪你','这句话我记咧，阁讲多一絮','哼，你讲啥我拢听'];
+  return pick(fb);
+}
+function pushMsg(who,text){ G.chat.push({who,text,t:Date.now()}); if(G.chat.length>200) G.chat.shift(); save(); renderChat(); scrollChat(); }
+function renderChat(){
+  const box=$('#chatMsgs'); if(!box) return;
+  if(!G.chat.length){ box.innerHTML='<div class="msg bot">嗨！我是小答 💬 陪你闲聊、教闽南话、讲笑佮抽签。欲先讲啥？</div>'; return; }
+  box.innerHTML=G.chat.map(m=>`<div class="msg ${m.who}">${esc(m.text)}</div>`).join('');
+}
+function scrollChat(){ const box=$('#chatMsgs'); if(box) box.scrollTop=box.scrollHeight; }
+function chatSend(){
+  const v=$('#chatText').value.trim(); if(!v) return;
+  $('#chatText').value=''; pushMsg('me',v);
+  const tEl=document.createElement('div'); tEl.className='typing'; tEl.innerHTML='小答 佇输入 <i></i><i></i><i></i>';
+  $('#chatMsgs').appendChild(tEl); scrollChat();
+  setTimeout(()=>{ tEl.remove(); pushMsg('bot', botReply(v)); }, 480+Math.random()*520);
+}
+
+/* ============ 视图 / 主题 / 设置 ============ */
+function applyTheme(){ document.documentElement.setAttribute('data-theme',G.theme); $('#btnTheme').textContent=G.theme==='dark'?'☀️':'🌙'; }
+function toggleTheme(){ G.theme=G.theme==='dark'?'light':'dark'; applyTheme(); save(); }
+function applySound(){ $('#btnSound').classList.toggle('on',G.sound); $('#btnSound').textContent=G.sound?'开':'关'; }
+function setView(v){
+  G.view=v;
+  $('#petView').style.display = v==='pet'?'':'none';
+  $('#chatView').style.display = v==='chat'?'block':'none';
+  $('#petswitch').style.display = v==='pet'?'flex':'none';
+  $('#petName').textContent = v==='chat' ? '小答 · 聊天' : (PETS[G.cur].name+' '+PETS[G.cur].emoji+' 你的小宝贝');
+  $('#btnChat').textContent = v==='chat' ? '🐾' : '💬';
+  if(v==='chat'){ renderChat(); scrollChat(); } save();
+}
+function switchPet(id){
+  if(!PETS[id]) return; G.cur=id; setSpecies(); drawFace(); render();
+  $$('#petswitch button').forEach(b=>b.classList.toggle('on', b.dataset.pet===id));
+  $('#petName').textContent = PETS[id].name+' '+PETS[id].emoji+' 你的小宝贝';
+  save();
+}
+let toastT=null;
+function toast(msg){ const t=$('#toast'); t.textContent=msg; t.classList.add('show'); clearTimeout(toastT); toastT=setTimeout(()=>t.classList.remove('show'),1800); }
+function reset(){
+  if(!confirm('欲重新养老一只 '+PETS[G.cur].name+'？旧个会走矣（资料清掉）。')) return;
+  G.pets[G.cur]=freshPet(G.cur==='zhu'?{full:90,mood:80,eng:80,bond:20}:{});
+  save(); setSpecies(); drawFace('happy'); render(); say('born'); toast('新的一只 '+PETS[G.cur].name+' 出世啰 🐣'); burst(26);
+}
+
+/* ============ 事件 ============ */
+$('#pet').addEventListener('click',()=>{ const p=P(); p.bond=clamp(p.bond+1,0,100); drawFace(p.bond>80?'love':'happy'); say(pick(['pet','happy'])); beep(760,.08); save(); render(); });
+$$('.act').forEach(b=>b.addEventListener('click',()=>action(b.dataset.act)));
+$$('#petswitch button').forEach(b=>b.addEventListener('click',()=>switchPet(b.dataset.pet)));
+$('#btnChat').addEventListener('click',()=>setView(G.view==='chat'?'pet':'chat'));
+$('#btnTheme').addEventListener('click',toggleTheme);
+$('#btnTheme2').addEventListener('click',toggleTheme);
+$('#btnSound').addEventListener('click',()=>{ G.sound=!G.sound; applySound(); save(); beep(600,.1); });
+$('#btnSave').addEventListener('click',()=>{ save(); toast('存好矣 💾'); });
+$('#btnReset').addEventListener('click',reset);
+$('#btnFortune').addEventListener('click',drawFortune);
+$('#chatClear').addEventListener('click',()=>{ G.chat=[]; save(); renderChat(); toast('聊天主清矣'); });
+$('#chatSend').addEventListener('click',chatSend);
+$('#chatText').addEventListener('keydown',e=>{ if(e.key==='Enter') chatSend(); });
+$('#miniScore').parentElement.addEventListener('click',miniStart);
+
+/* ============ 启动 ============ */
+function boot(){
+  applyTheme(); applySound(); setSpecies(); setView(G.view);
+  const firstTime = !hadG;
+  if(firstTime){ drawFace('happy'); say('born'); burst(20); }
+  else {
+    const away=Date.now()-(P().last||Date.now()); drawFace();
+    if(away>3600000){ say('back'); burst(10); } else { setTimeout(()=>say('happy'),600); }
+  }
+  tick(); setInterval(tick,15000); startFaceLife(); save();
+}
+boot();
+</script>
+<script>
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', function () {
+    navigator.serviceWorker.register('./sw.js').catch(function () {});
+  });
+}
+</script>
+</body>
+</html>
