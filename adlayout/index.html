@@ -1,0 +1,1736 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-page-node-id="ZCcM2BNWIso839LKSWsitn">
+<head data-page-node-id="RlRQJnltmxbLFH1evTDAiT">
+<meta charset="UTF-8" data-page-node-id="6QoBluu019v9jVdqq3XZ9T">
+<meta name="viewport" content="width=device-width, initial-scale=1" data-page-node-id="QMt20qLs3RtwEWD7D7usZ5">
+<title>报纸广告排版台</title>
+<style>
+/* ============================================================
+   0. 主题变量
+   ============================================================ */
+:root{
+  --ui-bg:#eceef0; --ui-card:#ffffff; --ui-line:#dcdfe3; --ui-line2:#ebedf0;
+  --ui-ink:#1f2328; --ui-dim:#6a737d; --brand:#23262b; --accent:#b3261e;
+  --paper-bg:#ffffff; --ink:#111111;
+  --body-font:"Songti SC","SimSun","宋体",serif;
+  --title-font:"Heiti SC","SimHei","黑体",sans-serif;
+  --cols:2; --body-size:13px; --title-size:46px; --lh:1.9;
+  --cls-cols:3; --cls-gap:20px; --cls-gapy:14px;
+}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%}
+body{
+  font-family:"Microsoft YaHei","微软雅黑",system-ui,-apple-system,sans-serif;
+  background:var(--ui-bg); color:var(--ui-ink); overflow:hidden;
+  display:flex; flex-direction:column; height:100vh;
+}
+
+/* ============================================================
+   1. 工具栏
+   ============================================================ */
+.toolbar{
+  flex:0 0 auto; height:54px; display:flex; align-items:center; gap:8px;
+  padding:0 16px; background:var(--ui-card); border-bottom:1px solid var(--ui-line);
+  box-shadow:0 1px 2px rgba(16,22,26,.04); z-index:10;
+}
+.brand{display:flex; align-items:center; gap:9px; margin-right:12px; flex:0 0 auto}
+.brand-mark{
+  width:26px;height:26px;border-radius:5px;background:var(--brand);color:#fff;
+  display:grid;place-items:center;font-size:13px;font-weight:700;font-family:"SimHei","黑体",sans-serif;
+}
+.brand-name{font-size:14px;font-weight:600;letter-spacing:.5px;white-space:nowrap}
+.brand-sub{font-size:11px;color:var(--ui-dim);white-space:nowrap}
+.tb-sep{width:1px;height:22px;background:var(--ui-line);margin:0 4px;flex:0 0 auto}
+.tb-spacer{flex:1}
+.btn{
+  height:32px;padding:0 13px;border-radius:7px;border:1px solid var(--ui-line);
+  background:#fff;color:var(--ui-ink);font-size:12.5px;font-family:inherit;
+  cursor:pointer;white-space:nowrap;display:inline-flex;align-items:center;gap:6px;
+  transition:background .12s,border-color .12s,color .12s;
+}
+.btn:hover{background:#f4f5f7;border-color:#c8ccd1}
+.btn:active{background:#e9ebee}
+.btn.primary{background:var(--brand);border-color:var(--brand);color:#fff}
+.btn.primary:hover{background:#3a3f47;border-color:#3a3f47}
+.btn.sm{height:26px;padding:0 9px;font-size:12px}
+.btn.block{width:100%;justify-content:center}
+.modeswitch{display:flex;background:#f1f2f4;border-radius:8px;padding:3px;gap:2px;flex:0 0 auto}
+.modeswitch button{
+  border:0;background:transparent;font-family:inherit;font-size:12.5px;color:var(--ui-dim);
+  padding:5px 13px;border-radius:6px;cursor:pointer;white-space:nowrap;transition:all .14s;
+}
+.modeswitch button.on{background:#fff;color:var(--ui-ink);font-weight:600;box-shadow:0 1px 2px rgba(0,0,0,.09)}
+
+/* ============================================================
+   2. 布局 / 面板控件
+   ============================================================ */
+.workspace{flex:1;display:flex;min-height:0}
+.panel{
+  width:344px;flex:0 0 344px;overflow-y:auto;background:var(--ui-card);
+  border-right:1px solid var(--ui-line);padding:0 0 80px;
+}
+.panel::-webkit-scrollbar{width:9px}
+.panel::-webkit-scrollbar-thumb{background:#c9ced4;border-radius:5px;border:2px solid #fff}
+.panel::-webkit-scrollbar-track{background:#fff}
+
+.grp{border-bottom:1px solid var(--ui-line2)}
+.grp > summary{
+  list-style:none;cursor:pointer;padding:12px 16px;display:flex;align-items:center;gap:8px;
+  font-size:12.5px;font-weight:600;color:var(--ui-ink);letter-spacing:.4px;user-select:none;
+}
+.grp > summary::-webkit-details-marker{display:none}
+.grp > summary::before{
+  content:"";width:6px;height:6px;border-right:1.6px solid var(--ui-dim);border-bottom:1.6px solid var(--ui-dim);
+  transform:rotate(-45deg);margin-right:2px;transition:transform .15s;flex:0 0 auto;
+}
+.grp[open] > summary::before{transform:rotate(45deg)}
+.grp > summary:hover{background:#fafbfc}
+.grp-body{padding:2px 16px 16px}
+.grp-extra{color:var(--ui-dim);font-weight:400}
+
+.row{display:flex;gap:10px;align-items:center;margin-bottom:10px}
+.row:last-child{margin-bottom:0}
+.row > .fld{flex:1;min-width:0}
+label.fl{display:block;font-size:11.5px;color:var(--ui-dim);margin-bottom:4px;letter-spacing:.2px}
+input[type=text],input[type=number],textarea,select{
+  width:100%;border:1px solid var(--ui-line);border-radius:6px;padding:7px 9px;
+  font-size:12.5px;font-family:inherit;color:var(--ui-ink);background:#fff;
+  transition:border-color .12s,box-shadow .12s;outline:none;
+}
+input:focus,textarea:focus,select:focus{border-color:#8fa4bb;box-shadow:0 0 0 3px rgba(60,110,170,.1)}
+textarea{resize:vertical;line-height:1.65;min-height:96px}
+select{cursor:pointer;appearance:none;
+  background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 10 10'><path d='M1 3l4 4 4-4' fill='none' stroke='%236a737d' stroke-width='1.4' stroke-linecap='round'/></svg>");
+  background-repeat:no-repeat;background-position:right 9px center;padding-right:26px;
+}
+input[type=range]{width:100%;accent-color:var(--brand);height:20px;cursor:pointer}
+.range-wrap{display:flex;align-items:center;gap:9px}
+.range-val{flex:0 0 46px;text-align:right;font-size:11.5px;color:var(--ui-dim);font-variant-numeric:tabular-nums}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{
+  border:1px solid var(--ui-line);background:#fff;border-radius:6px;padding:5px 10px;
+  font-size:12px;font-family:inherit;cursor:pointer;color:var(--ui-ink);
+  transition:all .12s;white-space:nowrap;
+}
+.chip:hover{border-color:#b9bfc6;background:#f6f7f9}
+.chip.on{background:var(--brand);border-color:var(--brand);color:#fff}
+.sw{display:flex;align-items:center;gap:8px;font-size:12.5px;cursor:pointer;user-select:none}
+.sw input{appearance:none;width:34px;height:19px;border-radius:10px;background:#cfd4d9;
+  position:relative;transition:background .15s;cursor:pointer;flex:0 0 auto;margin:0;border:none;padding:0}
+.sw input::after{content:"";position:absolute;top:2px;left:2px;width:15px;height:15px;border-radius:50%;
+  background:#fff;transition:transform .15s;box-shadow:0 1px 2px rgba(0,0,0,.2)}
+.sw input:checked{background:var(--brand)}
+.sw input:checked::after{transform:translateX(15px)}
+.mini-note{font-size:11px;color:var(--ui-dim);line-height:1.6;margin-top:8px;padding:7px 9px;
+  background:#f7f8fa;border-radius:6px;border:1px solid var(--ui-line2)}
+.mini-note b{color:var(--ui-ink);font-weight:600}
+.divider{height:1px;background:var(--ui-line2);margin:14px -16px}
+
+/* ============================================================
+   3. 舞台 & 纸张
+   ============================================================ */
+.stage{
+  flex:1;min-width:0;overflow:auto;background:
+    repeating-conic-gradient(#e3e5e8 0% 25%, #e9ebee 0% 50%) 50% / 22px 22px;
+  display:flex;justify-content:center;align-items:flex-start;padding:30px 30px 70px;
+}
+.stage::-webkit-scrollbar{width:11px;height:11px}
+.stage::-webkit-scrollbar-thumb{background:#bfc5cc;border-radius:6px;border:3px solid transparent;background-clip:content-box}
+
+.paper{
+  background:var(--paper-bg); color:var(--ink);
+  padding:34px 40px 38px;
+  box-shadow:0 1px 2px rgba(0,0,0,.14), 0 12px 32px rgba(0,0,0,.16);
+  position:relative; font-family:var(--body-font);
+  display:flex;flex-direction:column;
+}
+.paper.tex-cream{
+  background-color:#f8f4e9;
+  background-image:radial-gradient(rgba(150,130,90,.07) 1px, transparent 1px);
+  background-size:4px 4px;
+}
+.paper.tex-aged{
+  background-color:#efe6d2;
+  background-image:
+    radial-gradient(ellipse at 12% 8%, rgba(160,130,80,.16), transparent 55%),
+    radial-gradient(ellipse at 88% 92%, rgba(160,130,80,.14), transparent 55%),
+    radial-gradient(rgba(130,105,65,.1) 1px, transparent 1px);
+  background-size:auto,auto,3px 3px;
+}
+.paper.frame-thin{outline:1px solid var(--ink);outline-offset:-16px}
+.paper.frame-double::before{content:"";position:absolute;inset:15px;border:3px double var(--ink);pointer-events:none}
+.paper.frame-thick::before{content:"";position:absolute;inset:13px;border:4px solid var(--ink);pointer-events:none}
+.paper.frame-ornate::before{content:"";position:absolute;inset:13px;border:1.5px solid var(--ink);pointer-events:none}
+.paper.frame-ornate::after{content:"";position:absolute;inset:19px;border:0.5px solid var(--ink);pointer-events:none;opacity:.55}
+
+/* 报头 */
+.masthead{text-align:center;padding-bottom:5px}
+.mh-name{font-family:var(--title-font);font-size:30px;font-weight:700;letter-spacing:9px;line-height:1.25;text-indent:9px}
+.mh-meta{font-size:10.5px;letter-spacing:1.6px;color:#3a3a3a;margin-top:5px;
+  display:flex;justify-content:center;gap:14px;flex-wrap:wrap}
+.mh-rule{height:0;border-top:2.5px solid var(--ink);margin-top:8px}
+.mh-rule2{height:0;border-top:1px solid var(--ink);margin-top:2.5px;margin-bottom:20px}
+
+/* 标题组 */
+.kicker{text-align:center;font-size:13px;letter-spacing:3px;color:#2a2a2a;margin-bottom:8px;font-family:var(--title-font)}
+.kicker:not(:empty)::before,.kicker:not(:empty)::after{content:"———";letter-spacing:0;margin:0 10px;color:#8a8a8a;font-size:11px}
+.kicker:empty{display:none}
+.headline{font-family:var(--title-font);font-size:var(--title-size);font-weight:700;line-height:1.22;
+  letter-spacing:2px;margin:0 0 10px;text-align:center;word-break:break-word}
+.headline:empty{display:none}
+.subhead{text-align:center;font-family:var(--title-font);font-size:16px;letter-spacing:2px;color:#1e1e1e;
+  margin-bottom:2px;line-height:1.5}
+.subhead:empty{display:none}
+.slogan{text-align:center;font-family:var(--title-font);font-weight:700;font-size:19px;letter-spacing:3px;
+  margin:12px 0 2px;padding:8px 4px;line-height:1.4}
+.slogan:empty{display:none}
+.slogan.bar-on{border-top:2px solid var(--ink);border-bottom:2px solid var(--ink)}
+.slogan.bar-box{outline:2px solid var(--ink);outline-offset:-2px}
+.hrule{border:0;border-top:1px solid var(--ink);margin:14px 0 16px;opacity:.85}
+
+/* 配图 & 裁切 */
+figure.pic{margin:0 0 16px;text-align:center;position:relative}
+figure.pic img{display:block;margin:0 auto;filter:grayscale(18%) contrast(1.04)}
+figure.pic figcaption{font-size:11px;color:#3f3f3f;margin-top:6px;letter-spacing:.6px;
+  border-top:1px solid rgba(0,0,0,.25);padding-top:4px}
+.pic-frame .pic-box{border:1px solid var(--ink);padding:3px;background:#fff}
+.pic-box{position:relative;overflow:hidden;width:100%}
+.pic-cropped .pic-box{aspect-ratio:var(--ratio,1/1)}
+.pic-cropped .pic-box img{
+  position:absolute;inset:0;width:100%;height:100%;object-fit:cover;
+  object-position:var(--fx,50%) var(--fy,50%);
+  transform:scale(var(--iz,1));transform-origin:center;
+}
+
+.flow{display:flex;gap:18px;align-items:flex-start}
+.flow .flow-text{flex:1;min-width:0}
+.flow.pic-left figure.pic,.flow.pic-right figure.pic{margin-bottom:0;flex:0 0 var(--pw,38%)}
+.flow.pic-top{flex-wrap:wrap}
+.flow.pic-top figure.pic{flex:0 0 100%;width:100%}
+.flow.pic-top .flow-text{flex:0 0 100%;width:100%}
+
+/* 正文 */
+.body-cols{columns:var(--cols);column-gap:24px;column-rule:1px solid rgba(0,0,0,.42);
+  text-align:justify;font-size:var(--body-size);line-height:var(--lh);text-justify:inter-ideograph}
+.body-cols.no-rule{column-rule:none}
+.body-cols p{margin:0 0 .72em;text-indent:2em}
+.body-cols p:last-child{margin-bottom:0}
+.body-cols .lead::first-letter{font-size:2.6em;float:left;line-height:.9;margin:.06em .12em 0 0;
+  font-family:var(--title-font);font-weight:700}
+.paper.align-left .body-cols{text-align:left;text-justify:auto}
+
+/* ============================================================
+   4. 分类广告拼版
+   ============================================================ */
+.cls-head{text-align:center;margin-bottom:16px}
+.cls-head-t{font-family:var(--title-font);font-weight:700;font-size:26px;letter-spacing:6px;
+  display:inline-block;padding-bottom:6px;border-bottom:2.5px solid var(--ink);text-indent:6px}
+.cls-head-t:empty{display:none}
+.cls-head-s{font-size:12px;letter-spacing:2px;color:#3a3a3a;margin-top:7px}
+.cls-head-s:empty{display:none}
+
+.cls-cols{font-size:var(--body-size);line-height:var(--lh)}
+.cls-cols.flow-columns{columns:var(--cls-cols);column-gap:var(--cls-gap)}
+.cls-cols.flow-columns.rule-line{column-rule:1px solid rgba(0,0,0,.45)}
+.cls-cols.flow-columns.rule-dash{column-rule:1px dashed rgba(0,0,0,.45)}
+.cls-cols.flow-columns .cls-card{break-inside:avoid;-webkit-column-break-inside:avoid;page-break-inside:avoid;
+  margin-bottom:var(--cls-gapy)}
+.cls-cols.flow-grid{display:grid;grid-template-columns:repeat(var(--cls-cols),1fr);
+  gap:var(--cls-gapy) var(--cls-gap);align-items:start}
+.cls-cols.flow-grid .span2{grid-column:span 2}
+.cls-cols.flow-grid .spanAll{grid-column:1/-1}
+
+.cls-card{position:relative;padding:2px 0}
+.cls-card.cs-line{border-bottom:1px solid rgba(0,0,0,.4);padding-bottom:var(--cls-gapy)}
+.cls-card.cs-dashed{border-bottom:1px dashed rgba(0,0,0,.45);padding-bottom:var(--cls-gapy)}
+.cls-card.cs-box{border:1px solid var(--ink);padding:10px 12px}
+.cls-card.cs-tint{background:rgba(0,0,0,.045);padding:10px 12px;border-left:3px solid var(--ink)}
+.cls-card.cs-none{padding:0}
+
+.cls-tag{display:inline-block;font-family:var(--title-font);font-size:.82em;font-weight:700;letter-spacing:1.5px;
+  border:1px solid var(--ink);padding:0 5px;line-height:1.55;margin-bottom:6px}
+.cls-tag:empty{display:none}
+.cls-t{font-family:var(--title-font);font-weight:700;font-size:1.06em;letter-spacing:.8px;
+  line-height:1.4;margin:0 0 5px}
+.cls-t:empty{display:none}
+.cls-card.span2 .cls-t,.cls-card.spanAll .cls-t{font-size:1.3em}
+.cls-b{margin:0 0 6px;text-align:justify;text-justify:inter-ideograph;color:#1a1a1a}
+.cls-b:empty{display:none}
+.cls-p{font-weight:700;font-family:var(--title-font);letter-spacing:.6px;font-size:.98em}
+.cls-p:empty{display:none}
+.cls-card.spanAll .cls-b{columns:2;column-gap:22px;column-rule:1px solid rgba(0,0,0,.3)}
+
+/* 底栏 */
+.colophon{margin-top:auto;padding-top:14px}
+.cp-rule{border-top:2.5px solid var(--ink);margin-bottom:2px}
+.cp-rule2{border-top:0.5px solid var(--ink);margin-bottom:12px}
+.cp-body{display:flex;flex-wrap:wrap;justify-content:space-between;gap:8px 26px;
+  font-size:12px;letter-spacing:.4px;line-height:1.7}
+.cp-item{display:flex;gap:7px;align-items:baseline}
+.cp-item .k{font-family:var(--title-font);font-weight:700;letter-spacing:2px;
+  border:1px solid var(--ink);padding:0 4px;font-size:11px;line-height:1.5}
+.cp-item.hide{display:none}
+.cp-tail{text-align:center;font-size:10px;letter-spacing:2px;color:#4a4a4a;margin-top:12px}
+.cp-tail:empty{display:none}
+
+/* 印章 */
+.seal{position:absolute;pointer-events:none;display:grid;place-items:center;opacity:.88;
+  font-family:var(--title-font);font-weight:700;font-size:31px;letter-spacing:3px;line-height:1;text-align:center}
+.seal.circle{width:96px;height:96px;border:3.5px solid currentColor;border-radius:50%}
+.seal.square{width:96px;height:96px;border:3.5px solid currentColor;border-radius:3px}
+.seal.banner{background:currentColor;padding:5px 16px;border-radius:0}
+.seal.banner span{color:#fff;letter-spacing:4px;font-size:22px}
+.seal.hide{display:none}
+
+/* ============================================================
+   5. 小广告条目编辑器
+   ============================================================ */
+.cls-editor{border:1px solid var(--ui-line);border-radius:8px;padding:10px;margin-bottom:10px;background:#fbfcfd}
+.cls-editor:last-child{margin-bottom:0}
+.cie-head{display:flex;align-items:center;gap:7px;margin-bottom:7px}
+.cie-no{flex:0 0 20px;height:20px;border-radius:5px;background:var(--brand);color:#fff;
+  font-size:11px;display:grid;place-items:center;font-weight:600}
+.cie-tag{flex:0 0 88px;padding:4px 7px;font-size:11.5px}
+.cie-del{flex:0 0 auto;border:0;background:transparent;color:#9aa2ab;font-size:16px;line-height:1;
+  cursor:pointer;padding:2px 5px;border-radius:4px}
+.cie-del:hover{background:#fbeaea;color:var(--accent)}
+.cie-in{width:100%;padding:5px 7px;font-size:12px;margin-bottom:5px}
+.cie-b{width:100%;min-height:44px;padding:5px 7px;font-size:12px;margin-bottom:5px;resize:vertical}
+.cie-ops{display:flex;gap:5px;flex-wrap:wrap}
+.cie-ops button{
+  border:1px solid var(--ui-line);background:#fff;border-radius:5px;font-size:11px;
+  padding:3px 8px;cursor:pointer;font-family:inherit;color:var(--ui-dim);
+}
+.cie-ops button:hover{background:#f2f4f6;color:var(--ui-ink)}
+.cie-ops button.warn:hover{color:var(--accent);border-color:#e0b4b0}
+.bulk-area{width:100%;min-height:112px;font-family:Consolas,Menlo,monospace;font-size:11.5px;line-height:1.6}
+
+/* ============================================================
+   6. 状态条 / 提示
+   ============================================================ */
+.statusbar{flex:0 0 auto;height:30px;display:flex;align-items:center;gap:16px;padding:0 16px;
+  background:var(--ui-card);border-top:1px solid var(--ui-line);font-size:11.5px;color:var(--ui-dim)}
+.statusbar .dot{width:6px;height:6px;border-radius:50%;background:#2ea043;display:inline-block;margin-right:6px}
+.statusbar .sb-spacer{flex:1}
+.statusbar b{color:var(--ui-ink);font-weight:600;font-variant-numeric:tabular-nums}
+.toast{position:fixed;left:50%;bottom:56px;transform:translateX(-50%) translateY(14px);
+  background:#23262b;color:#fff;font-size:12.5px;padding:9px 18px;border-radius:8px;
+  opacity:0;pointer-events:none;transition:opacity .2s,transform .2s;z-index:50;
+  box-shadow:0 6px 20px rgba(0,0,0,.24);white-space:nowrap}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+/* ============================================================
+   7. 打印
+   ============================================================ */
+@media print{
+  body{display:block;height:auto;overflow:visible;background:#fff}
+  .toolbar,.panel,.statusbar,.toast{display:none !important}
+  .workspace{display:block}
+  .stage{padding:0;background:none;overflow:visible;display:block}
+  .paper{zoom:1 !important;box-shadow:none;margin:0;width:100% !important;min-height:0 !important}
+  .cls-card{break-inside:avoid;page-break-inside:avoid}
+  @page{size:A4;margin:0}
+}
+</style>
+<link rel="manifest" href="manifest.json">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="广告排版">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="icon" href="favicon.png">
+<meta name="theme-color" content="#27ae60">
+</head>
+<body data-page-node-id="uCdnD0BYZQame8glEtU7uf">
+
+<!-- ============================================================
+     工具栏
+     ============================================================ -->
+<header class="toolbar" data-page-node-id="agr6nolYAwWhjJKOTKtnkk">
+  <div class="brand" data-page-node-id="YIDzdcGVvL8BtlH3sgV42o">
+    <div class="brand-mark" data-page-node-id="9MiUaFMwnSLt2305wIYogY">報</div>
+    <div data-page-node-id="bUHXR3oSfGEMYgtULOEDz5">
+      <div class="brand-name" data-page-node-id="kObldl9HIHCARAAUhDgYil">报纸广告排版台</div>
+      <div class="brand-sub" data-page-node-id="CX9k48ATJEEqCNgKW6ngu4">单条广告 / 分类拼版 · 图文裁切 · 多开尺寸</div>
+    </div>
+  </div>
+
+  <div class="modeswitch" id="modeSwitch" data-page-node-id="GUI9qYsV7Hr4RrtDHMMWhp">
+    <button data-v="single" class="on" data-page-node-id="rniLFdiEUClMu2RjPIvPnz">单条广告</button>
+    <button data-v="classified" data-page-node-id="f5i3AVe5rMTVYTphzxMYID">分类拼版</button>
+  </div>
+
+  <div class="tb-sep" data-page-node-id="n70ihuq6SjoIqhAYbCq9cK"></div>
+
+  <select id="tplSelect" class="btn" style="height:32px;width:124px;font-size:12.5px" data-page-node-id="3UYPYvs3Y8vegT4H9WHIY7">
+    <option value="" data-page-node-id="j61ziexPmzALh0tQHeeiIb">套用模板…</option>
+    <option value="promo" data-page-node-id="U65HVod9ym3QDmQkEFl95k">促销优惠</option>
+    <option value="open" data-page-node-id="E9gkH7MFNon18Ohe6iW4VG">开业公告</option>
+    <option value="hire" data-page-node-id="nQ280Z1HHge5Gt1AWrfCNK">招聘启事</option>
+    <option value="notice" data-page-node-id="v14kNbFXkQ2yL9KwIt3HAa">声明公告</option>
+    <option value="house" data-page-node-id="JAnQPSj14By0aY10bgyOeI">房产楼盘</option>
+    <option value="recruit" data-page-node-id="K7VPntsbhlfFZBrEnCFVAl">招生培训</option>
+  </select>
+
+  <button class="btn" id="btnSample" data-page-node-id="HlgVSO8CZGWPEOZbwlpOnc">载入示例</button>
+  <button class="btn" id="btnClear" data-page-node-id="7dZQynTju4G5NJI3vP8iza">清空内容</button>
+
+  <div class="tb-spacer" data-page-node-id="xW4I1YJX25SmQdYMvLPHx2"></div>
+
+  <button class="btn" id="btnSave" data-page-node-id="XxfYj101HiaTdBHOftmzgz">存草稿</button>
+  <button class="btn" id="btnLoad" data-page-node-id="5tVMZwsb12wmUrzokzYgoh">读草稿</button>
+  <button class="btn" id="btnExport" data-page-node-id="bhtxQwlGo2STiDrmpQs0dp">导出 HTML</button>
+  <button class="btn primary" id="btnPrint" data-page-node-id="m6Ytyiwtq2vtSIxCqZy8kB">打印 / 存 PDF</button>
+</header>
+
+<div class="workspace" data-page-node-id="Uow3yJARE4YFxVF9KLtvwd">
+
+<!-- ============================================================
+     左侧参数面板
+     ============================================================ -->
+<aside class="panel" data-page-node-id="MN8DSYyTWUCC4ROZRgIKZW">
+
+  <!-- 纸张尺寸 -->
+  <details class="grp" open data-page-node-id="UVpz1H7AClAoXzfRJppfQo">
+    <summary data-page-node-id="ThaMN8eF7fLfkxGNVDNYsd">纸张尺寸</summary>
+    <div class="grp-body" data-page-node-id="qGEF8pR2qRqSzQYi9xaVUF">
+      <div class="row" data-page-node-id="pwuvYxo7AnE4L8Wloha9Sd"><div class="fld" data-page-node-id="F7eZrVICsEgGlBqrvkFV2P">
+        <label class="fl" data-page-node-id="bN14c4zkwUWxJ279tw9c2X">预设开数</label>
+        <div class="chips" id="paperChips" data-page-node-id="xBMj9wQSM7bGETzaPiq28R"></div>
+      </div></div>
+      <div id="customSizeBox" style="display:none" data-page-node-id="vD7rxCeWdeN4Q0IOANZOIX">
+        <div class="row" data-page-node-id="i7ZvM7JrfViTreM8Ig30Sj">
+          <div class="fld" data-page-node-id="BUIcs4iAwoTvU9GwBKvnBN"><label class="fl" data-page-node-id="JvQNY1oxqlUiofGz7AaHx8">宽 (mm)</label><input type="number" id="customW" min="50" max="1500" step="1" data-page-node-id="WGoI095ftLpEH81f0Gu35M"></div>
+          <div class="fld" data-page-node-id="yXF37w2qWAbQ9hpSqGgSWB"><label class="fl" data-page-node-id="i4L2DJOmFs0EvbJ5Nf8tYt">高 (mm)</label><input type="number" id="customH" min="50" max="1500" step="1" data-page-node-id="HsVYKaUQlTF6l4JsT4FHAs"></div>
+        </div>
+        <div class="row" data-page-node-id="9cjPt4kEzMXMeb7OQxaRrf">
+          <button class="btn sm" id="btnSwap" data-page-node-id="GNs7khipsxCFPfFFonqjiW">横竖互换</button>
+          <button class="btn sm" id="btnFit" data-page-node-id="Gwz6vbcj1hw9koO6mhArIT">适应窗口</button>
+        </div>
+      </div>
+      <div class="mini-note" id="sizeInfo" data-page-node-id="asbMrfp9AEc1EXrp9EyUa5"></div>
+    </div>
+  </details>
+
+  <!-- 报头 -->
+  <details class="grp" open data-page-node-id="yDWndIySidbeu8T9zZHWn4">
+    <summary data-page-node-id="sIZoHPX2AeTQEjpT1O8F2b">报头信息</summary>
+    <div class="grp-body" data-page-node-id="CiG2Zy8gu36AXe1Kcaqfzj">
+      <div class="row" data-page-node-id="3MFdazW1iGnGXJ18GFjcpZ"><div class="fld" data-page-node-id="uGvQHLs9xnBrwYmj4548kx">
+        <label class="fl" data-page-node-id="ICMPU8v4P7s7WAIeeBzhHp">报刊名称</label><input type="text" id="masthead" placeholder="如：泉州商讯" data-page-node-id="A2KK86vVjkumr8CyZjw3Z4">
+      </div></div>
+      <div class="row" data-page-node-id="NTNdEJxpLFtXJpX9kZoGwZ">
+        <div class="fld" data-page-node-id="suFAR02MklKEIRAF4FVTrf"><label class="fl" data-page-node-id="hFtVNRMiKTc2k0L0P8WaBJ">期号</label><input type="text" id="issue" placeholder="128" data-page-node-id="3C3jmSrNWxzjJuWR5efTnC"></div>
+        <div class="fld" data-page-node-id="pDZjyNdsGy8WAsGhUlxwfa"><label class="fl" data-page-node-id="tScV38I4DXQrfHCrOdbc23">日期</label><input type="text" id="dateText" placeholder="2026年9月16日" data-page-node-id="3MdxRH29BGg3QVvf2E34GA"></div>
+      </div>
+      <div class="row" data-page-node-id="WJA7NnvenaChaYNLBMb5Cw"><div class="fld" data-page-node-id="H517RoPR3eSvlpogHhEGoZ">
+        <label class="fl" data-page-node-id="1RizWKzSGJhEpLgtjZtg5r">版别</label><input type="text" id="section" placeholder="广告版" data-page-node-id="WlFN1Vt3Jr9fOVas4eBcuN">
+      </div></div>
+      <label class="sw" data-page-node-id="n3OtLNovFRV23SjJSnIuCB"><input type="checkbox" id="showMasthead" checked data-page-node-id="CYBQXDVgomQ3xgGD8BNsMM"><span data-page-node-id="stIfUA8F4g3oVgoBSwwiLf">显示报头</span></label>
+    </div>
+  </details>
+
+  <!-- ==== 单条广告专用 ==== -->
+  <details class="grp singleOnly" open data-page-node-id="8piV5TMkgyRpZdMNPkm2uW">
+    <summary data-page-node-id="meDJVlEyDQFCBBOOg6YYDq">标题组</summary>
+    <div class="grp-body" data-page-node-id="lJAuoA26Wu00Pfva3R60E1">
+      <div class="row" data-page-node-id="3NPe79V5Pk8pZDNvsdfJ0I"><div class="fld" data-page-node-id="DpDKw7Cu4PS938ibTzyrXk">
+        <label class="fl" data-page-node-id="jCBvPZb1WjOGgDfGjYjMvd">引题（主标题上方小字）</label><input type="text" id="kicker" placeholder="开业庆典 · 隆重登场" data-page-node-id="RTomLwgNoqXr0TU6Es6uWO">
+      </div></div>
+      <div class="row" data-page-node-id="l6vnMvrIr8AxQRhCloqgAW"><div class="fld" data-page-node-id="CmNlH6614VpMrzjNjlNdXv">
+        <label class="fl" data-page-node-id="Q7hNKweb8y8ur1zGvDUiSJ">主标题（回车可换行）</label>
+        <textarea id="headline" style="min-height:64px" placeholder="老字号新开张 全场八折"></textarea>
+      </div></div>
+      <div class="row" data-page-node-id="AROVSP9fiElxg687AVa0n0"><div class="fld" data-page-node-id="tPCxFIYKnkaXVXwjjr8Zoj">
+        <label class="fl" data-page-node-id="EgURhEuyp2vGHg4dpv02OG">副标题</label><input type="text" id="subhead" placeholder="一站式服务 · 品质保证" data-page-node-id="Ef7DeaH3A2EDk3EPNk0SAj">
+      </div></div>
+      <div class="row" data-page-node-id="v9gCydCQyD4P9nNXUcXAzK"><div class="fld" data-page-node-id="nSSgOafitKri1dI8GMwkcB">
+        <label class="fl" data-page-node-id="nfs3Fs7NGcJrw93riteQwC">口号 / 导语（大字突出）</label><input type="text" id="slogan" placeholder="全场八折 仅限三天" data-page-node-id="OMx3CKppJxmBMTBus5PT8K">
+      </div></div>
+      <div class="row" data-page-node-id="XogbnCcWa6uXBfEidcAy7i"><div class="fld" data-page-node-id="CzY0f7i0MEf1MCUqvs3rHV">
+        <label class="fl" data-page-node-id="iM5bOKlPaf0drx4CRDFuch">口号装饰</label>
+        <div class="chips" id="sloganStyle" data-page-node-id="AGHLAU3s2jvRi7V8lvUC5w">
+          <button class="chip" data-v="plain" data-page-node-id="iC8MtEblXC8zPYUN1eq4Ob">无</button>
+          <button class="chip" data-v="bar-on" data-page-node-id="yoCFO3RJUAECkBuDLkQESe">上下横线</button>
+          <button class="chip" data-v="bar-box" data-page-node-id="Gxvcnk2GqGsta0G68q9b0D">方框</button>
+        </div>
+      </div></div>
+      <div class="row" data-page-node-id="JnGC6Bo89HZldLcjyH2e6Q"><div class="fld" data-page-node-id="OCm6HEC048O2ytS1pHGTTU">
+        <label class="fl" data-page-node-id="pQp4k3tj3lQFKTLO3dKBEL">主标题字号</label>
+        <div class="range-wrap" data-page-node-id="lunNgpNDb1yY0xjPvGcjhV"><input type="range" id="titleSize" min="18" max="96" step="1" data-page-node-id="MGzFKDcsEV2P4H2YauAgf8"><span class="range-val" id="titleSizeVal" data-page-node-id="QgcprSwCUv9Xw3YBLCIfnN"></span></div>
+      </div></div>
+    </div>
+  </details>
+
+  <details class="grp singleOnly" open data-page-node-id="2B8SKaQliSGTJzJSL5xer2">
+    <summary data-page-node-id="XzoSfdpzL7onptT74wsT6u">正文内容</summary>
+    <div class="grp-body" data-page-node-id="3sKLoJAHSfDgh955Apd1Mv">
+      <div class="row" data-page-node-id="Y2REiX2GGhLVD0X3Rbx4yV"><div class="fld" data-page-node-id="EA5xNHuu4hURXp9TWYZV2F">
+        <label class="fl" data-page-node-id="fN2S4JeedqopkDEYrOGJEw">正文（空一行＝新段落，**加粗**）</label>
+        <textarea id="body" style="min-height:150px" placeholder="在此输入广告正文…"></textarea>
+      </div></div>
+      <div class="row" data-page-node-id="Iev3tlBPlux0v4lvEXQOWW"><div class="fld" data-page-node-id="qUzh6EuIEbFX4oBWhklbUW">
+        <label class="fl" data-page-node-id="5Wc1CHRWttaIdR5hYiallj">分栏数</label>
+        <div class="chips" id="colsChips" data-page-node-id="MFX2mur7M5ZiLWReHmQyIB"></div>
+      </div></div>
+      <div class="row" data-page-node-id="xGmBYReH0zMAWm4YapEkTG"><div class="fld" data-page-node-id="rSmTPlgHIOHKtuKu7A5wMG">
+        <label class="fl" data-page-node-id="qEWZHP9UlIYWR4K7FTOvFu">正文字号</label>
+        <div class="range-wrap" data-page-node-id="5Bs5lVIqHl8HW1I0vxGyLQ"><input type="range" id="bodySize" min="8" max="22" step="0.5" data-page-node-id="1nLfHtpBO3RJhy1a1KAiX5"><span class="range-val" id="bodySizeVal" data-page-node-id="GONtSJxa2YB69CVB6w6OD2"></span></div>
+      </div></div>
+      <div class="row" data-page-node-id="isBrXWGMnxtNZzOcfO7kjw"><div class="fld" data-page-node-id="VB1PpwK0adlRWJ3H9GCdyE">
+        <label class="fl" data-page-node-id="JYBB8BFa4DKacXEZKTroCZ">行距</label>
+        <div class="range-wrap" data-page-node-id="5wG9j82j57ef4AELskm5cS"><input type="range" id="lineHeight" min="1.2" max="2.8" step="0.05" data-page-node-id="J4DaPizYYZDedmfYXDC3h7"><span class="range-val" id="lineHeightVal" data-page-node-id="1etZWm4VcNEkG1EiFyMyOz"></span></div>
+      </div></div>
+      <div class="row" style="gap:18px" data-page-node-id="yeHarJ74de3P1D3dQGK8nU">
+        <label class="sw" data-page-node-id="Ck0wVPlppjs1MAlFFjSNe6"><input type="checkbox" id="colRule" checked data-page-node-id="UK3IrC3DYG1TsHZqAJxEBI"><span data-page-node-id="gtj48dhGQYtTwRprna5Si0">栏间竖线</span></label>
+        <label class="sw" data-page-node-id="OUixMRohRR7RKffIojsGpL"><input type="checkbox" id="dropCap" data-page-node-id="YaRQyi9GpRBvumAODhCk6p"><span data-page-node-id="NsnbQg3h58PQ5pqJE94l9L">首字下沉</span></label>
+      </div>
+      <div class="row" data-page-node-id="CV5MttUz8FuBPV3E9WwaPm">
+        <label class="sw" data-page-node-id="HqLaSCli16juS7PGsFGog3"><input type="checkbox" id="justify" checked data-page-node-id="IyHL8uNRiOvowxOY9GQBDb"><span data-page-node-id="eFfW0jMpNhEolciahioTfv">两端对齐</span></label>
+      </div>
+    </div>
+  </details>
+
+  <!-- ==== 配图与裁切 ==== -->
+  <details class="grp singleOnly" data-page-node-id="r0Qw7HIEliuPfEiCaTyxe7">
+    <summary data-page-node-id="7pTUkpAxmSlU3FXeLZweCb">配图与裁切</summary>
+    <div class="grp-body" data-page-node-id="z7lLLk4MpWZzAQSKS3Jg5E">
+      <div class="row" data-page-node-id="LZgtX7uMb7CgnfDpss7DEJ">
+        <input type="file" id="imgFile" accept="image/*" style="font-size:12px;padding:5px;border:1px dashed var(--ui-line);border-radius:6px;width:100%;cursor:pointer" data-page-node-id="Sku4Por0z0K5oscXVspaV6">
+      </div>
+      <div class="row" data-page-node-id="aIC2rWdhMAKzgaLeNOlEe4"><div class="fld" data-page-node-id="gHn59eFOedAtXytFGfNbCM">
+        <label class="fl" data-page-node-id="dXI0RQx8pLFyFjSSDfUJgN">或填图片网址</label><input type="text" id="imgUrl" placeholder="https://…" data-page-node-id="gplhYtayiFmsGiBBQt7oJf">
+      </div></div>
+      <div class="row" data-page-node-id="N2Juvtf1M9bF8bdlymsw0Q"><div class="fld" data-page-node-id="ngCgqGMuqA2ylAQ9QMzVL4">
+        <label class="fl" data-page-node-id="oakMqgPL1dDODfrTboZ3r3">图片位置</label>
+        <div class="chips" id="imgLayout" data-page-node-id="P7m7Hh4FcYhkgO5OubBxuZ">
+          <button class="chip" data-v="none" data-page-node-id="srmG2fxxD9qyXQDgU8ZKAZ">无图</button>
+          <button class="chip" data-v="top" data-page-node-id="nb4GH4OPR1sm6bm3nVj2Lg">通栏上图</button>
+          <button class="chip" data-v="left" data-page-node-id="YucnzO3CVtB4UyLoiYERHp">左图右文</button>
+          <button class="chip" data-v="right" data-page-node-id="bGcZFqwtAhKGY9739fb0N5">右图左文</button>
+        </div>
+      </div></div>
+      <div class="row" id="imgWidthRow" data-page-node-id="vv6Axs5f6FKW23GHKqPgt2"><div class="fld" data-page-node-id="xM0ApU0AjWtlrSk4jjCMKT">
+        <label class="fl" data-page-node-id="ZPl3UT4BDCaBbqNjVfs1RH">左右排布时图片占宽</label>
+        <div class="range-wrap" data-page-node-id="sZvbb69U3qnnlOiJC1Q6r4"><input type="range" id="imgWidth" min="20" max="62" step="1" data-page-node-id="4SBOsG2vd0biceHl68gQJr"><span class="range-val" id="imgWidthVal" data-page-node-id="Ut1lM4JFg7uFtgxTKhzp3e"></span></div>
+      </div></div>
+
+      <div class="divider" data-page-node-id="LySyP8DYRECe0vwqfGERey"></div>
+
+      <div class="row" data-page-node-id="U1z3zs8pEAJ1jtFFu3N3tW">
+        <label class="sw" data-page-node-id="YstpDxsnVGKYG9FBeCCSLk"><input type="checkbox" id="imgCrop" checked data-page-node-id="BWjd4uGBMH1BrmCt1iIbrh"><span data-page-node-id="KrHB8FHUEgLyNyPxFqLTw8">开启裁切（按比例裁成固定形状）</span></label>
+      </div>
+      <div class="row cropRow" data-page-node-id="ilQbzAUUYFiQlYKQcLn8Pz"><div class="fld" data-page-node-id="fmACoa12NBvXo8f8dEsEjp">
+        <label class="fl" data-page-node-id="ZgkgbUbnvLQf5IYf6E9Vkx">裁切比例</label>
+        <div class="chips" id="imgRatio" data-page-node-id="2vEkSJKgRj3TDf5WeNgWRJ"></div>
+      </div></div>
+      <div class="row cropRow" data-page-node-id="psE2n92vSy0K2NxlOp6cpF"><div class="fld" data-page-node-id="1MTSXAfNn88rerLZdQREEV">
+        <label class="fl" data-page-node-id="ogSvU7wO8TERBnOGn32BGL">取景焦点 — 左右</label>
+        <div class="range-wrap" data-page-node-id="gW3GVRDJKMuUFAa4e6io04"><input type="range" id="focusX" min="0" max="100" step="1" data-page-node-id="NY73apBDjI3567wBKpQ3GK"><span class="range-val" id="focusXVal" data-page-node-id="DEFQSO4bmnMopVPw6labEh"></span></div>
+      </div></div>
+      <div class="row cropRow" data-page-node-id="A5FFXFfBeXTSUWKdqVUtAu"><div class="fld" data-page-node-id="6JNRwzu4HuR9MCs2e1EjmZ">
+        <label class="fl" data-page-node-id="brBDXuY3xHFedYfen47cHT">取景焦点 — 上下</label>
+        <div class="range-wrap" data-page-node-id="6OhF9LILDDtr2VDfdGaSYG"><input type="range" id="focusY" min="0" max="100" step="1" data-page-node-id="5OrjkwMoblVEpmCnskAGH0"><span class="range-val" id="focusYVal" data-page-node-id="wPcAFyiHTik8Z1g8RxHOaw"></span></div>
+      </div></div>
+      <div class="row cropRow" data-page-node-id="qcg69q4Tso8yUQh9q742iT"><div class="fld" data-page-node-id="dytS5AaVfSiRLNl2HPHXrs">
+        <label class="fl" data-page-node-id="oqung4lvMG0wETGtEAyA9Q">图片放大（裁切后微调）</label>
+        <div class="range-wrap" data-page-node-id="X70a8VnBln0SasHmXDE7il"><input type="range" id="imgZoom" min="1" max="2.5" step="0.02" data-page-node-id="8NEs3qZrQEqhsSn9bXsHno"><span class="range-val" id="imgZoomVal" data-page-node-id="FtNU7MDtgvktHaE2H7iVBk"></span></div>
+      </div></div>
+
+      <div class="row" data-page-node-id="7CIkQkuSf0qoKuCZcWeGRY"><div class="fld" data-page-node-id="kKi3JVCu81LjRxmPC6d8m6">
+        <label class="fl" data-page-node-id="GeLufIDDAA3iAWo7vuZtuU">图注</label><input type="text" id="caption" placeholder="图／店内实景" data-page-node-id="Xph7iQEHshYLTOuNNDSVlj">
+      </div></div>
+      <div class="row" style="gap:18px" data-page-node-id="oBRZox6xjFgvXRLB8Xi2Oo">
+        <label class="sw" data-page-node-id="ew9MiPCM9p2w0uYiqWyFqo"><input type="checkbox" id="picFrame" data-page-node-id="wl1xXOAxN4V6GA12eSKBsT"><span data-page-node-id="XeZCWrCsoMAd5z0xQMU099">加图框</span></label>
+        <button class="btn sm" id="btnClearImg" data-page-node-id="Oqxj09AGQGUOKo2mC1CdMm">移除图片</button>
+      </div>
+    </div>
+  </details>
+
+  <!-- ==== 分类拼版 ==== -->
+  <details class="grp clsOnly" open style="display:none" data-page-node-id="5p0qKFGaG0Eo04PJKqeXQS">
+    <summary data-page-node-id="sxGvKnd0hHPGs3CXi8jgII">版块标题</summary>
+    <div class="grp-body" data-page-node-id="oR71NBHf33Pgy26Qzu9bXL">
+      <div class="row" data-page-node-id="H6aNJC6NRYFVYCvtXBmhB2"><div class="fld" data-page-node-id="qmh9LfzWeB2DoMsVoPJ8vz">
+        <label class="fl" data-page-node-id="vbdm24LLFkE0IwFNXPBQsF">大标题</label><input type="text" id="clsTitle" placeholder="分类信息" data-page-node-id="RwfHobeOnGQirLcTVDMFQh">
+      </div></div>
+      <div class="row" data-page-node-id="wsTRnd9uJmqmXmxb9iGED5"><div class="fld" data-page-node-id="egh2dgUlEyzE1w9ympDEsn">
+        <label class="fl" data-page-node-id="GHrDD1G6WhuRnVcx1rEQrg">副标题</label><input type="text" id="clsSubtitle" placeholder="本期共 12 条 · 免费刊登" data-page-node-id="hQNOtXmwlkFnmBLB3SEsMg">
+      </div></div>
+    </div>
+  </details>
+
+  <details class="grp clsOnly" open style="display:none" data-page-node-id="E4KP6PwhdjL1eiSbxAoM9X">
+    <summary data-page-node-id="MOLs2jh27S1DvdB6jNNK91">拼版排布</summary>
+    <div class="grp-body" data-page-node-id="FFxeRZ32GG0ruAcTiFi6ve">
+      <div class="row" data-page-node-id="CDnPEAi33GFUgTZofNaUlX"><div class="fld" data-page-node-id="nat66SrAYbgL9Z629WUOC4">
+        <label class="fl" data-page-node-id="SLZvTt8BHlLUHzc3gdstvt">排布方式</label>
+        <div class="chips" id="clsFlow" data-page-node-id="cdmsc6Bv22UaP7LhXlJiIG">
+          <button class="chip" data-v="columns" data-page-node-id="zX9oletqNKHf2FoNQu7Iew">列式（像分类版）</button>
+          <button class="chip" data-v="grid" data-page-node-id="dJ5B7Au1zJqHaE3kTV48qO">网格（可跨列）</button>
+        </div>
+      </div></div>
+      <div class="row" data-page-node-id="p9iD8YbtFLEHeQ23EJJued"><div class="fld" data-page-node-id="7B2IECjR9DpDYVfgGyacZb">
+        <label class="fl" data-page-node-id="4vBlO5SttRLFVvJSiYf8sN">列数</label>
+        <div class="chips" id="clsColsChips" data-page-node-id="zZ9V1RIRLuWQoMoaBgoDqC"></div>
+      </div></div>
+      <div class="row" data-page-node-id="hPP0ETH0WJjwajKjVXGLpR"><div class="fld" data-page-node-id="UMIoOVFWB1BkNJDzoIIqPI">
+        <label class="fl" data-page-node-id="hDuRTMU7ZKNsD8dSEhpZIH">横向间距</label>
+        <div class="range-wrap" data-page-node-id="CQ6YkffXxMfQpkpCAvowbJ"><input type="range" id="clsGap" min="8" max="48" step="1" data-page-node-id="TemIqLXZx5kBTc7bmJ1yiN"><span class="range-val" id="clsGapVal" data-page-node-id="AHIWcFEfLZFDlyQKcmRQGG"></span></div>
+      </div></div>
+      <div class="row" data-page-node-id="2guuchDGNCWwHm4uS1IcZm"><div class="fld" data-page-node-id="CHHahDCszGgIuU6YFTiGlR">
+        <label class="fl" data-page-node-id="5X59YtCqvUrO140HoCsgb6">条目间距</label>
+        <div class="range-wrap" data-page-node-id="BhuytGDwYkUKw19t0vym8f"><input type="range" id="clsGapY" min="4" max="40" step="1" data-page-node-id="G39MQQHCEOTUlCmlyqH3XB"><span class="range-val" id="clsGapYVal" data-page-node-id="NHL7iRfXJxw1hakD5YVHps"></span></div>
+      </div></div>
+      <div class="row" data-page-node-id="14A9lRvNEmuKbnzb1j9tvX"><div class="fld" data-page-node-id="bhj4GFVQwe70XsUjYLGlLb">
+        <label class="fl" data-page-node-id="uERUtoDQixGe4Lcd4XAmpB">列间线（列式排布时）</label>
+        <div class="chips" id="clsRule" data-page-node-id="n1Z5HH3jAlAQZz3lC4u3V8">
+          <button class="chip" data-v="none" data-page-node-id="Q2qSyqtRagjz2oBsQQCNNK">无</button>
+          <button class="chip" data-v="line" data-page-node-id="NsGfGQhot4ZTFOorrUjdTG">实线</button>
+          <button class="chip" data-v="dash" data-page-node-id="wTLqUVcOOZJIHMOtzdRus0">虚线</button>
+        </div>
+      </div></div>
+      <div class="row" data-page-node-id="yBGCGUhXQj7UXpHbgXXDUm"><div class="fld" data-page-node-id="gXcVtrIFx0aBA5NihzqTjq">
+        <label class="fl" data-page-node-id="HhOoSeYUheAmg2HOyB1skt">单条样式</label>
+        <div class="chips" id="clsCard" data-page-node-id="6R8U2OxA9CSA6Myy9qqaiq">
+          <button class="chip" data-v="line" data-page-node-id="aQU0v5ZIqoSiUHhm0ZDIrz">下划线</button>
+          <button class="chip" data-v="dashed" data-page-node-id="m2mhuM1NaxNQGjDVFvet5t">虚线下划线</button>
+          <button class="chip" data-v="box" data-page-node-id="7735el2hW2JcbRxZuFEFPb">方框</button>
+          <button class="chip" data-v="tint" data-page-node-id="yYKFjCKQpiF13t3ULLGTLb">左侧色条</button>
+          <button class="chip" data-v="none" data-page-node-id="pnuKxeVNfQCO25IVrFuspD">无框</button>
+        </div>
+      </div></div>
+      <div class="row" style="gap:18px" data-page-node-id="EiAPE0zQEXrnMxtjXbAEhs">
+        <label class="sw" data-page-node-id="zAxI3xYxvWBw5UPYa1MhDP"><input type="checkbox" id="clsShowTag" checked data-page-node-id="P95xi76Mbp8YWDosAx1Hgi"><span data-page-node-id="c1FW9uEXP6gDXXCTlPtMfJ">显示分类标签</span></label>
+        <label class="sw" data-page-node-id="IxR19nx8wgOYJmcn86PPYg"><input type="checkbox" id="clsShowP" checked data-page-node-id="jeb9m81kZNVLZ7IP1CPOGh"><span data-page-node-id="H8Q3lEcBqYhrLiOemd84OZ">显示电话</span></label>
+      </div>
+    </div>
+  </details>
+
+  <details class="grp clsOnly" open style="display:none" data-page-node-id="mNSeLwrcnWSiSTZQ8bUfnO">
+    <summary data-page-node-id="TjxnbXLyrguDstA2F2jcD2">小广告条目 <span class="grp-extra" id="clsCount" data-page-node-id="tV4BjMOJgJv9Y5dkQL5cR0">(0)</span></summary>
+    <div class="grp-body" data-page-node-id="lhrqe59al7SHdziw9IaHeB">
+      <div id="clsList" data-page-node-id="8JlXxZMFwuSntikjmL2Zkj"></div>
+      <button class="btn block" id="btnAddCls" style="margin-top:10px" data-page-node-id="dYQMe3PirU4aJY3sdUjwdb">+ 添加一条</button>
+      <div class="divider" data-page-node-id="6OUg7xtWtunKtpLJ2IULJ0"></div>
+      <div class="row" data-page-node-id="y4CEHYLXZQqiFFJ7zSI7zx"><div class="fld" data-page-node-id="GfdlcQxWPGtBqWfsGjL709">
+        <label class="fl" data-page-node-id="fW0pKszt4uRTjNIdLXckgQ">批量粘贴（每行一条，用竖线或制表符分隔）</label>
+        <textarea class="bulk-area" id="bulkArea" placeholder="标签|标题|正文|电话&#10;招聘|诚聘生产主管|三年以上经验，熟悉排产与工时测算|138-0000-0000&#10;出租|中山路两房一厅|60㎡，家电齐全，拎包入住|159-0000-0000"></textarea>
+      </div></div>
+      <div class="row" data-page-node-id="iwasibnXlTquMNYrfLclll">
+        <button class="btn sm" id="btnBulkAdd" data-page-node-id="8D2ENxv8Cbo5fnyyZKcg2v">追加导入</button>
+        <button class="btn sm" id="btnBulkReplace" data-page-node-id="qcqh2HIDgW3Fa2PwjMnKOi">覆盖导入</button>
+        <button class="btn sm" id="btnBulkOut" data-page-node-id="aOHD2JehDs55yx4IGzYwR8">导出文本</button>
+      </div>
+      <div class="mini-note" data-page-node-id="Kwcf19uRyQ2sVUQbSjHrsB">
+        可在 Excel 里按 <b data-page-node-id="lwyIcGDQFc05h3NbQkSJ3B">标签 / 标题 / 正文 / 电话</b> 四列维护，复制后整块粘进来即可，
+        竖线或制表符都能识别；行首加 <b data-page-node-id="8EFtET6e79mVwjFfFiqUvU">#</b> 可当注释跳过。
+      </div>
+    </div>
+  </details>
+
+  <!-- 底栏 -->
+  <details class="grp" data-page-node-id="ieQAHFZIbYCVoZFpKGEwiN">
+    <summary data-page-node-id="B9yE19dkvM8WXHSGyCxzFh">底栏信息</summary>
+    <div class="grp-body" data-page-node-id="RsBtwN9MqV9QAnC2EYuIng">
+      <div class="row" data-page-node-id="GRzjo0qowSc2N47oZGaoLA"><div class="fld" data-page-node-id="UlxKiq7ZmRo0td7PQfz8vm">
+        <label class="fl" data-page-node-id="RRVjSWq96Sr5sXCJwMW0jM">地址</label><input type="text" id="addr" placeholder="泉州市鲤城区中山路 88 号" data-page-node-id="czbwgf9nlj9K9zLfhx6igA">
+      </div></div>
+      <div class="row" data-page-node-id="0m5x4SJra8uHboHfNlP7Xe"><div class="fld" data-page-node-id="GVAFjdWnwlKf5wzWzSTH9B">
+        <label class="fl" data-page-node-id="Mx9zlkpGZsIDMFvpzoSXix">电话</label><input type="text" id="tel" placeholder="0595-8888 8888" data-page-node-id="h8OT5iTgDCWLfMyqGXlRYj">
+      </div></div>
+      <div class="row" data-page-node-id="oJsHCX5jIiUW7KZVlyZBh0"><div class="fld" data-page-node-id="9OONTxhPWDpYyfqBXgqqVU">
+        <label class="fl" data-page-node-id="TQS80HjmCHQoO9PntJsjwn">补充信息</label><input type="text" id="extra" placeholder="微信同号 · 营业时间 9:00-22:00" data-page-node-id="qDBw4sNibNDbuN73CcG3Df">
+      </div></div>
+      <div class="row" data-page-node-id="Bjh8ohcKXUyCwW9sx8JJFq"><div class="fld" data-page-node-id="GJgfWJVNjGduMj96VKr7av">
+        <label class="fl" data-page-node-id="BA0EvIMcySXXjI1nClxm9y">页脚小字</label><input type="text" id="tail" placeholder="本广告最终解释权归本店所有" data-page-node-id="aANAPJjzHeitZ2dljcFjvD">
+      </div></div>
+    </div>
+  </details>
+
+  <!-- 外观 -->
+  <details class="grp" open data-page-node-id="vuABCrZnAhTBslIzQoLqbl">
+    <summary data-page-node-id="cgU1hIc6MeLQ78RaSV8GUh">版面外观</summary>
+    <div class="grp-body" data-page-node-id="GCNwXjT6CNQDTNG3tgjGDA">
+      <div class="row" data-page-node-id="Ij8FgMOmu7vXoA2ZDRHHko"><div class="fld" data-page-node-id="BxYtog5bzEJ9RKcjemoqpu">
+        <label class="fl" data-page-node-id="qm15h9sKBAhj4bi4xKB4OW">正文字体</label>
+        <select id="bodyFont" data-page-node-id="pDNd4QPWwGPQvnKpSOamvO">
+          <option value="song" data-page-node-id="LKQFeLLIHemCXSllueqbjB">宋体（报纸正文常用）</option>
+          <option value="hei" data-page-node-id="K4Da0q90ZB25kOuIXNIZ0Q">黑体</option>
+          <option value="kai" data-page-node-id="24OSZbbja1NES4REUXk1um">楷体</option>
+          <option value="fang" data-page-node-id="oZCNzj6JYgKjscureBhWvW">仿宋</option>
+          <option value="yahei" data-page-node-id="jRGr9tMTUn1uEVaR7IxpSP">微软雅黑</option>
+        </select>
+      </div></div>
+      <div class="row" data-page-node-id="Wo7fRxTUVlTNiPQsUOCY0x"><div class="fld" data-page-node-id="xs9AZxk1PS3quOW3l0v3Eo">
+        <label class="fl" data-page-node-id="AXiKAnS80aXZZQgz4vCwAa">标题字体</label>
+        <select id="titleFont" data-page-node-id="ED7prg4NXwjQDJCqjQ3FNw">
+          <option value="hei" data-page-node-id="qoc3VqJXFt6Oohyl3NOj1g">黑体（醒目）</option>
+          <option value="song" data-page-node-id="3m3jFbWmeQWo2gmoRNO16O">宋体（端庄）</option>
+          <option value="kai" data-page-node-id="1oO0jnMPYT2LNNcuhBmOhJ">楷体</option>
+          <option value="fang" data-page-node-id="NrZPx8HpeSlDD8384mDLdH">仿宋</option>
+          <option value="yahei" data-page-node-id="tfeaLqHasHM1ahisHLUx0z">微软雅黑</option>
+        </select>
+      </div></div>
+      <div class="row" data-page-node-id="Tk0vNDfqrdWJNkEswBLiJP"><div class="fld" data-page-node-id="7qnsgoZ6pOBGYEKc6j3eKp">
+        <label class="fl" data-page-node-id="q3L6odf8itflNinxF6T1fU">纸张底色</label>
+        <div class="chips" id="paperTex" data-page-node-id="URQOBEfbIStyxIEu0XgMlG">
+          <button class="chip" data-v="white" data-page-node-id="YcOR0tkzjMrdfrfvvhGoy7">纯白</button>
+          <button class="chip" data-v="cream" data-page-node-id="4YeZu3Z5GY385ca0mAT8RZ">报纸米黄</button>
+          <button class="chip" data-v="aged" data-page-node-id="pK7hRVjyMYEr6YXhdAZzZH">做旧泛黄</button>
+        </div>
+      </div></div>
+      <div class="row" data-page-node-id="TqRmMB09AA3r9kORZ8S6aF"><div class="fld" data-page-node-id="WCPeYRDJcnCGuXVtnEBHMO">
+        <label class="fl" data-page-node-id="GGfyJ7c0mBKK5p3HEX1niW">页边框线</label>
+        <div class="chips" id="frameChips" data-page-node-id="2PTXZqj5AEBurr3d5hBFFv"></div>
+      </div></div>
+      <div class="row" data-page-node-id="5xbe3GePSczioWra1165yE"><div class="fld" data-page-node-id="aZfYjsbImpUXzEDOIS3t2t">
+        <label class="fl" data-page-node-id="eUpA6BjDq3ycSqTEU8qAUR">版心内边距</label>
+        <div class="range-wrap" data-page-node-id="XgjoOsT0ZJeFrFMhA8p3SM"><input type="range" id="padY" min="12" max="70" step="1" data-page-node-id="Om6EVAcfI6veIgwAOhhmB1"><span class="range-val" id="padYVal" data-page-node-id="XgHZMuUDV3bq4H1wlic9Ku"></span></div>
+      </div></div>
+      <div class="row" data-page-node-id="IYmdF0R8WKXBna8HR5Myq8"><div class="fld" data-page-node-id="zo8mnUFWAiUWQdAw3UZF0a">
+        <label class="fl" data-page-node-id="d9oNq1MoiURdHSpYhtaWCC">全局字号微调</label>
+        <div class="range-wrap" data-page-node-id="nQ9MReERLbhG5BBr4VlU9h"><input type="range" id="fontScale" min="0.7" max="1.6" step="0.02" data-page-node-id="u9TPvlzVuCLWOdasLpcc0J"><span class="range-val" id="fontScaleVal" data-page-node-id="lQdptlyrsc6yYHGaqLG75r"></span></div>
+      </div></div>
+      <div class="row" data-page-node-id="CN404NXITCJBjKDYccdDSl"><div class="fld" data-page-node-id="8BECLfFHSphFYsAOckJq3k">
+        <label class="fl" data-page-node-id="HkbhwQFKG9zAJpoCc5aW8B">预览缩放</label>
+        <div class="range-wrap" data-page-node-id="GQFMF9r1vmVyS5kCAAAFmC"><input type="range" id="zoom" min="0.2" max="1.6" step="0.01" data-page-node-id="5SyMZt8L4bNY5oynMcrEOe"><span class="range-val" id="zoomVal" data-page-node-id="u21B4yBk17yjoxUsF8Iavc"></span></div>
+      </div></div>
+      <button class="btn sm" id="btnActual" data-page-node-id="KDiSzMlJurYSayHCFQeofY">缩放 100%</button>
+    </div>
+  </details>
+
+  <!-- 印章 -->
+  <details class="grp" data-page-node-id="bpSVO09k4Nc9qHk3Ik9UML">
+    <summary data-page-node-id="6rEGUQEvNg5NkfEeAihQgc">印章角标</summary>
+    <div class="grp-body" data-page-node-id="DpXndBHdDRSY8bRCjc79vD">
+      <div class="row" data-page-node-id="sFWB0l7BsxpTeiOQ2RQ9dB"><label class="sw" data-page-node-id="OMsbOzAJWNHJZCmt32TB3v"><input type="checkbox" id="sealOn" checked data-page-node-id="jwpSdile1NpCzcLXTjXzbC"><span data-page-node-id="SWSEXZccxq3UONEMGbl6ql">显示印章</span></label></div>
+      <div class="row" data-page-node-id="EXpO1iaVLfgSak7w2nUYCk">
+        <div class="fld" data-page-node-id="UjRGgoMqOx9hHxjD3RanQJ"><label class="fl" data-page-node-id="1pA0MfG45jQy1VepalN5Jg">印章文字</label><input type="text" id="sealText" placeholder="特价" data-page-node-id="Jnu5ZCcKH1oBzDXt8Y0Wp6"></div>
+        <div class="fld" style="flex:0 0 92px" data-page-node-id="ixTwGsgCk3aLjaAnoYff0V"><label class="fl" data-page-node-id="uOXPFdYp06omiLKGBLClyu">颜色</label>
+          <select id="sealColor" data-page-node-id="4ZdyP6p3TNUikWIxBrfooR">
+            <option value="#c0392b" data-page-node-id="TPEBOS3sq5B2JY9l8r5KDZ">印泥红</option>
+            <option value="#8b1a1a" data-page-node-id="NJhRucdyn7oWklgHAlLsUp">深红</option>
+            <option value="#1a1a1a" data-page-node-id="KaexpuzgEJWCyS5HPCo4Ey">墨黑</option>
+            <option value="#1b5e8a" data-page-node-id="jR75auokNqf9DhEANHQUgB">靛蓝</option>
+          </select>
+        </div>
+      </div>
+      <div class="row" data-page-node-id="YO6lSRC7GaIYNdz0Ihybpj"><div class="fld" data-page-node-id="ugZa6RKmIEDTgiOqTbYGq8">
+        <label class="fl" data-page-node-id="oQvC4sYIAW5Zf1aCvJmyID">印章形状</label>
+        <div class="chips" id="sealShape" data-page-node-id="KIaJyOXcZKVr4YX5doNR7H">
+          <button class="chip" data-v="circle" data-page-node-id="8miM3n1NaJpn7vxHob3T5U">圆章</button>
+          <button class="chip" data-v="square" data-page-node-id="zOtpbh4yqO8ym4NZJdm5K6">方章</button>
+          <button class="chip" data-v="banner" data-page-node-id="GDJTrOlSMid9A6L8A3yCxi">色带</button>
+        </div>
+      </div></div>
+      <div class="row" data-page-node-id="fLKZNJyBY7opWnoy6j6vjj"><div class="fld" data-page-node-id="KiYBTiUiQumyw8GSw5bRYt">
+        <label class="fl" data-page-node-id="XHL0DFK9EjaPXIYffL9zD9">距右</label>
+        <div class="range-wrap" data-page-node-id="bBAEER95qFSVIITU4uvvJh"><input type="range" id="sealX" min="-60" max="900" step="2" data-page-node-id="H9mZyQkijAr9XpupVyz0GW"><span class="range-val" id="sealXVal" data-page-node-id="or8DhFq02OApuRWjp7Kc56"></span></div>
+      </div></div>
+      <div class="row" data-page-node-id="g0IzL4OeWy9MUYil0Qskd2"><div class="fld" data-page-node-id="qKaJjcIVrnogkEZH4xNbYm">
+        <label class="fl" data-page-node-id="FLdz7DVjZSNKPlLrMJc2u1">距顶</label>
+        <div class="range-wrap" data-page-node-id="QIsuAvZ3uoftyf19Kc9FS3"><input type="range" id="sealY" min="60" max="1400" step="2" data-page-node-id="VxTrh1KGUzyxvCWiHbklf0"><span class="range-val" id="sealYVal" data-page-node-id="6YvPM5Az73I0DGjk3DgT7h"></span></div>
+      </div></div>
+      <div class="row" data-page-node-id="pBScBtgsncWKyl2ptEI4sb"><div class="fld" data-page-node-id="27EN7YoKU9N7DbRwXACcL0">
+        <label class="fl" data-page-node-id="VGHGdBCgi3akTz2oWjdHIH">倾斜角度</label>
+        <div class="range-wrap" data-page-node-id="s69xpjUwIya4BmRKCQ6PJj"><input type="range" id="sealRot" min="-40" max="40" step="1" data-page-node-id="u8Ng1DeS94LYzis4eEGyUH"><span class="range-val" id="sealRotVal" data-page-node-id="hoFleLiTpoCDZPGOwSDIxb"></span></div>
+      </div></div>
+    </div>
+  </details>
+
+</aside>
+
+<!-- ============================================================
+     右侧纸张预览
+     ============================================================ -->
+<section class="stage" id="stage" data-page-node-id="5tMNRb6I1Mfu1A2mf5nOj0">
+  <div class="paper" id="paper" data-page-node-id="qkvXWdJfpIcxZjxmaDbXc6">
+
+    <div class="seal" id="seal" data-page-node-id="aJCTctF72uB7f5SBKJxaGy"></div>
+
+    <header class="masthead" id="mastheadBlock" data-page-node-id="9ZSoyr7VkpYzsoeOCiXyBU">
+      <div class="mh-name" id="mhName" data-page-node-id="CujbdF0TY7KATnnhA04vJa"></div>
+      <div class="mh-meta" data-page-node-id="lGkmnNk0DckQH6jUYKXdfq">
+        <span id="mhIssue" data-page-node-id="eItTn69fkvFXjraIm7HbV5"></span>
+        <span id="mhDate" data-page-node-id="KUdRubyvIXD3j76q0xCXpi"></span>
+        <span id="mhSection" data-page-node-id="IzDMwcgJxG5L34bVzWzcbg"></span>
+      </div>
+      <div class="mh-rule" data-page-node-id="88qSbFx1IvoxerlbEx3PuO"></div>
+      <div class="mh-rule2" data-page-node-id="WSpSnwMNU4VSziHE6BNpXM"></div>
+    </header>
+
+    <!-- 单条广告 -->
+    <div id="singleBlock" data-page-node-id="15kowKYpf9rIevwoMbvGBl">
+      <div class="kicker" id="kickerOut" data-page-node-id="sE5OrKNdOMaBAFV8jIEv7f"></div>
+      <h1 class="headline" id="headlineOut" data-page-node-id="jAohvxBfQcTnAu1qjsPZDc"></h1>
+      <div class="subhead" id="subheadOut" data-page-node-id="25cq86YATTWAIr6h02Jtgy"></div>
+      <div class="slogan" id="sloganOut" data-page-node-id="Q1IE6Kyh5UPQBdKikMpKTP"></div>
+      <hr class="hrule" id="hruleOut" data-page-node-id="4eJTe6sQ8ZQu15zEOggDu9">
+
+      <div class="flow" id="flow" data-page-node-id="w6KQ09MCnidtPwBl085ZQK">
+        <figure class="pic" id="figOut" style="display:none" data-page-node-id="GUFZ66Km2a4DATiacIds2H">
+          <div class="pic-box" data-page-node-id="InKFpzG5wU8t5v7Fq2z2Zz">
+            <img id="picImg" alt="" data-page-node-id="YQK0OYTvQJJ2gB3yXDnAeW">
+          </div>
+          <figcaption id="picCap" data-page-node-id="MvjJJGhz3P7Q0CSZ2wBFiK"></figcaption>
+        </figure>
+        <div class="flow-text" data-page-node-id="iZJdXN27eCz1mjRrwAhPgM">
+          <div class="body-cols" id="bodyOut" data-page-node-id="BAgT3rTGFDca2cMHhqhUdW"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 分类拼版 -->
+    <div id="clsBlock" style="display:none" data-page-node-id="kA4qgPhCK25iLIqNYlBg85">
+      <div class="cls-head" data-page-node-id="K5zkNtmFzz3GMlaDPb7BWE">
+        <div class="cls-head-t" id="clsHeadT" data-page-node-id="L9SrL9EQUHMRKHCRHK2scH"></div>
+        <div class="cls-head-s" id="clsHeadS" data-page-node-id="294cDDMNQFMiKiCy2d46CY"></div>
+      </div>
+      <div class="cls-cols" id="clsCols" data-page-node-id="UrN3pUZ3mYBJYJAKFOVOgE"></div>
+    </div>
+
+    <footer class="colophon" id="colophon" data-page-node-id="bDiwyEbMhywA9p5uXdHAMi">
+      <div class="cp-rule" data-page-node-id="zOjCBA64pRLQpvFVIPJAD8"></div>
+      <div class="cp-rule2" data-page-node-id="utLOPEKQO88E6NZFFYC7VI"></div>
+      <div class="cp-body" data-page-node-id="ltXUpNaUqEks5om53KNPJN">
+        <div class="cp-item" id="cpAddr" data-page-node-id="KwvFgNiUWEp1CiQWLzlCrb"><span class="k" data-page-node-id="gLMFEyQ15squLtB43Hre2T">地址</span><span class="v" data-page-node-id="F3EvmjyhD5UmuASmTX9bq2"></span></div>
+        <div class="cp-item" id="cpTel" data-page-node-id="s7LcGLAUTH4VbaP210RBUe"><span class="k" data-page-node-id="ZnJpzY2KtTiE5BB5sAy9iL">电话</span><span class="v" data-page-node-id="Uc3WGkSigCJ3st1rxu8bAJ"></span></div>
+        <div class="cp-item" id="cpExtra" data-page-node-id="F408nZJfvo9YIVdP3c8UxE"><span class="k" data-page-node-id="YoUC5i77IEiXbQt4xCNeCM">备注</span><span class="v" data-page-node-id="BHLNAm6S1uovVrISLlyWwg"></span></div>
+      </div>
+      <div class="cp-tail" id="cpTail" data-page-node-id="PdB3Tczgzo7g3x6nF3JCE5"></div>
+    </footer>
+
+  </div>
+</section>
+</div>
+
+<div class="statusbar" data-page-node-id="ej0JOVcCrQQWFilsoWkx5I">
+  <span data-page-node-id="U53UFkdMauRXo8aG4bOL5F"><span class="dot" data-page-node-id="slKzdcINgImmyB34xnbyUY"></span>实时排版中</span>
+  <span data-page-node-id="D4EqUm78yHEDlfkUXdx5yk">模式 <b id="sbMode" data-page-node-id="H38Aq5scqll4NeuTUNOF16">单条</b></span>
+  <span data-page-node-id="N21maALBvfKVq1mU6vVk9c">尺寸 <b id="sbSize" data-page-node-id="Ak139k4MDnJGq99ZHZG40E">—</b></span>
+  <span data-page-node-id="24beOa7c1FbCePjuHxy5hS">分栏 <b id="sbCols" data-page-node-id="xPB3ULDbcOlDHi4oUKHRtE">2</b></span>
+  <span data-page-node-id="ibmm6Fu6P7VF9iD9xfJMHd">字号 <b id="sbBody" data-page-node-id="VrF6tYB7q3nNPDTevc5v2x">13</b></span>
+  <span id="sbExtra" data-page-node-id="JdAwTN6gGxOSC4J2Sb7H8q">字数 <b id="sbWords" data-page-node-id="o6Kg1oGHjiyty4SXb9Gkl2">0</b></span>
+  <span class="sb-spacer" data-page-node-id="gHvBZbbnOgJYLPg2M3HTw3"></span>
+  <span id="sbHint" data-page-node-id="zTGqMkKMDL3Wqa6mN8mvbf">改动自动保存于本机浏览器</span>
+</div>
+
+<div class="toast" id="toast" data-page-node-id="IzfPf2kVXIDEVArfxvuhTs"></div>
+
+<script>
+/* ================================================================
+   报纸广告排版台 —— 脚本
+   分区：
+     A. CONFIG   可调常量（字体 / 开数 / 比例 / 模板 / 示例）
+     B. STATE    状态对象
+     C. RENDER   渲染与表单回填
+     D. BIND     表单事件绑定
+     E. CLS      分类拼版条目管理
+     F. ACTION   模板 / 存读 / 导出 / 打印
+     G. INIT     启动
+   ================================================================ */
+(function(){
+"use strict";
+
+/* ================= A. CONFIG ================= */
+
+/* 字体表：想换字体栈改这里 */
+var FONTS = {
+  song:'"Songti SC","SimSun","宋体",serif',
+  hei:'"Heiti SC","SimHei","黑体","Microsoft YaHei",sans-serif',
+  kai:'"Kaiti SC","KaiTi","楷体","STKaiti",serif',
+  fang:'"FangSong","仿宋","STFangsong",serif',
+  yahei:'"Microsoft YaHei","微软雅黑",sans-serif'
+};
+
+/* 开数表：单位 mm，内部按 96dpi 换算（1mm ≈ 3.7795px） */
+var MM2PX = 3.7795275591;
+var PAPER = [
+  {key:'a5',  name:'A5 竖',   w:148, h:210},
+  {key:'a4',  name:'A4 竖',   w:210, h:297},
+  {key:'a3',  name:'A3 竖',   w:297, h:420},
+  {key:'a2',  name:'A2 海报', w:420, h:594},
+  {key:'a4l', name:'A4 横',   w:297, h:210},
+  {key:'a3l', name:'A3 横',   w:420, h:297},
+  {key:'s4',  name:'四开报',  w:390, h:540},
+  {key:'custom', name:'自定义', w:210, h:297}
+];
+
+/* 裁切比例 */
+var RATIOS = [
+  {key:'free', name:'原比例', a:null, b:null},
+  {key:'1:1',  name:'1:1',    a:1,    b:1},
+  {key:'4:3',  name:'4:3',    a:4,    b:3},
+  {key:'3:2',  name:'3:2',    a:3,    b:2},
+  {key:'16:9', name:'16:9',   a:16,   b:9},
+  {key:'3:4',  name:'3:4',    a:3,    b:4},
+  {key:'2:3',  name:'2:3',    a:2,    b:3},
+  {key:'21:9', name:'21:9',   a:21,   b:9}
+];
+
+/* 页边框样式 */
+var FRAMES = [
+  {key:'none',  name:'无'},
+  {key:'thin',  name:'细线'},
+  {key:'double',name:'双线'},
+  {key:'thick', name:'粗黑框'},
+  {key:'ornate',name:'花边'}
+];
+
+/* 新建小广告条目的默认值 */
+var NEW_ITEM = {tag:'', t:'新条目标题', b:'', p:'', span:1};
+
+/* ---- 单条广告模板 ---- */
+var TPL = {
+  promo: {
+    kicker:'限时特惠 · 错过等一年', headline:'年中大促 全场五折起',
+    subhead:'精选好物 · 数量有限', slogan:'满 300 减 100', sloganStyle:'bar-box',
+    body:'活动期间，店内所有商品参与折扣，部分爆款低至五折。**会员再享折上折**，结算时出示会员码即可。\n\n线上线下同步开售，同款同价。下单后 48 小时内发货，城区当日达。\n\n售完即止，先到先得。',
+    sealText:'五折', sealColor:'#c0392b', sealShape:'circle',
+    frame:'thick', paperTex:'cream', cols:2
+  },
+  open: {
+    kicker:'开业庆典 · 隆重登场', headline:'新店开业 全场八折',
+    subhead:'诚意满满 · 欢迎光临', slogan:'开业三天 好礼相送', sloganStyle:'bar-on',
+    body:'经过数月筹备，新店于本月正式对外营业。**开业头三天全场八折**，进店即赠伴手礼一份。\n\n店内环境宽敞明亮，品类齐全，服务人员均已接受专业培训，随时为您提供选购建议。\n\n欢迎新老朋友到店参观选购。',
+    sealText:'开业', sealColor:'#c0392b', sealShape:'circle',
+    frame:'double', paperTex:'cream', cols:2
+  },
+  hire: {
+    kicker:'人才招聘', headline:'诚聘英才 共谋发展',
+    subhead:'多个岗位 · 待遇从优', slogan:'五险一金 带薪年假', sloganStyle:'bar-on',
+    body:'因业务扩展需要，现面向社会公开招聘以下岗位：\n\n**一、生产主管（2 名）**：大专及以上学历，三年以上制造业现场管理经验，熟悉排产与工时测算。\n\n**二、设备维护（3 名）**：机电相关专业，持电工证优先，能适应两班倒。\n\n**三、质检员（5 名）**：细心负责，有制造业质检经验者优先。\n\n有意者请携带身份证、学历证明到厂区人事部面试。',
+    sealText:'招聘', sealColor:'#1a1a1a', sealShape:'square',
+    frame:'thin', paperTex:'white', cols:2
+  },
+  notice: {
+    kicker:'声明公告', headline:'关于业务调整的公告',
+    subhead:'自即日起执行', slogan:'', sloganStyle:'plain',
+    body:'为进一步优化服务流程，自即日起，本公司部分业务窗口及营业时间作如下调整：\n\n一、营业时间调整为每日 9:00 至 18:00，周末照常。\n\n二、原受理地址不变，新增线上办理渠道，可通过官方公众号提交材料。\n\n三、此前已受理的业务不受影响，按原流程办结。\n\n如有疑问，请致电咨询。感谢理解与支持。',
+    sealText:'公告', sealColor:'#1a1a1a', sealShape:'square',
+    frame:'thin', paperTex:'white', cols:2
+  },
+  house: {
+    kicker:'城央新盘 · 耀世启幕', headline:'江景现房 即买即住',
+    subhead:'建面 89-143㎡ 三至四房', slogan:'首付 15 万起 车位赠送', sloganStyle:'bar-on',
+    body:'项目位于城东核心地段，紧邻江滨公园，周边学校、商超、医院配套齐全。**现房销售，交房即办证**。\n\n户型方正，南北通透，层高 3.1 米，赠送入户花园。小区内配建幼儿园与健身会所。\n\n本月到访另有购房大礼包，数量有限。',
+    sealText:'现房', sealColor:'#8b1a1a', sealShape:'circle',
+    frame:'double', paperTex:'cream', cols:2
+  },
+  recruit: {
+    kicker:'秋季班火热招生中', headline:'少儿书法班 免费试听',
+    subhead:'小班教学 · 名师授课', slogan:'前 20 名报名送全套文具', sloganStyle:'bar-box',
+    body:'本中心专注少儿书法教育十年，采用 6 人小班制，从执笔坐姿到笔画结构，逐字示范、逐个辅导。\n\n**每周六日上午开课，每课时 90 分钟**。开课首月免费试听，满意再缴费。\n\n同期开设硬笔、国画、拼音辅导等课程，可连报优惠。',
+    sealText:'招生', sealColor:'#c0392b', sealShape:'circle',
+    frame:'ornate', paperTex:'cream', cols:2
+  }
+};
+
+/* ---- 示例：单条广告 ---- */
+var SAMPLE_SINGLE = {
+  masthead:'泉州商讯', issue:'128', dateText:'2026年9月16日', section:'广告版', showMasthead:true,
+  kicker:'开业庆典 · 隆重登场', headline:'老字号新开张\n全场八折惠全城',
+  subhead:'三十年老手艺 · 只在中山路这一家',
+  slogan:'全场八折 仅限三天', sloganStyle:'bar-on', titleSize:52,
+  body:'金秋九月，位于中山路的老铺子正式重装开业。三十年来，我们只做一件事——把每一件小物件做到经得起细看。**开业头三天，全场商品一律八折**，进店另有伴手礼相赠。\n\n本次重装，店面扩大到原来的两倍，新增了手工体验区与老物件陈列区。你可以坐下来，看着老师傅一锤一凿地做完手上那件活儿，也可以亲手试上一试。\n\n开业期间同步开放预订通道，城区内满 200 元免费配送，隔日送达。老客户凭旧会员卡到店，可再领一份周年纪念礼。\n\n数量有限，售完即止。欢迎新老朋友到店坐坐，喝杯茶，看看货。',
+  cols:2, bodySize:13.5, lineHeight:1.95, colRule:true, dropCap:false, justify:true,
+  imgData:'', imgUrl:'', imgLayout:'none', imgWidth:38, caption:'图／店内实景', picFrame:false,
+  imgCrop:true, imgRatio:'free', focusX:50, focusY:50, imgZoom:1,
+  addr:'泉州市鲤城区中山路 88 号', tel:'0595-8888 8888',
+  extra:'微信同号 · 营业 9:00-22:00', tail:'本广告最终解释权归本店所有',
+  bodyFont:'song', titleFont:'hei', paperTex:'cream', frame:'double',
+  paperKey:'a4', paperW:794, paperH:1123, customW:210, customH:297,
+  padY:34, fontScale:1,
+  sealOn:true, sealText:'八折', sealColor:'#c0392b', sealShape:'circle',
+  sealX:66, sealY:332, sealRot:-13, zoom:0.8
+};
+
+/* ---- 示例：分类拼版 ---- */
+var SAMPLE_CLS = {
+  clsTitle:'分类信息', clsSubtitle:'本期共 9 条 · 免费刊登',
+  clsFlow:'columns', clsCols:3, clsGap:20, clsGapY:14, clsRule:'line',
+  clsCard:'line', clsShowTag:true, clsShowP:true,
+  items:[
+    {tag:'招聘', t:'诚聘生产主管', b:'大专以上学历，三年以上制造业现场管理经验，熟悉排产与工时测算，待遇从优，五险一金。', p:'138-0000-0001', span:1},
+    {tag:'出租', t:'中山路两房一厅', b:'60㎡，家电齐全，拎包入住，近公交站，月租面议。', p:'159-0000-0002', span:1},
+    {tag:'转让', t:'餐饮店整店转让', b:'临街旺铺 80㎡，证照齐全，设备九成新，接手即可营业。', p:'137-0000-0003', span:1},
+    {tag:'二手', t:'八成新电动车', b:'骑行一年，电池健康，手续齐全，可小刀。', p:'186-0000-0004', span:1},
+    {tag:'培训', t:'少儿书法秋季班', b:'六人小班，名师授课，每周六日上午开课，首月免费试听。', p:'0595-8888 8888', span:1},
+    {tag:'家政', t:'专业保洁开荒', b:'新房开荒、日常保洁、玻璃清洗，随叫随到，按平方计价。', p:'135-0000-0005', span:1},
+    {tag:'招工', t:'服装厂大量招车工', b:'熟手优先，计件工资，多劳多得，厂内提供宿舍与食堂。', p:'133-0000-0006', span:1},
+    {tag:'寻物', t:'寻黑色手包一只', b:'内有证件若干，拾到者重谢，望好心人联系。', p:'189-0000-0007', span:1},
+    {tag:'服务', t:'空调维修加氟', b:'十年老师傅，上门服务，收费透明，保修三个月。', p:'132-0000-0008', span:1}
+  ]
+};
+
+/* ================= B. STATE ================= */
+
+var state = {
+  mode:'single',
+
+  /* 报头 */
+  masthead:'', issue:'', dateText:'', section:'', showMasthead:true,
+
+  /* 单条广告 */
+  kicker:'', headline:'', subhead:'', slogan:'', sloganStyle:'plain', titleSize:46,
+  body:'', cols:2, bodySize:13, lineHeight:1.9, colRule:true, dropCap:false, justify:true,
+
+  /* 配图 */
+  imgData:'', imgUrl:'', imgLayout:'none', imgWidth:38, caption:'', picFrame:false,
+  imgCrop:true, imgRatio:'free', focusX:50, focusY:50, imgZoom:1,
+
+  /* 底栏 */
+  addr:'', tel:'', extra:'', tail:'',
+
+  /* 外观 */
+  bodyFont:'song', titleFont:'hei', paperTex:'white', frame:'none',
+  paperKey:'a4', paperW:794, paperH:1123, customW:210, customH:297,
+  padY:34, fontScale:1, zoom:0.8,
+
+  /* 印章 */
+  sealOn:true, sealText:'特价', sealColor:'#c0392b', sealShape:'circle',
+  sealX:64, sealY:212, sealRot:-13,
+
+  /* 分类拼版 */
+  clsTitle:'分类信息', clsSubtitle:'', clsFlow:'columns', clsCols:3,
+  clsGap:20, clsGapY:14, clsRule:'line', clsCard:'line',
+  clsShowTag:true, clsShowP:true, items:[]
+};
+
+var SAVE_KEY = 'adStudioDraftV2';
+var $ = function(id){ return document.getElementById(id); };
+
+/* ---------- 小工具 ---------- */
+function esc(s){
+  return String(s == null ? '' : s)
+    .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+function inline(s){ return esc(s).replace(/\*\*(.+?)\*\*/g,'<b>$1</b>'); }
+function mm2px(mm){ return Math.round(Number(mm) * MM2PX); }
+function clamp(v, a, b){ return Math.max(a, Math.min(b, v)); }
+function paperOf(key){
+  for(var i = 0; i < PAPER.length; i++){ if(PAPER[i].key === key) return PAPER[i]; }
+  return PAPER[1];
+}
+function ratioOf(key){
+  for(var i = 0; i < RATIOS.length; i++){ if(RATIOS[i].key === key) return RATIOS[i]; }
+  return RATIOS[0];
+}
+
+/* ================= C. RENDER ================= */
+
+function render(){
+  var p = $('paper');
+  var fs = state.fontScale || 1;
+
+  /* 排版变量 */
+  p.style.setProperty('--body-font', FONTS[state.bodyFont] || FONTS.song);
+  p.style.setProperty('--title-font', FONTS[state.titleFont] || FONTS.hei);
+  p.style.setProperty('--body-size', (state.bodySize * fs).toFixed(2) + 'px');
+  p.style.setProperty('--title-size', (state.titleSize * fs).toFixed(2) + 'px');
+  p.style.setProperty('--lh', state.lineHeight);
+  p.style.setProperty('--cols', state.cols);
+  p.style.setProperty('--cls-cols', state.clsCols);
+  p.style.setProperty('--cls-gap', state.clsGap + 'px');
+  p.style.setProperty('--cls-gapy', state.clsGapY + 'px');
+
+  /* 纸张尺寸 */
+  p.style.width = state.paperW + 'px';
+  p.style.minHeight = state.paperH + 'px';
+  p.style.padding = state.padY + 'px '
+    + Math.round(state.padY * 1.18) + 'px '
+    + (state.padY + 6) + 'px';
+  p.style.zoom = state.zoom;
+
+  p.className = 'paper tex-' + state.paperTex;
+  if(state.frame && state.frame !== 'none') p.classList.add('frame-' + state.frame);
+  p.classList.toggle('align-left', !state.justify);
+
+  /* 报头 */
+  $('mastheadBlock').style.display = state.showMasthead ? '' : 'none';
+  $('mhName').textContent = state.masthead || '';
+  $('mhIssue').textContent = state.issue ? ('第 ' + state.issue + ' 期') : '';
+  $('mhDate').textContent = state.dateText || '';
+  $('mhSection').textContent = state.section || '';
+
+  /* 模式 */
+  var isCls = state.mode === 'classified';
+  $('singleBlock').style.display = isCls ? 'none' : '';
+  $('clsBlock').style.display = isCls ? '' : 'none';
+  if(isCls) renderClassified(); else renderSingle();
+
+  /* 底栏 */
+  fillCp('cpAddr', state.addr);
+  fillCp('cpTel', state.tel);
+  fillCp('cpExtra', state.extra);
+  $('colophon').style.display =
+    (state.addr || state.tel || state.extra || state.tail) ? '' : 'none';
+  $('cpTail').textContent = state.tail || '';
+
+  renderSeal();
+  renderStatus();
+  syncInputs();
+}
+
+function fillCp(id, val){
+  var el = $(id), v = (val || '').trim();
+  el.classList.toggle('hide', !v);
+  el.querySelector('.v').textContent = v;
+}
+
+/* ---------- 单条广告 ---------- */
+function renderSingle(){
+  $('kickerOut').textContent = state.kicker || '';
+  $('headlineOut').innerHTML = esc(state.headline || '').replace(/\n/g,'<br>');
+  $('subheadOut').textContent = state.subhead || '';
+
+  var sl = $('sloganOut');
+  sl.textContent = state.slogan || '';
+  sl.className = 'slogan'
+    + (state.sloganStyle && state.sloganStyle !== 'plain' ? ' ' + state.sloganStyle : '');
+
+  $('hruleOut').style.display =
+    (state.kicker || state.headline || state.subhead || state.slogan) ? '' : 'none';
+
+  var out = $('bodyOut');
+  out.className = 'body-cols' + (state.colRule ? '' : ' no-rule');
+  var paras = String(state.body || '').split(/\n\s*\n/).filter(function(t){ return t.trim(); });
+  if(paras.length){
+    out.innerHTML = paras.map(function(t, i){
+      var cls = (state.dropCap && i === 0) ? ' class="lead"' : '';
+      return '<p' + cls + '>' + inline(t.trim()).replace(/\n/g,'<br>') + '</p>';
+    }).join('');
+  }else{
+    out.innerHTML = '<p style="color:#9a9a9a;text-indent:0">（在左侧输入正文内容）</p>';
+  }
+
+  renderFigure();
+}
+
+/* ---------- 配图与裁切 ---------- */
+function renderFigure(){
+  var fig = $('figOut'), flow = $('flow');
+  var src = state.imgData || state.imgUrl || '';
+
+  if(state.imgLayout === 'none' || !src){
+    fig.style.display = 'none';
+    flow.className = 'flow';
+    return;
+  }
+  fig.style.display = '';
+
+  var r = ratioOf(state.imgRatio);
+  var cropped = !!(state.imgCrop && r.a);
+
+  fig.className = 'pic'
+    + (cropped ? ' pic-cropped' : '')
+    + (state.picFrame ? ' pic-frame' : '');
+
+  if(cropped) fig.style.setProperty('--ratio', r.a + ' / ' + r.b);
+  else fig.style.removeProperty('--ratio');
+
+  fig.style.setProperty('--fx', state.focusX + '%');
+  fig.style.setProperty('--fy', state.focusY + '%');
+  fig.style.setProperty('--iz', cropped ? state.imgZoom : 1);
+
+  var im = $('picImg');
+  if(im.getAttribute('src') !== src) im.setAttribute('src', src);
+  im.alt = state.caption || '';
+
+  $('picCap').textContent = state.caption || '';
+  $('picCap').style.display = state.caption ? '' : 'none';
+
+  flow.className = 'flow';
+  flow.style.setProperty('--pw', state.imgWidth + '%');
+  if(state.imgLayout === 'left'){ flow.classList.add('pic-left'); flow.insertBefore(fig, flow.firstChild); }
+  else if(state.imgLayout === 'right'){ flow.classList.add('pic-right'); flow.appendChild(fig); }
+  else { flow.classList.add('pic-top'); flow.insertBefore(fig, flow.firstChild); }
+}
+
+/* ---------- 分类拼版 ---------- */
+function renderClassified(){
+  $('clsHeadT').textContent = state.clsTitle || '';
+  $('clsHeadS').textContent = state.clsSubtitle || '';
+
+  var wrap = $('clsCols');
+  wrap.className = 'cls-cols flow-' + state.clsFlow
+    + (state.clsFlow === 'columns' && state.clsRule !== 'none' ? ' rule-' + state.clsRule : '');
+
+  var items = state.items || [];
+  $('clsCount').textContent = '(' + items.length + ')';
+
+  if(!items.length){
+    wrap.innerHTML = '<p style="color:#9a9a9a">（左侧「小广告条目」里添加，或批量粘贴导入）</p>';
+    return;
+  }
+
+  wrap.innerHTML = items.map(function(it){
+    var spanCls = '';
+    if(state.clsFlow === 'grid'){
+      if(it.span === 2) spanCls = ' span2';
+      else if(it.span >= 3) spanCls = ' spanAll';
+    }
+    return '<article class="cls-card cs-' + state.clsCard + spanCls + '">'
+      + (state.clsShowTag && it.tag ? '<div class="cls-tag">' + esc(it.tag) + '</div>' : '')
+      + (it.t ? '<h3 class="cls-t">' + inline(it.t) + '</h3>' : '')
+      + (it.b ? '<p class="cls-b">' + inline(it.b).replace(/\n/g,'<br>') + '</p>' : '')
+      + (state.clsShowP && it.p ? '<div class="cls-p">' + esc(it.p) + '</div>' : '')
+      + '</article>';
+  }).join('');
+}
+
+/* ---------- 印章 ---------- */
+function renderSeal(){
+  var seal = $('seal');
+  seal.className = 'seal ' + state.sealShape
+    + ((state.sealOn && state.sealText) ? '' : ' hide');
+  seal.style.right = state.sealX + 'px';
+  seal.style.top = state.sealY + 'px';
+  seal.style.transform = 'rotate(' + state.sealRot + 'deg)';
+  seal.style.color = state.sealColor;
+  seal.style.fontSize = Math.round(31 * (state.fontScale || 1)) + 'px';
+  if(state.sealShape === 'banner') seal.innerHTML = '<span>' + esc(state.sealText || '') + '</span>';
+  else seal.textContent = state.sealText || '';
+}
+
+/* ---------- 状态条 ---------- */
+function renderStatus(){
+  var isCls = state.mode === 'classified';
+  $('sbMode').textContent = isCls ? '分类拼版' : '单条';
+  var name = state.paperKey === 'custom'
+    ? ('自定义 ' + state.customW + '×' + state.customH + 'mm')
+    : paperOf(state.paperKey).name;
+  $('sbSize').textContent = name + ' · ' + state.paperW + '×' + state.paperH + 'px';
+  $('sbCols').textContent = isCls ? state.clsCols : state.cols;
+  $('sbBody').textContent = (state.bodySize * (state.fontScale || 1)).toFixed(1);
+  $('sbExtra').innerHTML = isCls
+    ? ('条目 <b>' + (state.items || []).length + '</b>')
+    : ('字数 <b>' + String(state.body || '').replace(/\s/g,'').replace(/\*\*/g,'').length + '</b>');
+}
+
+/* ---------- 表单回填 ---------- */
+function syncInputs(){
+  ['masthead','issue','dateText','section','kicker','subhead','slogan',
+   'addr','tel','extra','tail','caption','sealText','imgUrl',
+   'clsTitle','clsSubtitle','customW','customH'
+  ].forEach(function(k){ setVal(k, state[k]); });
+
+  setVal('headline', state.headline);
+  setVal('body', state.body);
+
+  ['titleSize','bodySize','lineHeight','zoom','sealX','sealY','sealRot',
+   'imgWidth','focusX','focusY','imgZoom','clsGap','clsGapY','padY','fontScale'
+  ].forEach(setRange);
+
+  ['showMasthead','colRule','dropCap','justify','picFrame','sealOn','imgCrop',
+   'clsShowTag','clsShowP'
+  ].forEach(setCheck);
+
+  [['bodyFont','bodyFont'],['titleFont','titleFont'],['sealColor','sealColor']
+  ].forEach(function(pair){
+    var el = $(pair[0]); if(el) el.value = String(state[pair[1]]);
+  });
+
+  [['sloganStyle',state.sloganStyle],['imgLayout',state.imgLayout],
+   ['paperTex',state.paperTex],['frameChips',state.frame],
+   ['paperChips',state.paperKey],['sealShape',state.sealShape],
+   ['imgRatio',state.imgRatio],['clsFlow',state.clsFlow],
+   ['clsRule',state.clsRule],['clsCard',state.clsCard],
+   ['colsChips',state.cols],['clsColsChips',state.clsCols]
+  ].forEach(function(pair){ chipOn(pair[0], pair[1]); });
+
+  /* 条件显隐 */
+  $('customSizeBox').style.display = (state.paperKey === 'custom') ? '' : 'none';
+  var showCrop = !!(state.imgCrop && state.imgRatio !== 'free');
+  var cropRows = document.querySelectorAll('.cropRow');
+  for(var i = 0; i < cropRows.length; i++) cropRows[i].style.display = showCrop ? '' : 'none';
+  $('imgWidthRow').style.display =
+    (state.imgLayout === 'left' || state.imgLayout === 'right') ? '' : 'none';
+
+  var mmW = (state.paperW / MM2PX).toFixed(0), mmH = (state.paperH / MM2PX).toFixed(0);
+  $('sizeInfo').innerHTML = '当前版面：<b>' + state.paperW + ' × ' + state.paperH + ' px</b>'
+    + '，约 <b>' + mmW + ' × ' + mmH + ' mm</b>。'
+    + '打印默认按 A4 输出，超大版面建议先「导出 HTML」再打印。';
+}
+
+function setVal(k, v){
+  var el = $(k);
+  if(el && document.activeElement !== el) el.value = (v == null ? '' : v);
+}
+function setCheck(k){
+  var el = $(k); if(el) el.checked = !!state[k];
+}
+function setRange(k){
+  var el = $(k); if(!el) return;
+  if(document.activeElement !== el) el.value = state[k];
+  var lab = $(k + 'Val');
+  if(lab) lab.textContent = fmtVal(k, state[k]);
+}
+function fmtVal(k, v){
+  if(k === 'lineHeight') return Number(v).toFixed(2);
+  if(k === 'zoom' || k === 'fontScale') return Math.round(v * 100) + '%';
+  if(k === 'sealRot') return v + '°';
+  if(k === 'imgZoom') return Number(v).toFixed(2) + '×';
+  if(k === 'imgWidth' || k === 'focusX' || k === 'focusY') return v + '%';
+  if(k === 'clsGap' || k === 'clsGapY' || k === 'padY') return v + 'px';
+  return String(v);
+}
+function chipOn(wrapId, v){
+  var w = $(wrapId); if(!w) return;
+  var chips = w.querySelectorAll('.chip');
+  for(var i = 0; i < chips.length; i++){
+    chips[i].classList.toggle('on', chips[i].getAttribute('data-v') === String(v));
+  }
+}
+
+/* ---------- 生成静态选项 ---------- */
+(function buildChips(){
+  $('paperChips').innerHTML = PAPER.map(function(p){
+    return '<button class="chip" data-v="' + p.key + '" data-w="' + p.w + '" data-h="' + p.h + '">'
+      + p.name + '</button>';
+  }).join('');
+
+  $('colsChips').innerHTML = [1,2,3,4,5].map(function(n){
+    return '<button class="chip" data-v="' + n + '">' + n + ' 栏</button>';
+  }).join('');
+
+  $('clsColsChips').innerHTML = [1,2,3,4,5,6].map(function(n){
+    return '<button class="chip" data-v="' + n + '">' + n + ' 列</button>';
+  }).join('');
+
+  $('frameChips').innerHTML = FRAMES.map(function(f){
+    return '<button class="chip" data-v="' + f.key + '">' + f.name + '</button>';
+  }).join('');
+
+  $('imgRatio').innerHTML = RATIOS.map(function(r){
+    return '<button class="chip" data-v="' + r.key + '">' + r.name + '</button>';
+  }).join('');
+})();
+
+/* ================= D. BIND ================= */
+
+function bindText(id, key){
+  var el = $(id); if(!el) return;
+  el.addEventListener('input', function(){ state[key] = el.value; render(); });
+}
+function bindRange(id, key){
+  var el = $(id); if(!el) return;
+  el.addEventListener('input', function(){ state[key] = parseFloat(el.value); render(); });
+}
+function bindCheck(id, key){
+  var el = $(id); if(!el) return;
+  el.addEventListener('change', function(){ state[key] = el.checked; render(); });
+}
+function bindSelect(id, key){
+  var el = $(id); if(!el) return;
+  el.addEventListener('change', function(){ state[key] = el.value; render(); });
+}
+function bindChips(wrapId, key){
+  var w = $(wrapId); if(!w) return;
+  w.addEventListener('click', function(e){
+    var c = e.target.closest ? e.target.closest('.chip') : null;
+    if(!c || !w.contains(c)) return;
+    var raw = c.getAttribute('data-v');
+    state[key] = /^-?\d+(\.\d+)?$/.test(raw) ? Number(raw) : raw;
+
+    /* 换开数时同步宽高（px 与 mm） */
+    if(key === 'paperKey'){
+      if(raw === 'custom'){
+        state.paperW = mm2px(state.customW);
+        state.paperH = mm2px(state.customH);
+      }else{
+        var w2 = Number(c.getAttribute('data-w'));
+        var h2 = Number(c.getAttribute('data-h'));
+        state.customW = w2;
+        state.customH = h2;
+        state.paperW = mm2px(w2);
+        state.paperH = mm2px(h2);
+      }
+      state.zoom = Math.min(state.zoom, 1);
+    }
+    render(); autoSave();
+  });
+}
+function bindNum(id, key){
+  var el = $(id); if(!el) return;
+  el.addEventListener('input', function(){
+    var n = parseFloat(el.value);
+    if(isNaN(n)) return;
+    state[key] = clamp(n, 30, 2000);
+    state.paperW = mm2px(state.customW);
+    state.paperH = mm2px(state.customH);
+    render(); autoSave();
+  });
+}
+
+['masthead','issue','dateText','section','kicker','subhead','slogan',
+ 'addr','tel','extra','tail','caption','sealText','imgUrl',
+ 'clsTitle','clsSubtitle'
+].forEach(function(k){ bindText(k, k); });
+bindText('headline','headline');
+bindText('body','body');
+
+['titleSize','bodySize','lineHeight','zoom','sealX','sealY','sealRot',
+ 'imgWidth','focusX','focusY','imgZoom','clsGap','clsGapY','padY','fontScale'
+].forEach(function(k){ bindRange(k, k); });
+
+['showMasthead','colRule','dropCap','justify','picFrame','sealOn','imgCrop',
+ 'clsShowTag','clsShowP'
+].forEach(function(k){ bindCheck(k, k); });
+
+[['sloganStyle','sloganStyle'],['imgLayout','imgLayout'],['paperTex','paperTex'],
+ ['frameChips','frame'],['paperChips','paperKey'],['sealShape','sealShape'],
+ ['imgRatio','imgRatio'],['clsFlow','clsFlow'],['clsRule','clsRule'],
+ ['clsCard','clsCard'],['colsChips','cols'],['clsColsChips','clsCols']
+].forEach(function(p){ bindChips(p[0], p[1]); });
+
+[['bodyFont','bodyFont'],['titleFont','titleFont'],['sealColor','sealColor']
+].forEach(function(p){ bindSelect(p[0], p[1]); });
+
+bindNum('customW','customW');
+bindNum('customH','customH');
+
+$('btnSwap').addEventListener('click', function(){
+  var t = state.customW; state.customW = state.customH; state.customH = t;
+  state.paperW = mm2px(state.customW);
+  state.paperH = mm2px(state.customH);
+  render(); autoSave(); toast('已互换横竖');
+});
+$('btnFit').addEventListener('click', fitZoom);
+$('btnActual').addEventListener('click', function(){ state.zoom = 1; render(); });
+
+/* 图片上传 / 网址 */
+$('imgFile').addEventListener('change', function(e){
+  var f = e.target.files && e.target.files[0];
+  if(!f) return;
+  if(f.size > 4 * 1024 * 1024) toast('图片超过 4MB，建议先压缩');
+  var r = new FileReader();
+  r.onload = function(){
+    state.imgData = r.result;
+    state.imgUrl = '';
+    if(state.imgLayout === 'none') state.imgLayout = 'top';
+    render(); autoSave(); toast('图片已插入');
+  };
+  r.readAsDataURL(f);
+});
+$('imgUrl').addEventListener('input', function(){
+  state.imgUrl = $('imgUrl').value;
+  state.imgData = '';
+  if(state.imgLayout === 'none' && state.imgUrl) state.imgLayout = 'top';
+  render();
+});
+$('btnClearImg').addEventListener('click', function(){
+  state.imgData = ''; state.imgUrl = ''; state.imgLayout = 'none';
+  $('imgFile').value = '';
+  render(); autoSave(); toast('已移除配图');
+});
+
+/* 模式切换 */
+$('modeSwitch').addEventListener('click', function(e){
+  var b = e.target.closest ? e.target.closest('button') : null;
+  if(!b) return;
+  state.mode = b.getAttribute('data-v');
+  var all = $('modeSwitch').querySelectorAll('button');
+  for(var i = 0; i < all.length; i++) all[i].classList.toggle('on', all[i] === b);
+  toggleModeGroups();
+  render(); autoSave();
+});
+function toggleModeGroups(){
+  var isCls = state.mode === 'classified';
+  toggleAll('.singleOnly', !isCls);
+  toggleAll('.clsOnly', isCls);
+  /* 「清空内容」按钮的提示文案随模式变化 */
+  $('btnClear').textContent = isCls ? '清空条目' : '清空内容';
+}
+function toggleAll(sel, show){
+  var els = document.querySelectorAll(sel);
+  for(var i = 0; i < els.length; i++) els[i].style.display = show ? '' : 'none';
+}
+
+/* ================= E. 分类拼版条目管理 ================= */
+
+function renderClsEditor(){
+  var wrap = $('clsList');
+  var items = state.items || [];
+  if(!items.length){
+    wrap.innerHTML = '<div class="mini-note" style="margin:0">还没有条目。点下面按钮添加，或用批量粘贴导入。</div>';
+    return;
+  }
+  wrap.innerHTML = items.map(function(it, i){
+    var spanLabel = it.span === 2 ? '跨 2 列' : (it.span >= 3 ? '通栏' : '单列');
+    return '<div class="cls-editor" data-i="' + i + '">'
+      + '<div class="cie-head">'
+      +   '<span class="cie-no">' + (i + 1) + '</span>'
+      +   '<input class="cie-tag" data-f="tag" value="' + esc(it.tag) + '" placeholder="标签">'
+      +   '<button class="cie-del" data-op="del" title="删除">×</button>'
+      + '</div>'
+      + '<input class="cie-in" data-f="t" value="' + esc(it.t) + '" placeholder="小广告标题">'
+      + '<textarea class="cie-b" data-f="b" placeholder="正文（可留空）">' + esc(it.b) + '</textarea>'
+      + '<input class="cie-in" data-f="p" value="' + esc(it.p) + '" placeholder="联系电话 / 价格">'
+      + '<div class="cie-ops">'
+      +   '<button data-op="up">上移</button>'
+      +   '<button data-op="down">下移</button>'
+      +   '<button data-op="copy">复制</button>'
+      +   '<button data-op="span" title="仅网格排布下生效">' + spanLabel + '</button>'
+      +   '<button data-op="clear" class="warn">清空文字</button>'
+      + '</div>'
+      + '</div>';
+  }).join('');
+}
+
+/* 输入：只刷预览，不重建编辑器（否则会失焦） */
+$('clsList').addEventListener('input', function(e){
+  var t = e.target;
+  var f = t.getAttribute && t.getAttribute('data-f');
+  if(!f) return;
+  var box = t.closest('.cls-editor');
+  if(!box) return;
+  var i = Number(box.getAttribute('data-i'));
+  if(!state.items[i]) return;
+  state.items[i][f] = t.value;
+  renderClassified();
+  renderStatus();
+  autoSave();
+});
+
+/* 操作：重建编辑器 */
+$('clsList').addEventListener('click', function(e){
+  var btn = e.target.closest ? e.target.closest('button') : null;
+  if(!btn) return;
+  var op = btn.getAttribute('data-op');
+  var box = btn.closest('.cls-editor');
+  if(!box) return;
+  var i = Number(box.getAttribute('data-i'));
+  var arr = state.items;
+  if(!arr[i]) return;
+
+  if(op === 'del'){ arr.splice(i, 1); }
+  else if(op === 'up' && i > 0){ var t1 = arr[i-1]; arr[i-1] = arr[i]; arr[i] = t1; }
+  else if(op === 'down' && i < arr.length - 1){ var t2 = arr[i+1]; arr[i+1] = arr[i]; arr[i] = t2; }
+  else if(op === 'copy'){ arr.splice(i + 1, 0, JSON.parse(JSON.stringify(arr[i]))); }
+  else if(op === 'span'){
+    arr[i].span = arr[i].span === 1 ? 2 : (arr[i].span === 2 ? 3 : 1);
+    if(state.clsFlow !== 'grid') toast('跨列只在「网格」排布下生效');
+  }
+  else if(op === 'clear'){ arr[i].t = ''; arr[i].b = ''; arr[i].p = ''; }
+
+  renderClsEditor(); render(); autoSave();
+});
+
+$('btnAddCls').addEventListener('click', function(){
+  state.items.push(JSON.parse(JSON.stringify(NEW_ITEM)));
+  renderClsEditor(); render(); autoSave();
+  var boxes = $('clsList').querySelectorAll('.cls-editor');
+  if(boxes.length) boxes[boxes.length - 1].scrollIntoView({block:'nearest'});
+});
+
+/* ---- 批量导入 / 导出 ---- */
+function parseBulk(text){
+  return String(text || '').split(/\r?\n/).map(function(line){
+    if(!line.trim()) return null;
+    if(/^\s*[#]/.test(line)) return null;
+    var parts = line.split(/\s*[|\t]\s*/);
+    return {
+      tag:(parts[0] || '').trim(),
+      t:(parts[1] || '').trim(),
+      b:(parts[2] || '').trim(),
+      p:(parts[3] || '').trim(),
+      span:1
+    };
+  }).filter(function(x){ return x && (x.t || x.b || x.tag); });
+}
+
+$('btnBulkAdd').addEventListener('click', function(){
+  var list = parseBulk($('bulkArea').value);
+  if(!list.length){ toast('没解析到条目，请检查格式'); return; }
+  state.items = state.items.concat(list);
+  renderClsEditor(); render(); autoSave();
+  toast('已追加 ' + list.length + ' 条');
+});
+$('btnBulkReplace').addEventListener('click', function(){
+  var list = parseBulk($('bulkArea').value);
+  if(!list.length){ toast('没解析到条目，请检查格式'); return; }
+  if(!confirm('覆盖现有 ' + state.items.length + ' 条，确定？')) return;
+  state.items = list;
+  renderClsEditor(); render(); autoSave();
+  toast('已覆盖为 ' + list.length + ' 条');
+});
+$('btnBulkOut').addEventListener('click', function(){
+  var txt = (state.items || []).map(function(it){
+    return [it.tag, it.t, it.b, it.p].join('|');
+  }).join('\n');
+  $('bulkArea').value = txt;
+  try{
+    navigator.clipboard.writeText(txt);
+    toast('已导出并复制到剪贴板');
+  }catch(err){ toast('已导出到下方文本框'); }
+});
+
+/* ================= F. ACTION ================= */
+
+$('tplSelect').addEventListener('change', function(){
+  var k = $('tplSelect').value;
+  if(!k || !TPL[k]) return;
+  var t = TPL[k];
+  Object.keys(t).forEach(function(key){ state[key] = t[key]; });
+  $('tplSelect').value = '';
+  render(); autoSave(); toast('已套用模板，可继续修改');
+});
+
+$('btnSample').addEventListener('click', function(){
+  var keep = state.mode;
+  Object.keys(SAMPLE_SINGLE).forEach(function(k){ state[k] = SAMPLE_SINGLE[k]; });
+  Object.keys(SAMPLE_CLS).forEach(function(k){ state[k] = SAMPLE_CLS[k]; });
+  state.mode = keep;
+  renderClsEditor(); render(); autoSave(); toast('示例已载入');
+});
+
+$('btnClear').addEventListener('click', function(){
+  if(state.mode === 'classified'){
+    if(!confirm('清空全部小广告条目？')) return;
+    state.items = [];
+    renderClsEditor(); render(); autoSave(); toast('条目已清空');
+    return;
+  }
+  if(!confirm('清空文字内容？版面样式会保留。')) return;
+  ['kicker','headline','subhead','slogan','body','caption','addr','tel','extra','tail','sealText'
+  ].forEach(function(k){ state[k] = ''; });
+  state.imgData = ''; state.imgUrl = ''; state.imgLayout = 'none';
+  $('imgFile').value = '';
+  render(); autoSave(); toast('内容已清空，样式保留');
+});
+
+$('btnSave').addEventListener('click', function(){
+  try{
+    localStorage.setItem(SAVE_KEY, JSON.stringify(state));
+    toast('草稿已存到本机浏览器');
+  }catch(err){ toast('保存失败：' + err.message); }
+});
+$('btnLoad').addEventListener('click', function(){
+  try{
+    var raw = localStorage.getItem(SAVE_KEY);
+    if(!raw){ toast('还没有存过草稿'); return; }
+    var d = JSON.parse(raw);
+    Object.keys(d).forEach(function(k){ if(k in state) state[k] = d[k]; });
+    if(!Array.isArray(state.items)) state.items = [];
+    $('bulkArea').value = '';
+    renderClsEditor(); toggleModeGroups();
+    var all = $('modeSwitch').querySelectorAll('button');
+    for(var i = 0; i < all.length; i++){
+      all[i].classList.toggle('on', all[i].getAttribute('data-v') === state.mode);
+    }
+    render(); toast('草稿已读取');
+  }catch(err){ toast('读取失败：' + err.message); }
+});
+
+$('btnPrint').addEventListener('click', function(){ window.print(); });
+
+$('btnExport').addEventListener('click', function(){
+  var clone = $('paper').cloneNode(true);
+  clone.removeAttribute('style');
+  clone.style.zoom = '1';
+  clone.style.width = state.paperW + 'px';
+  var css = document.querySelector('style').textContent;
+  var title = state.mode === 'classified'
+    ? (state.clsTitle || state.masthead || '分类广告版面')
+    : (state.headline || state.masthead || '广告版面');
+  title = title.replace(/\n/g, ' ');
+  var html = '<!DOCTYPE html>\n<html lang="zh-CN">\n<head>\n<meta charset="UTF-8">\n'
+    + '<title>' + esc(title) + '</title>\n'
+    + '<style>\n' + css + '\n'
+    + 'body{background:#e9ebee;margin:0;padding:24px;display:flex;justify-content:center}\n'
+    + '.paper{zoom:1}\n</style>\n</head>\n<body>\n' + clone.outerHTML + '\n<script>
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', function () {
+    navigator.serviceWorker.register('./sw.js').catch(function () {});
+  });
+}
+</script>
+</body>\n</html>';
+  var blob = new Blob([html], {type:'text/html;charset=utf-8'});
+  var a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = '广告版面_' + title.replace(/[\s\\\/:*?"<>|]/g,'').slice(0, 18) + '.html';
+  document.body.appendChild(a); a.click();
+  setTimeout(function(){ URL.revokeObjectURL(a.href); a.remove(); }, 500);
+  toast('已导出 HTML 文件');
+});
+
+function fitZoom(){
+  var avail = $('stage').clientWidth - 70;
+  state.zoom = Math.round(clamp(avail / state.paperW, 0.2, 1.6) * 100) / 100;
+  render();
+}
+
+/* 自动保存 */
+var saveTimer = null;
+function autoSave(){
+  if(saveTimer) clearTimeout(saveTimer);
+  saveTimer = setTimeout(function(){
+    try{ localStorage.setItem(SAVE_KEY, JSON.stringify(state)); }catch(e){}
+  }, 900);
+}
+document.addEventListener('input', autoSave, true);
+document.addEventListener('change', autoSave, true);
+
+/* 提示条 */
+var toastTimer = null;
+function toast(msg){
+  var t = $('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  if(toastTimer) clearTimeout(toastTimer);
+  toastTimer = setTimeout(function(){ t.classList.remove('show'); }, 2000);
+}
+
+/* 快捷键：Ctrl+S 存草稿，Ctrl+E 导出 */
+document.addEventListener('keydown', function(e){
+  if(!(e.ctrlKey || e.metaKey)) return;
+  var k = e.key.toLowerCase();
+  if(k === 's'){ e.preventDefault(); $('btnSave').click(); }
+  if(k === 'e'){ e.preventDefault(); $('btnExport').click(); }
+});
+
+/* ================= G. INIT ================= */
+(function init(){
+  /* 支持 URL 直达：ad-layout-studio.html#classified 打开即分类拼版 */
+  try{
+    if(/classified/i.test(location.hash || '')) state.mode = 'classified';
+    if(/single/i.test(location.hash || '')) state.mode = 'single';
+  }catch(e){}
+
+  var loaded = false;
+  try{
+    var raw = localStorage.getItem(SAVE_KEY);
+    if(raw){
+      var d = JSON.parse(raw);
+      Object.keys(d).forEach(function(k){ if(k in state) state[k] = d[k]; });
+      loaded = true;
+    }
+  }catch(e){}
+
+  if(!loaded){
+    Object.keys(SAMPLE_SINGLE).forEach(function(k){ state[k] = SAMPLE_SINGLE[k]; });
+    Object.keys(SAMPLE_CLS).forEach(function(k){ state[k] = SAMPLE_CLS[k]; });
+  }
+  if(!Array.isArray(state.items)) state.items = [];
+  if(!state.paperW || !state.paperH){
+    state.paperW = mm2px(state.customW || 210);
+    state.paperH = mm2px(state.customH || 297);
+  }
+
+  var all = $('modeSwitch').querySelectorAll('button');
+  for(var i = 0; i < all.length; i++){
+    all[i].classList.toggle('on', all[i].getAttribute('data-v') === state.mode);
+  }
+  toggleModeGroups();
+  renderClsEditor();
+  render();
+  if($('stage').clientWidth - 70 < state.paperW) fitZoom();
+})();
+
+})();
+</script>
+</body>
+</html>
