@@ -1,0 +1,691 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-page-node-id="dGe1wxER4LC8esiK00Wybc">
+<head data-page-node-id="ca9CxAU5yR3siiGbkWItcb">
+<meta charset="UTF-8" data-page-node-id="apOz9fP0mjIvhqESM0NvpN">
+<meta name="viewport" content="width=device-width, initial-scale=1.0" data-page-node-id="721hFn9oaiRl4ASIv1KsHq">
+<title>签字盖章生成器</title>
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body {
+    font-family: "Microsoft YaHei", "PingFang SC", sans-serif;
+    background:#f0ede8;
+    min-height:100vh;
+    display:flex;
+    color:#2b2b2b;
+  }
+  /* ---------- 左侧控制面板 ---------- */
+  .panel {
+    width:360px; flex:none;
+    background:#fff;
+    padding:28px 24px;
+    box-shadow:2px 0 12px rgba(0,0,0,.06);
+    overflow-y:auto;
+  }
+  .panel h1 { font-size:20px; margin-bottom:2px; letter-spacing:2px; }
+  .panel .sub { font-size:12px; color:#999; margin-bottom:18px; }
+  .tabs { display:flex; gap:10px; margin-bottom:22px; }
+  .tab {
+    flex:1; text-align:center; padding:10px 4px;
+    border:1.5px solid #ddd; border-radius:10px;
+    background:#fafafa; cursor:pointer; font-size:14px;
+    transition:.15s; user-select:none;
+  }
+  .tab:hover { border-color:#c8281e55; }
+  .tab.active { border-color:#c8281e; background:#fdf3f2; color:#c8281e; font-weight:bold; }
+  .group { margin-bottom:22px; }
+  .group label.t { display:block; font-size:13px; color:#666; margin-bottom:8px; font-weight:bold; }
+  input[type=text], input[type=date] {
+    width:100%; padding:10px 12px; font-size:16px;
+    border:1px solid #ddd; border-radius:8px; outline:none;
+  }
+  input[type=text]:focus, input[type=date]:focus { border-color:#c8281e; }
+  #nameInput { font-size:18px; letter-spacing:6px; font-family:"KaiTi","STKaiti",serif; }
+  .shapes { display:flex; gap:10px; }
+  .shape-btn {
+    flex:1; padding:10px 4px; border:1.5px solid #ddd; border-radius:10px;
+    background:#fafafa; cursor:pointer; text-align:center; font-size:13px;
+    transition:.15s; user-select:none;
+  }
+  .shape-btn:hover { border-color:#c8281e55; }
+  .shape-btn.active { border-color:#c8281e; background:#fdf3f2; color:#c8281e; font-weight:bold; }
+  .shape-btn .icon { display:block; margin:0 auto 6px; }
+  select { width:100%; padding:10px 12px; font-size:15px; border:1px solid #ddd; border-radius:8px; outline:none; background:#fff; }
+  .chips { display:flex; gap:8px; flex-wrap:wrap; }
+  .chip {
+    display:flex; flex-direction:column; align-items:center;
+    border:1.5px solid #ddd; border-radius:10px; padding:6px 8px 4px;
+    background:#fafafa; min-width:52px;
+  }
+  .chip .ch { font-size:24px; font-family:"KaiTi","STKaiti",serif; line-height:1.2; }
+  .chip .btns { display:flex; gap:2px; margin-top:2px; }
+  .chip button { border:none; background:none; cursor:pointer; font-size:9px; color:#c8281e; padding:1px 3px; }
+  .chip button:disabled { color:#ccc; cursor:default; }
+  .chip .idx { font-size:10px; color:#bbb; }
+  .swatches { display:flex; gap:10px; align-items:center; flex-wrap:wrap; }
+  .swatch { width:34px; height:34px; border-radius:50%; cursor:pointer; border:2px solid transparent; box-shadow:0 1px 4px rgba(0,0,0,.15); }
+  .swatch.active { border-color:#333; transform:scale(1.12); }
+  input[type=color] { width:34px; height:34px; border:none; border-radius:50%; cursor:pointer; background:none; padding:0; }
+  .opts label { display:flex; align-items:center; gap:8px; font-size:14px; color:#555; margin-bottom:10px; cursor:pointer; }
+  .btn { display:block; width:100%; padding:12px; margin-bottom:10px; border:none; border-radius:10px; font-size:15px; cursor:pointer; font-weight:bold; transition:.15s; }
+  .btn-main { background:#c8281e; color:#fff; }
+  .btn-main:hover { background:#a61b1b; }
+  .btn-ghost { background:#f2f0ec; color:#444; }
+  .btn-ghost:hover { background:#e5e2dc; }
+  .tip { font-size:12px; color:#aaa; line-height:1.7; margin-top:16px; }
+  /* 日期/姓名模式显隐 */
+  #dateControls, #dateDownload { display:none; }
+  body.date-mode #nameControls, body.date-mode #nameDownloads, body.date-mode .sig-area { display:none; }
+  body.date-mode #dateControls, body.date-mode #dateDownload { display:block; }
+  body.date-mode #layoutGroup { display:none; }
+  /* ---------- 手写定制面板 ---------- */
+  #padGroup { display:none; background:#fdfcfb; border:1px solid #eee; border-radius:12px; padding:14px; }
+  body.date-mode #padGroup { display:none !important; }
+  .pads { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+  .pad-item { text-align:center; }
+  .pad-item canvas {
+    width:100%; height:auto; background:#fff;
+    border:1.5px dashed #d5d0c8; border-radius:8px;
+    touch-action:none; cursor:crosshair; filter:none; box-shadow:none;
+  }
+  .pad-item .lbl { font-size:12px; color:#999; margin-top:5px; display:flex; justify-content:center; gap:6px; align-items:center; }
+  .pad-item .lbl .c { font-family:"KaiTi","STKaiti",serif; color:#c8281e; font-size:15px; }
+  .pad-item .lbl button { border:none; background:#f2f0ec; color:#666; border-radius:5px; font-size:11px; padding:2px 7px; cursor:pointer; }
+  .pad-head { display:flex; justify-content:space-between; align-items:center; margin-bottom:10px; }
+  .pad-head label { margin:0 !important; }
+  .pad-head button { border:none; background:#f2f0ec; color:#666; border-radius:6px; font-size:12px; padding:4px 10px; cursor:pointer; }
+  .pad-note { font-size:11px; color:#bbb; margin-top:10px; line-height:1.6; }
+  /* ---------- 右侧预览 ---------- */
+  .stage { flex:1; display:flex; align-items:center; justify-content:center; padding:40px; }
+  .paper {
+    background:
+      linear-gradient(rgba(255,255,255,.92), rgba(255,255,255,.92)),
+      repeating-linear-gradient(0deg, transparent, transparent 34px, #e8e4dc 34px, #e8e4dc 35px);
+    border-radius:6px;
+    box-shadow:0 10px 40px rgba(0,0,0,.12);
+    padding:48px 56px;
+    display:flex; align-items:flex-end; justify-content:space-between;
+    gap:40px; min-width:620px; max-width:90vw;
+  }
+  .paper.date-only { align-items:center; justify-content:center; }
+  .sig-area { display:flex; flex-direction:column; gap:18px; }
+  .sig-name { font-size:64px; letter-spacing:8px; line-height:1.2; }
+  .sig-date { font-size:16px; color:#555; letter-spacing:2px; }
+  .sig-line { width:280px; border-bottom:1.5px solid #999; }
+  .seal-wrap { flex:none; display:flex; align-items:flex-end; }
+  #sealCanvas { display:block; filter:drop-shadow(1px 2px 3px rgba(0,0,0,.12)); }
+</style>
+<link rel="manifest" href="manifest.json">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="签字签章">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="icon" href="favicon.png">
+<meta name="theme-color" content="#2980b9">
+</head>
+<body data-page-node-id="xOCdmFU9us4IYtA6jXTgBg">
+
+<aside class="panel" data-page-node-id="cFMbyuoqOFPs7U3s6WR2GH">
+  <h1 data-page-node-id="xIpTWUQP92XAM6SYaMBX70">印章生成器</h1>
+  <div class="sub" data-page-node-id="crlbwWHf9ZXGeiFjedqlXd">姓名章 + 日期戳，分开制作、单独导出</div>
+
+  <div class="tabs" data-page-node-id="5gGLlbRor5qL44mrRMSDRh">
+    <div class="tab active" data-mode="name" data-page-node-id="MwmuwgD7blpNCQPMNuJVHI">姓名章</div>
+    <div class="tab" data-mode="date" data-page-node-id="KhMTS6HXDXJZZ8YM3PRCVx">日期章</div>
+  </div>
+
+  <!-- 姓名章控制 -->
+  <div id="nameControls" data-page-node-id="mnAkGxN4Io3iahAK2EtcEo">
+    <div class="group" data-page-node-id="AgHYVD4vwvCAbZuEkdDu5S">
+      <label class="t" data-page-node-id="By8XsEeFXKEnZNBgIYv9Ak">姓名（2～3 字）</label>
+      <input type="text" id="nameInput" value="张三丰" maxlength="4" placeholder="请输入姓名" data-page-node-id="jEezQnA8FNwtvZyrljQTpZ">
+    </div>
+
+    <div class="group" data-page-node-id="AqbJTkXGJpwUs3amPf6fCb">
+      <label class="t" data-page-node-id="DrYvg11UqEFHkp7n9kk73l">印章形状</label>
+      <div class="shapes" id="shapeBtns" data-page-node-id="uAGh5RslEmB8isJfWFKIPT">
+        <div class="shape-btn active" data-shape="square" data-page-node-id="7SlZwPXSbhSyipRcjOt8wp">
+          <svg class="icon" width="26" height="26" data-page-node-id="Zu7SdHQLq7KMyqJcPyEWir"><rect x="3" y="3" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.5" data-page-node-id="3B7yIao0HCmfSOMIKgLYJA"/><line x1="13" y1="3" x2="13" y2="23" stroke="currentColor" stroke-width="1.5" data-page-node-id="WTZc5G5FhdGBiIeMFISqIA"/><line x1="3" y1="13" x2="23" y2="13" stroke="currentColor" stroke-width="1.5" data-page-node-id="aBNToHCwpo2DQomMsDJmhY"/></svg>
+          正方形
+        </div>
+        <div class="shape-btn" data-shape="rect" data-page-node-id="zhYZ2w4BGyYxWDRbF1bH0K">
+          <svg class="icon" width="26" height="26" data-page-node-id="zP97t6HezfIlmAAynUm3X4"><rect x="8" y="2" width="10" height="22" fill="none" stroke="currentColor" stroke-width="2.5" data-page-node-id="9Y2lzsCkbwiR35Kn7EvCCo"/><line x1="8" y1="9" x2="18" y2="9" stroke="currentColor" stroke-width="1.2" data-page-node-id="DPMrzfxuRKTgjEYoSEbmyS"/><line x1="8" y1="15" x2="18" y2="15" stroke="currentColor" stroke-width="1.2" data-page-node-id="ANEa414dRAGAYRxuu9D3Zg"/></svg>
+          长方形
+        </div>
+        <div class="shape-btn" data-shape="circle" data-page-node-id="EzoyFbFmWH4H85puifE53l">
+          <svg class="icon" width="26" height="26" data-page-node-id="mxZ7bNxwzGrUcIGLV2IuTa"><circle cx="13" cy="13" r="10.5" fill="none" stroke="currentColor" stroke-width="2.5" data-page-node-id="cdotiU11fIdPw48Pmdky8n"/></svg>
+          圆形
+        </div>
+      </div>
+    </div>
+
+    <div class="group" id="layoutGroup" data-page-node-id="Ai5Z1WErLkamVeBN0lkNXx">
+      <label class="t" data-page-node-id="4AckG8fDVIRoqqcQgDPJwZ">排列样式</label>
+      <select id="layoutSelect" data-page-node-id="gy04z5hXWS5rvabnQOrO14"></select>
+    </div>
+
+    <div class="group" data-page-node-id="0bjN85nH7ws6rizDmRZeYf">
+      <label class="t" data-page-node-id="YCaekCuLWBwyhAkJzj8DyZ">文字顺序（▲▼ 自由调整）</label>
+      <div class="chips" id="orderChips" data-page-node-id="nWcBjduy11t2iENP2TshHG"></div>
+    </div>
+  </div>
+
+  <!-- 日期章控制 -->
+  <div id="dateControls" data-page-node-id="Gpqi5aes3mnQ3uPjTx7mIm">
+    <div class="group" data-page-node-id="9Phu4dHLst7hM8gvEXsAaD">
+      <label class="t" data-page-node-id="V65VsNoDYJIFnBW8jfC4bw">日期</label>
+      <input type="date" id="dateInput" data-page-node-id="MyUaINmkaPdirR5fScUAWo">
+    </div>
+    <div class="group" data-page-node-id="ybqdD7t7EE1GdusvFgEFmR">
+      <label class="t" data-page-node-id="22e6BDkmS0kpXamniCIHCQ">日期格式</label>
+      <div class="opts" data-page-node-id="Y3rGnKUhN5aEzUhIaoLLFX">
+        <label data-page-node-id="7e6pLXDxuySLFrbLH2NKLG"><input type="radio" name="dateFmt" value="ch" checked data-page-node-id="N6jmelsHq2fgKLExOwvxFQ"> 2026年9月16日</label>
+        <label data-page-node-id="iszWazeDABxgVIakBciKV5"><input type="radio" name="dateFmt" value="dot" data-page-node-id="6HNO8xzt8iAmmNMIiYsFrh"> 2026.9.16</label>
+      </div>
+    </div>
+    <div class="group" data-page-node-id="gRDeix49C5pw1Fs3Fv1QLr">
+      <label class="t" data-page-node-id="YxLqjm2Xj5HvHZFcQFv3ds">日期章形状</label>
+      <div class="shapes" id="dateShapeBtns" data-page-node-id="x112TPl0tmLmRUoeti5BuW">
+        <div class="shape-btn active" data-shape="square" data-page-node-id="CiCgLfVl4IVSHDlojpARhV">
+          <svg class="icon" width="26" height="26" data-page-node-id="6HqNgbBxlOUwWosU3bUPKY"><rect x="3" y="3" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.5" data-page-node-id="xsHFKlVrmJNZ6XOCTmQkD0"/><line x1="3" y1="13" x2="23" y2="13" stroke="currentColor" stroke-width="1.2" data-page-node-id="8h0gbdEHY30aF1WVJpe2mn"/></svg>
+          正方形
+        </div>
+        <div class="shape-btn" data-shape="rect" data-page-node-id="5L7gbqOcYGSdkqNOQpkY1o">
+          <svg class="icon" width="26" height="26" data-page-node-id="I2ruSRaiC66puH39fzDWqd"><rect x="2" y="8" width="22" height="10" fill="none" stroke="currentColor" stroke-width="2.5" data-page-node-id="vq411rfGIu2DwTBkBmLcJn"/></svg>
+          长方形
+        </div>
+        <div class="shape-btn" data-shape="circle" data-page-node-id="c0E6hC63cU5bQjiwqwRQTk">
+          <svg class="icon" width="26" height="26" data-page-node-id="6m4cYhCmDOuNrmWipVbATg"><circle cx="13" cy="13" r="10.5" fill="none" stroke="currentColor" stroke-width="2.5" data-page-node-id="4qr33OVkOKQr33N1Y69AjL"/></svg>
+          圆形
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 字体（日期章也会用） -->
+  <div class="group" data-page-node-id="SDKKmQ6QmMMOOtpD9WtDQw">
+    <label class="t" data-page-node-id="pvJmuUYvqs7O1C1Ej9hoc2">字体</label>
+    <select id="fontSelect" data-page-node-id="AxIo6bc0B5Xeb412YSUplI">
+      <option value="kai" data-page-node-id="o79yfyLG92xR9UcR6qeKgh">楷体</option>
+      <option value="xk" data-page-node-id="vDuoZw0lCTx3dFEMmLLhTr">华文行楷</option>
+      <option value="cao" data-page-node-id="ZucSH9vCWwqqZM70qFKgxm">草书（行草）</option>
+      <option value="li" data-page-node-id="IcYeeLJJv5umbgJHFkOBlG">隶书</option>
+      <option value="xzhuan" data-page-node-id="B9nfWe6ALDTASIFCCIjwRC">小篆</option>
+      <option value="dzhuan" data-page-node-id="AVsDYKKxdeCSbWLWW2bFzu">大篆</option>
+      <option value="fs" data-page-node-id="CDVLiHcOUkApU8z8krujIz">仿宋</option>
+      <option value="song" data-page-node-id="HcH2qj0nt7u5Chrgwwb0WG">宋体</option>
+      <option value="yahei" data-page-node-id="SzD1Pto1GSV2KOG9pBQCt1">微软雅黑</option>
+      <option value="hei" data-page-node-id="n968HaIcwtFcrhspshgHwH">黑体</option>
+      <option value="hand" data-page-node-id="FwTwE5fHjeom6cpfUt3h8I">✍ 手写定制（自己写四个字）</option>
+    </select>
+  </div>
+
+  <div class="group" id="padGroup" data-page-node-id="9w89jLuVCPCfIF3WP1fINf">
+    <div class="pad-head" data-page-node-id="j7IbgPfIgZAPtXkUGpOpxh">
+      <label class="t" data-page-node-id="nDSdyCBoADWLXnfwkxqDk3">手写四个字（定制款）</label>
+      <button id="clearAllPads" data-page-node-id="YYi00V1u0Wja8rhOOsZFwt">全部清空</button>
+    </div>
+    <div class="pads" id="padBox" data-page-node-id="29OERSH3ys0TxjUnspNXeR"></div>
+    <div class="pad-note" data-page-node-id="zbNvT8KbBrPtB0v7lmh4qJ">用鼠标 / 手指在格子里直接写，字会按上面的顺序落到印面里；空格子会自动用当前字体显示。</div>
+  </div>
+
+  <div class="group" data-page-node-id="PfN1EZkVU6sXonCprhrBgP">
+    <label class="t" data-page-node-id="Eqd0voKMR6RHs4maRDofGK">印泥颜色</label>
+    <div class="swatches" id="swatches" data-page-node-id="HVjiRlMhWBgVy68xiu7T90">
+      <div class="swatch active" data-color="#C8281E" style="background:#C8281E" title="印泥红" data-page-node-id="gPxTJjphAecBl0RQs5O96f"></div>
+      <div class="swatch" data-color="#D9402A" style="background:#D9402A" title="朱砂" data-page-node-id="NpceZdsYdHbVGgwy6jYwh2"></div>
+      <div class="swatch" data-color="#A61B1B" style="background:#A61B1B" title="深红" data-page-node-id="cPS7RjQopxgi27U10FU2gX"></div>
+      <div class="swatch" data-color="#1E4FA3" style="background:#1E4FA3" title="宝蓝" data-page-node-id="IiOB88czBYMqetEVg2LT6F"></div>
+      <div class="swatch" data-color="#5B2A86" style="background:#5B2A86" title="青紫" data-page-node-id="AvZI5Gwm24OfHYGEXaUPGc"></div>
+      <div class="swatch" data-color="#1F1F1F" style="background:#1F1F1F" title="玄黑" data-page-node-id="XaaWQNZkc9QYEtx6frrDcK"></div>
+      <input type="color" id="customColor" value="#C8281E" title="自定义颜色" data-page-node-id="CaryZxEwiHSyfx14dwPs8y">
+    </div>
+  </div>
+
+  <div class="group opts" data-page-node-id="GIVH6dk2IpGStCJSRApuw2">
+    <label class="t" data-page-node-id="hTIw6T63UowjFdxViogO81">效果</label>
+    <label data-page-node-id="rJL2YtpBkfMOlNz0dfDlaV"><input type="checkbox" id="textureChk" checked data-page-node-id="I5n81e5UuQ5yxcvYEuuCcS"> 印泥做旧纹理（更真实）</label>
+    <label data-page-node-id="AAvbmKx651a3zLMxBAyMAh"><input type="checkbox" id="boldChk" data-page-node-id="A71rF82QFpvPmXOJMHwecs"> 粗体（笔画加粗）</label>
+  </div>
+
+  <div id="nameDownloads" data-page-node-id="FqIFWC1GZI1fgcR4QzavH4">
+    <button class="btn btn-main" id="dlSeal" data-page-node-id="kMJiZsGMte86FKz4Kc1Wfi">下载姓名章 PNG（透明底）</button>
+    <button class="btn btn-ghost" id="dlCard" data-page-node-id="ZyvTUKBTdkHwRXFDvknRj7">下载签字盖章卡 PNG</button>
+  </div>
+  <div id="dateDownload" data-page-node-id="kiYNE3XgcQdzMAOmmQuQ9H">
+    <button class="btn btn-main" id="dlDateSeal" data-page-node-id="5HZeGpHBOBfiIcNs6ClW5C">下载日期章 PNG（透明底）</button>
+  </div>
+
+  <div class="tip" id="tipBox" data-page-node-id="CyjswbYV94gP9DeMBFeOCm">
+    · 顶部 Tab 可切换「姓名章」与「日期章」，各自独立导出。<br data-page-node-id="aFffCsGg79wU2qkmfRnnSL">
+    · 日期章支持正方形（上下两行）、横向长方形（单行）、圆形（沿圆环排布）三种形状。<br data-page-node-id="42g7a30hdH2aXraJF4eyWk">
+    · 圆形印章只保留外圈粗圆环，字已按比例放大。<br data-page-node-id="Pex6Ay67DmHZf1jkVW0bKR">
+    · 字体选「✍ 手写定制」后，姓名章四个字全部手写输入。
+  </div>
+</aside>
+
+<main class="stage" data-page-node-id="m7NYw0M2iaeXDV4ha4SMRX">
+  <div class="paper" id="paperBox" data-page-node-id="VXzHO8G8ox3wRGXjG0mpK5">
+    <div class="sig-area" data-page-node-id="urRT1Gmj11W4R16uwElHWG">
+      <div class="sig-name" id="sigName" data-page-node-id="G9Xb72SwQiKoc7vWMSAX2b">张三丰</div>
+      <div class="sig-line" data-page-node-id="u4u5q6c9VqjFZEGZ1rBTxh"></div>
+      <div class="sig-date" id="sigDate" data-page-node-id="mtBGbm9pzPLc3qOjtc5LyR"></div>
+    </div>
+    <div class="seal-wrap" data-page-node-id="TKPCVCJMi9cqU1hZzLT3YM"><canvas id="sealCanvas" data-page-node-id="bXCDMj5fm4SwyO7AnE58wT"></canvas></div>
+  </div>
+</main>
+
+<script>
+(function(){
+  "use strict";
+
+  var FONTS = {
+    kai:    '"KaiTi","STKaiti","楷体","Kaiti SC",serif',
+    xk:     '"STXingkai","华文行楷","Xingkai SC","KaiTi",cursive',
+    cao:    '"STXingcao","华文行草","行草","STXingkai","Cursive","KaiTi",cursive',
+    li:     '"LiSu","隶书","LiSu SC","KaiTi",serif',
+    xzhuan: '"方正小篆体","FZXiaoZhuanTi-S05S","汉仪篆书繁","HYShangWeiShouJ","ZhuanTi","篆体","STXinwei","KaiTi",serif',
+    dzhuan: '"金文大篆体","JinWenDaZhuanTi","汉仪金文篆","HYJinWenKaiJ","ZhuanTi","篆体","STXinwei","KaiTi",serif',
+    fs:     '"FangSong","仿宋","FangSong SC","KaiTi",serif',
+    song:   '"SimSun","宋体","Songti SC",serif',
+    yahei:  '"Microsoft YaHei","微软雅黑","PingFang SC",sans-serif',
+    hei:    '"SimHei","黑体","Heiti SC",sans-serif'
+  };
+
+  var NAME_LAYOUTS = {
+    square: [["lay_sq_trad","右起竖读（传统）"],["lay_sq_h","横读（左→右，上→下）"]],
+    rect:   [["lay_rect_v","竖排（上→下）"],["lay_rect_h","横排（左→右）"]],
+    circle: [["lay_circle_arc","弧形排布 · 印在下"],["lay_circle_cross","十字四点 · 印在下"],["lay_circle_center","中印式 · 印居中"]]
+  };
+
+  var PAD = 130;
+
+  var state = {
+    mode: "name",
+    name: "张三丰",
+    order: ["张","三","丰","印"],
+    nameShape: "square",
+    nameLayout: "lay_sq_trad",
+    font: FONTS.kai,
+    hand: false,
+    strokes: [[],[],[],[]],
+    date: new Date(),
+    dateFormat: "ch",
+    dateShape: "square",
+    color: "#C8281E",
+    texture: true,
+    bold: false
+  };
+
+  function F(size){ return (state.bold ? "bold " : "") + size + "px " + state.font; }
+
+  function curShape(){ return state.mode === "name" ? state.nameShape : state.dateShape; }
+
+  /* ---------- 工具：日期字符串 ---------- */
+  function dateParts(d, fmt){
+    var y = d.getFullYear(), m = d.getMonth() + 1, day = d.getDate();
+    if (fmt === "ch") return [y + "年", m + "月" + day + "日"];
+    var s = y + "." + m + "." + day;
+    var half = Math.ceil(s.length / 2);
+    return [s.slice(0, half), s.slice(half)];
+  }
+  function dateText(d, fmt){
+    var y = d.getFullYear(), m = d.getMonth() + 1, day = d.getDate();
+    return fmt === "ch" ? y + "年" + m + "月" + day + "日" : y + "." + m + "." + day;
+  }
+
+  /* ---------- 姓名：重建顺序 ---------- */
+  function rebuildOrder(){
+    var n = (state.name || "").replace(/\s/g, "");
+    if (!n) n = "无名";
+    var chars = n.split("");
+    if (chars.length > 3) chars = chars.slice(0, 3);
+    if (chars[chars.length - 1] !== "印") chars.push("印");
+    state.order = chars;
+  }
+
+  /* ---------- 单字绘制（手写 / 字体） ---------- */
+  function drawGlyph(ctx, i, x, y, box){
+    var st = state.strokes[i];
+    if (state.hand && st && st.length){
+      ctx.save();
+      ctx.translate(x - box/2, y - box/2);
+      ctx.scale(box, box);
+      ctx.strokeStyle = state.color; ctx.fillStyle = state.color;
+      ctx.lineWidth = state.bold ? 0.104 : 0.078;
+      ctx.lineCap = "round"; ctx.lineJoin = "round";
+      for (var s=0; s<st.length; s++){
+        var one = st[s];
+        if (one.length === 1){
+          ctx.beginPath(); ctx.arc(one[0].x, one[0].y, ctx.lineWidth*0.5, 0, Math.PI*2); ctx.fill();
+          continue;
+        }
+        ctx.beginPath(); ctx.moveTo(one[0].x, one[0].y);
+        for (var k=1; k<one.length; k++) ctx.lineTo(one[k].x, one[k].y);
+        ctx.stroke();
+      }
+      ctx.restore();
+      return;
+    }
+    ctx.fillText(state.order[i], x, y);
+  }
+
+  /* ---------- 姓名章：正方形 ---------- */
+  function drawNameSquare(ctx, cx, cy, S){
+    var border = S*0.042, half=S/2, x0=cx-half, y0=cy-half;
+    ctx.strokeStyle=state.color; ctx.fillStyle=state.color; ctx.lineJoin="miter";
+    ctx.lineWidth=border;
+    ctx.strokeRect(x0+border/2, y0+border/2, S-border, S-border);
+    ctx.lineWidth=border*0.5;
+    ctx.beginPath();
+    ctx.moveTo(cx, y0+border*0.9); ctx.lineTo(cx, y0+S-border*0.9);
+    ctx.moveTo(x0+border*0.9, cy); ctx.lineTo(x0+S-border*0.9, cy);
+    ctx.stroke();
+    var cs=S*0.295; ctx.font=F(cs); ctx.textAlign="center"; ctx.textBaseline="middle";
+    var pos = state.nameLayout==="lay_sq_h"
+      ? [[0.265,0.265],[0.735,0.265],[0.265,0.735],[0.735,0.735]]
+      : [[0.735,0.265],[0.735,0.735],[0.265,0.265],[0.265,0.735]];
+    for (var i=0; i<state.order.length && i<4; i++){
+      drawGlyph(ctx, i, x0+S*pos[i][0], y0+S*pos[i][1], cs*1.02);
+    }
+  }
+
+  /* ---------- 姓名章：长方形 ---------- */
+  function nameRectMetrics(S){
+    var n=state.order.length, border=S*0.05;
+    if (state.nameLayout==="lay_rect_h"){
+      var cs=S*0.26;
+      return {n:n, cs:cs, w:cs*1.24*n+border*2+S*0.05, h:cs+border*2+S*0.05, h:true, border:border};
+    }
+    var cs=S*0.44*0.58;
+    return {n:n, cs:cs, w:S*0.44, h:cs*1.24*n+border*2+S*0.05, h:false, border:border};
+  }
+  function drawNameRect(ctx, cx, cy, S){
+    var m=nameRectMetrics(S), n=m.n, cs=m.cs, W=m.w, H=m.h, border=m.border;
+    var x0=cx-W/2, y0=cy-H/2;
+    ctx.strokeStyle=state.color; ctx.fillStyle=state.color; ctx.lineWidth=border;
+    ctx.strokeRect(x0+border/2, y0+border/2, W-border, H-border);
+    ctx.font=F(cs); ctx.textAlign="center"; ctx.textBaseline="middle";
+    var i;
+    if (m.h){
+      var innerL=x0+border, innerW=W-2*border;
+      for (i=0;i<n;i++) drawGlyph(ctx, i, innerL+innerW*(i+0.5)/n, cy, cs*1.02);
+      if (n>1){ ctx.lineWidth=border*0.45; ctx.beginPath(); for (var j=1;j<n;j++){ var xx=innerL+innerW*j/n; ctx.moveTo(xx,y0+border*0.8); ctx.lineTo(xx,y0+H-border*0.8); } ctx.stroke(); }
+    } else {
+      var innerTop=y0+border, innerH=H-2*border;
+      for (i=0;i<n;i++) drawGlyph(ctx, i, cx, innerTop+innerH*(i+0.5)/n, cs*1.02);
+      if (n>1){ ctx.lineWidth=border*0.45; ctx.beginPath(); for (var j=1;j<n;j++){ var yy=innerTop+innerH*j/n; ctx.moveTo(x0+border*0.8,yy); ctx.lineTo(x0+W-border*0.8,yy); } ctx.stroke(); }
+    }
+  }
+
+  /* ---------- 姓名章：圆形 ---------- */
+  function drawNameCircle(ctx, cx, cy, S){
+    var R=S/2, border=S*0.038;
+    ctx.strokeStyle=state.color; ctx.fillStyle=state.color;
+    ctx.lineWidth=border;
+    ctx.beginPath(); ctx.arc(cx,cy,R-border/2,0,Math.PI*2); ctx.stroke();
+    var n=state.order.length;
+    ctx.textAlign="center"; ctx.textBaseline="middle";
+    if (state.nameLayout==="lay_circle_arc"){
+      var arcR=R*0.48, m=n-1; if (m<1) m=1;
+      var step=Math.min(1.05,2.5/m), fsName=S*0.235, fsSeal=S*0.215;
+      ctx.font=F(fsName);
+      for (var i=0;i<m;i++){
+        var th=((m-1)/2-i)*step;
+        ctx.save(); ctx.translate(cx,cy); ctx.rotate(th); ctx.translate(0,-arcR); drawGlyph(ctx,i,0,0,fsName*1.04); ctx.restore();
+      }
+      ctx.font=F(fsSeal); drawGlyph(ctx,n-1,cx,cy+R*0.44,fsSeal*1.04);
+    } else if (state.nameLayout==="lay_circle_cross"){
+      var fs=S*0.235, slots=[[-R*0.46,0],[0,-R*0.46],[R*0.46,0]], m2=n-1;
+      ctx.font=F(fs);
+      for (var k=0;k<m2;k++) drawGlyph(ctx,k,cx+slots[k][0],cy+slots[k][1],fs*1.04);
+      var fs2=S*0.26; ctx.font=F(fs2); drawGlyph(ctx,n-1,cx,cy+R*0.47,fs2*1.04);
+    } else {
+      var fsC=S*0.225, slots=[[0,-R*0.54],[-R*0.44,R*0.42],[R*0.44,R*0.42]], m3=n-1;
+      ctx.font=F(fsC);
+      for (var t=0;t<m3;t++) drawGlyph(ctx,t,cx+slots[t][0],cy+slots[t][1],fsC*1.04);
+      var fsMid=S*0.30; ctx.font=F(fsMid); drawGlyph(ctx,n-1,cx,cy,fsMid*1.04);
+    }
+  }
+
+  /* ---------- 日期章绘制 ---------- */
+  function drawDateSquare(ctx, d, cx, cy, S){
+    var parts = dateParts(d, state.dateFormat);
+    var border = S*0.042, half=S/2, x0=cx-half, y0=cy-half;
+    ctx.strokeStyle=state.color; ctx.fillStyle=state.color; ctx.lineJoin="miter";
+    ctx.lineWidth=border;
+    ctx.strokeRect(x0+border/2, y0+border/2, S-border, S-border);
+    var fs=S*0.19;
+    ctx.font=F(fs); ctx.textAlign="center"; ctx.textBaseline="middle";
+    if (parts.length===2){
+      ctx.fillText(parts[0], cx, y0+S*0.32);
+      ctx.fillText(parts[1], cx, y0+S*0.68);
+      ctx.lineWidth=border*0.35;
+      ctx.beginPath();
+      ctx.moveTo(x0+border*1.5, cy); ctx.lineTo(x0+S-border*1.5, cy);
+      ctx.stroke();
+    } else {
+      ctx.fillText(parts[0], cx, cy);
+    }
+  }
+  function drawDateRect(ctx, d, cx, cy, S){
+    var text=dateText(d, state.dateFormat), chars=text.split(""), n=chars.length;
+    var cs=S*0.21, slot=cs*1.22, border=S*0.05;
+    var W=slot*n+border*2+S*0.05, H=cs+border*2+S*0.05;
+    var x0=cx-W/2, y0=cy-H/2;
+    ctx.strokeStyle=state.color; ctx.fillStyle=state.color; ctx.lineWidth=border;
+    ctx.strokeRect(x0+border/2, y0+border/2, W-border, H-border);
+    ctx.font=F(cs); ctx.textAlign="center"; ctx.textBaseline="middle";
+    var innerL=x0+border, innerW=W-2*border;
+    chars.forEach(function(ch,i){ ctx.fillText(ch, innerL+innerW*(i+0.5)/n, cy); });
+  }
+  function drawDateCircle(ctx, d, cx, cy, S){
+    var text=dateText(d, state.dateFormat), chars=text.split(""), n=chars.length;
+    var R=S/2, border=S*0.038;
+    ctx.strokeStyle=state.color; ctx.fillStyle=state.color; ctx.lineWidth=border;
+    ctx.beginPath(); ctx.arc(cx,cy,R-border/2,0,Math.PI*2); ctx.stroke();
+    var fs=S*Math.min(0.135, 0.95/n);
+    ctx.font=F(fs); ctx.textAlign="center"; ctx.textBaseline="middle";
+    var rText=R*0.62;
+    for (var i=0;i<n;i++){
+      var th=-Math.PI/2 + (i/n)*Math.PI*2;
+      ctx.fillText(chars[i], cx+Math.cos(th)*rText, cy+Math.sin(th)*rText);
+    }
+  }
+
+  /* ---------- 做旧纹理 ---------- */
+  function erode(cv){
+    var ctx=cv.getContext("2d"), w=cv.width, h=cv.height;
+    ctx.save(); ctx.globalCompositeOperation="destination-out";
+    for (var i=0;i<420;i++){ var x=Math.random()*w,y=Math.random()*h,r=0.8+Math.random()*2.2; ctx.globalAlpha=0.08+Math.random()*0.3; ctx.beginPath(); ctx.arc(x,y,r,0,Math.PI*2); ctx.fill(); }
+    for (var j=0;j<60;j++){ var a=Math.random()*Math.PI*2,rr=Math.min(w,h)/2-4,ex=w/2+Math.cos(a)*rr,ey=h/2+Math.sin(a)*rr; ctx.globalAlpha=0.15+Math.random()*0.25; ctx.beginPath(); ctx.arc(ex,ey,1.5+Math.random()*3,0,Math.PI*2); ctx.fill(); }
+    ctx.restore();
+  }
+
+  /* ---------- 渲染姓名章 ---------- */
+  function makeNameSealCanvas(scale){
+    var cv=document.createElement("canvas"), ctx=cv.getContext("2d");
+    var S=440*scale, pad=20*scale, shape=state.nameShape;
+    if (shape==="square" || shape==="circle"){
+      cv.width=cv.height=S+pad;
+      if (shape==="square") drawNameSquare(ctx, cv.width/2, cv.height/2, S);
+      else drawNameCircle(ctx, cv.width/2, cv.height/2, S);
+    } else {
+      var m=nameRectMetrics(S);
+      cv.width=m.w+pad; cv.height=m.h+pad;
+      drawNameRect(ctx, cv.width/2, cv.height/2, S);
+    }
+    if (state.texture) erode(cv);
+    return cv;
+  }
+
+  /* ---------- 渲染日期章 ---------- */
+  function makeDateSealCanvas(scale){
+    var cv=document.createElement("canvas"), ctx=cv.getContext("2d");
+    var S=440*scale, pad=20*scale, shape=state.dateShape, text=dateText(state.date, state.dateFormat), n=text.length;
+    if (shape==="square" || shape==="circle"){
+      cv.width=cv.height=S+pad;
+      if (shape==="square") drawDateSquare(ctx, state.date, cv.width/2, cv.height/2, S);
+      else drawDateCircle(ctx, state.date, cv.width/2, cv.height/2, S);
+    } else {
+      var cs=S*0.21, slot=cs*1.22, border=S*0.05;
+      var W=slot*n+border*2+S*0.05, H=cs+border*2+S*0.05;
+      cv.width=W+pad; cv.height=H+pad;
+      drawDateRect(ctx, state.date, cv.width/2, cv.height/2, S);
+    }
+    if (state.texture) erode(cv);
+    return cv;
+  }
+
+  /* ---------- 预览 ---------- */
+  var previewCv=document.getElementById("sealCanvas");
+  var paperBox=document.getElementById("paperBox");
+  function renderPreview(){
+    var src, dw;
+    if (state.mode==="name"){
+      src=makeNameSealCanvas(1.1);
+      if (state.nameShape==="square" || state.nameShape==="circle") dw=230;
+      else if (state.nameLayout==="lay_rect_h") dw=280;
+      else dw=150;
+      document.getElementById("sigName").textContent=state.name || "无名";
+      document.getElementById("sigName").style.fontFamily=state.font;
+      document.getElementById("sigName").style.fontWeight=state.bold ? "bold" : "normal";
+      paperBox.classList.remove("date-only");
+    } else {
+      src=makeDateSealCanvas(1.1);
+      dw = state.dateShape==="rect" ? 320 : 240;
+      paperBox.classList.add("date-only");
+    }
+    previewCv.width=src.width; previewCv.height=src.height;
+    previewCv.style.width=dw+"px";
+    previewCv.getContext("2d").drawImage(src,0,0);
+  }
+
+  /* ---------- 姓名顺序 chips ---------- */
+  function renderOrderChips(){
+    var box=document.getElementById("orderChips"); box.innerHTML="";
+    state.order.forEach(function(ch,i){
+      var chip=document.createElement("div"); chip.className="chip";
+      var idx=document.createElement("span"); idx.className="idx"; idx.textContent=i+1;
+      var span=document.createElement("span"); span.className="ch"; span.textContent=ch;
+      var btns=document.createElement("span"); btns.className="btns";
+      var up=document.createElement("button"); up.textContent="▲"; up.disabled=(i===0);
+      var down=document.createElement("button"); down.textContent="▼"; down.disabled=(i===state.order.length-1);
+      up.onclick=function(){ swapOrder(i,i-1); };
+      down.onclick=function(){ swapOrder(i,i+1); };
+      btns.appendChild(up); btns.appendChild(down);
+      chip.appendChild(idx); chip.appendChild(span); chip.appendChild(btns);
+      box.appendChild(chip);
+    });
+    padLabels();
+  }
+  function swapOrder(a,b){ var t=state.order[a]; state.order[a]=state.order[b]; state.order[b]=t; renderOrderChips(); renderPreview(); }
+
+  /* ---------- 手写格 ---------- */
+  function buildPads(){
+    var box=document.getElementById("padBox"); box.innerHTML="";
+    for (var i=0;i<4;i++){
+      (function(i){
+        var item=document.createElement("div"); item.className="pad-item";
+        var cv=document.createElement("canvas"); cv.width=PAD; cv.height=PAD;
+        var lbl=document.createElement("div"); lbl.className="lbl";
+        var cspan=document.createElement("span"); cspan.className="c"; cspan.textContent=state.order[i] || "";
+        var clr=document.createElement("button"); clr.textContent="清空";
+        clr.onclick=function(){ state.strokes[i]=[]; redrawPad(i); renderPreview(); };
+        lbl.appendChild(cspan); lbl.appendChild(clr);
+        item.appendChild(cv); item.appendChild(lbl);
+        box.appendChild(item);
+        bindPad(cv,i); redrawPad(i);
+      })(i);
+    }
+  }
+  function padLabels(){ var els=document.querySelectorAll("#padBox .pad-item .lbl .c"); for (var i=0;i<els.length;i++) els[i].textContent=state.order[i] || ""; }
+  function padCanvas(idx){ return document.querySelectorAll("#padBox canvas")[idx]; }
+  function bindPad(cv,idx){
+    var drawing=false, cur=null;
+    function pt(e){ var r=cv.getBoundingClientRect(); return { x:Math.max(0,Math.min(1,(e.clientX-r.left)/r.width)), y:Math.max(0,Math.min(1,(e.clientY-r.top)/r.height)) }; }
+    cv.addEventListener("pointerdown",function(e){ e.preventDefault(); try{cv.setPointerCapture(e.pointerId);}catch(err){} drawing=true; cur=[pt(e)]; state.strokes[idx].push(cur); redrawPad(idx); renderPreview(); });
+    cv.addEventListener("pointermove",function(e){ if(!drawing||!cur)return; e.preventDefault(); cur.push(pt(e)); redrawPad(idx); renderPreview(); });
+    ["pointerup","pointercancel","pointerleave"].forEach(function(ev){ cv.addEventListener(ev,function(){ drawing=false; cur=null; }); });
+  }
+  function redrawPad(idx){ var cv=padCanvas(idx); if(!cv)return; var ctx=cv.getContext("2d"); ctx.clearRect(0,0,cv.width,cv.height); ctx.save(); ctx.strokeStyle=state.color; ctx.fillStyle=state.color; ctx.lineWidth=PAD*0.055; ctx.lineCap="round"; ctx.lineJoin="round"; (state.strokes[idx]||[]).forEach(function(st){ if(st.length===1){ ctx.beginPath(); ctx.arc(st[0].x*PAD,st[0].y*PAD,ctx.lineWidth*0.5,0,Math.PI*2); ctx.fill(); return; } ctx.beginPath(); ctx.moveTo(st[0].x*PAD,st[0].y*PAD); for(var k=1;k<st.length;k++) ctx.lineTo(st[k].x*PAD,st[k].y*PAD); ctx.stroke(); }); ctx.restore(); }
+  function redrawAllPads(){ for(var i=0;i<4;i++) redrawPad(i); }
+
+  /* ---------- 布局下拉 ---------- */
+  var layoutSelect=document.getElementById("layoutSelect");
+  function fillLayoutOptions(){
+    layoutSelect.innerHTML="";
+    NAME_LAYOUTS[state.nameShape].forEach(function(item){ var opt=document.createElement("option"); opt.value=item[0]; opt.textContent=item[1]; layoutSelect.appendChild(opt); });
+    state.nameLayout=NAME_LAYOUTS[state.nameShape][0][0];
+  }
+
+  /* ---------- 下载 ---------- */
+  function download(cv, filename){ var a=document.createElement("a"); a.href=cv.toDataURL("image/png"); a.download=filename; a.click(); }
+
+  document.getElementById("dlSeal").addEventListener("click",function(){ download(makeNameSealCanvas(3), "姓名章_"+(state.name||"无名")+".png"); });
+  document.getElementById("dlDateSeal").addEventListener("click",function(){ var txt=dateText(state.date,state.dateFormat).replace(/[年月日.]/g,"_"); download(makeDateSealCanvas(3), "日期章_"+txt+".png"); });
+  document.getElementById("dlCard").addEventListener("click",function(){
+    var scale=2, W=700*scale, H=440*scale, cv=document.createElement("canvas");
+    cv.width=W; cv.height=H; var ctx=cv.getContext("2d");
+    ctx.fillStyle="#ffffff"; ctx.fillRect(0,0,W,H);
+    ctx.fillStyle="#1a1a1a"; ctx.font=F(Math.round(58*scale)); ctx.textAlign="left"; ctx.textBaseline="alphabetic";
+    ctx.fillText(state.name||"无名", 70*scale, 200*scale);
+    ctx.strokeStyle="#999"; ctx.lineWidth=1.2*scale; ctx.beginPath(); ctx.moveTo(66*scale,225*scale); ctx.lineTo(320*scale,225*scale); ctx.stroke();
+    var d=new Date(); ctx.fillStyle="#555"; ctx.font=Math.round(16*scale)+"px "+state.font;
+    ctx.fillText(d.getFullYear()+" 年 "+(d.getMonth()+1)+" 月 "+d.getDate()+" 日", 70*scale, 260*scale);
+    var seal=makeNameSealCanvas(scale*0.9);
+    var sh=Math.min(seal.height,230*scale), sw=seal.width*(sh/seal.height);
+    ctx.drawImage(seal, W-sw-60*scale, H-sh-50*scale, sw, sh);
+    download(cv, "签字盖章卡_"+(state.name||"无名")+".png");
+  });
+
+  /* ---------- 交互绑定 ---------- */
+  var tabs=document.querySelectorAll(".tab");
+  tabs.forEach(function(tab){ tab.addEventListener("click",function(){ tabs.forEach(function(t){ t.classList.remove("active"); }); tab.classList.add("active"); state.mode=tab.dataset.mode; document.body.classList.toggle("date-mode", state.mode==="date"); updateActiveShapeBtns(); renderPreview(); }); });
+
+  document.getElementById("nameInput").addEventListener("input",function(e){ state.name=e.target.value; rebuildOrder(); renderOrderChips(); renderPreview(); });
+
+  function shapeClick(group, isName){ var btns=document.querySelectorAll(group+" .shape-btn"); btns.forEach(function(btn){ btn.addEventListener("click",function(){ btns.forEach(function(b){ b.classList.remove("active"); }); btn.classList.add("active"); if (isName){ state.nameShape=btn.dataset.shape; fillLayoutOptions(); } else { state.dateShape=btn.dataset.shape; } renderPreview(); }); }); }
+  shapeClick("#shapeBtns", true);
+  shapeClick("#dateShapeBtns", false);
+
+  function updateActiveShapeBtns(){
+    document.querySelectorAll("#shapeBtns .shape-btn").forEach(function(b){ b.classList.toggle("active", b.dataset.shape===state.nameShape); });
+    document.querySelectorAll("#dateShapeBtns .shape-btn").forEach(function(b){ b.classList.toggle("active", b.dataset.shape===state.dateShape); });
+  }
+
+  layoutSelect.addEventListener("change",function(e){ state.nameLayout=e.target.value; renderPreview(); });
+
+  document.getElementById("fontSelect").addEventListener("change",function(e){ var v=e.target.value; if (v==="hand"){ state.hand=true; document.getElementById("padGroup").style.display="block"; } else { state.hand=false; state.font=FONTS[v]; document.getElementById("padGroup").style.display="none"; } renderPreview(); });
+  document.getElementById("clearAllPads").addEventListener("click",function(){ state.strokes=[[],[],[],[]]; redrawAllPads(); renderPreview(); });
+
+  var dateInput=document.getElementById("dateInput");
+  dateInput.valueAsDate=state.date;
+  dateInput.addEventListener("change",function(e){ if(e.target.value){ state.date=new Date(e.target.value+"T00:00:00"); renderPreview(); } });
+  document.querySelectorAll("input[name='dateFmt']").forEach(function(r){ r.addEventListener("change",function(e){ if(e.target.checked){ state.dateFormat=e.target.value; renderPreview(); } }); });
+
+  var swatchEls=document.querySelectorAll(".swatch");
+  swatchEls.forEach(function(sw){ sw.addEventListener("click",function(){ swatchEls.forEach(function(s){ s.classList.remove("active"); }); sw.classList.add("active"); state.color=sw.dataset.color; document.getElementById("customColor").value=sw.dataset.color; redrawAllPads(); renderPreview(); }); });
+  document.getElementById("customColor").addEventListener("input",function(e){ swatchEls.forEach(function(s){ s.classList.remove("active"); }); state.color=e.target.value; redrawAllPads(); renderPreview(); });
+  document.getElementById("textureChk").addEventListener("change",function(e){ state.texture=e.target.checked; renderPreview(); });
+  document.getElementById("boldChk").addEventListener("change",function(e){ state.bold=e.target.checked; renderPreview(); });
+
+  /* ---------- 初始化 ---------- */
+  var now=new Date();
+  document.getElementById("sigDate").textContent=now.getFullYear()+" 年 "+(now.getMonth()+1)+" 月 "+now.getDate()+" 日";
+  fillLayoutOptions();
+  buildPads();
+  renderOrderChips();
+  updateActiveShapeBtns();
+  renderPreview();
+})();
+</script>
+<script>
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', function () {
+    navigator.serviceWorker.register('./sw.js').catch(function () {});
+  });
+}
+</script>
+</body>
+</html>
