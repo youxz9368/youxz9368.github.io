@@ -1,5 +1,6 @@
-var CACHE = 'zhonghuazhiqu-v1';
-var SHELL = [
+// 中华智趣 Service Worker —— 缓存 App Shell，首访即离线可用
+const CACHE = 'zhonghuazhiqu-v2';
+const SHELL = [
   './',
   './index.html',
   './manifest.json',
@@ -9,44 +10,37 @@ var SHELL = [
   './favicon.png'
 ];
 
-self.addEventListener('install', function (e) {
+self.addEventListener('install', e => {
   e.waitUntil(
-    caches.open(CACHE).then(function (c) { return c.addAll(SHELL); }).then(function () {
-      return self.skipWaiting();
-    })
+    caches.open(CACHE).then(c => c.addAll(SHELL)).then(() => self.skipWaiting())
   );
 });
 
-self.addEventListener('activate', function (e) {
+self.addEventListener('activate', e => {
   e.waitUntil(
-    caches.keys().then(function (keys) {
-      return Promise.all(keys.map(function (k) {
-        if (k !== CACHE) return caches.delete(k);
-      }));
-    }).then(function () { return self.clients.claim(); })
+    caches.keys().then(ks =>
+      Promise.all(ks.filter(k => k !== CACHE).map(k => caches.delete(k)))
+    ).then(() => self.clients.claim())
   );
 });
 
-// 运行时缓存：先取缓存，未命中再请求并写入缓存（适配 assets/ 与 data/ 大量按需加载）
-self.addEventListener('fetch', function (e) {
-  var req = e.request;
+self.addEventListener('fetch', e => {
+  const req = e.request;
   if (req.method !== 'GET') return;
-  var url = new URL(req.url);
-  if (url.origin !== self.location.origin) return;
-
+  if (new URL(req.url).origin !== self.location.origin) return;
+  // 导航请求：优先网络，失败回退已缓存的 index.html（离线兜底）
+  if (req.mode === 'navigate') {
+    e.respondWith(fetch(req).catch(() => caches.match('./index.html')));
+    return;
+  }
+  // 其余：缓存优先，未命中再请求并写入缓存（运行时补全）
   e.respondWith(
-    caches.match(req).then(function (cached) {
-      if (cached) return cached;
-      return fetch(req).then(function (res) {
-        if (res && res.status === 200 && (res.type === 'basic' || res.type === 'default')) {
-          var copy = res.clone();
-          caches.open(CACHE).then(function (c) { c.put(req, copy); });
-        }
-        return res;
-      }).catch(function () {
-        // 离线且缓存未命中时，导航请求回退到首页
-        if (req.mode === 'navigate') return caches.match('./index.html');
-      });
-    })
+    caches.match(req).then(r =>
+      r || fetch(req).then(resp => {
+        const cp = resp.clone();
+        caches.open(CACHE).then(c => c.put(req, cp));
+        return resp;
+      }).catch(() => r)
+    )
   );
 });
