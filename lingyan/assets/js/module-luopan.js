@@ -22,6 +22,24 @@
   var BAGUA_HOU = { '坎': 0, '艮': 45, '震': 90, '巽': 135, '离': 180, '坤': 225, '兑': 270, '乾': 315 };
   var BAGUA_XIAN = { '乾': 180, '坤': 0, '离': 90, '坎': 270, '震': 45, '兑': 225, '巽': 315, '艮': 135 };
 
+  // 二十四山 → 八卦（用于八宅）
+  var SHAN_TO_GUA = {
+    '壬':'坎','子':'坎','癸':'坎',
+    '丑':'艮','艮':'艮','寅':'艮',
+    '甲':'震','卯':'震','乙':'震',
+    '辰':'巽','巽':'巽','巳':'巽',
+    '丙':'离','午':'离','丁':'离',
+    '未':'坤','坤':'坤','申':'坤',
+    '庚':'兑','酉':'兑','辛':'兑',
+    '戌':'乾','乾':'乾','亥':'乾'
+  };
+  function dir8(deg) {
+    var names = ['北','东北','东','东南','南','西南','西','西北'];
+    var i = Math.round(((((deg % 360) + 360) % 360) / 45)) % 8;
+    return names[i];
+  }
+  function norm360(v) { return ((v % 360) + 360) % 360; }
+
   function pt(r, deg) {
     var a = deg * Math.PI / 180;
     return [CX + r * Math.sin(a), CY - r * Math.cos(a)];
@@ -158,6 +176,11 @@
     { t: '张', deg: 335, c: C_FIRE }, { t: '翼', deg: 350, c: C_FIRE },
     { t: '轸', deg: 10, c: C_FIRE }
   ];
+  // 六十四卦（文王序），用于综合罗盘最外/新增圈层，每卦 5.625°
+  var R18_64GUA = (typeof HEXAGRAM_DATA !== 'undefined' ? HEXAGRAM_DATA : []).map(function (it, i) {
+    return { t: it.name.substring(0, 2), deg: i * 5.625, c: INK };
+  });
+
   var R19_ZHOUTIAN = [
     { t: '角', deg: 0, du: '12' }, { t: '亢', deg: 12, du: '10' },
     { t: '氐', deg: 22, du: '10' }, { t: '房', deg: 32, du: '8' },
@@ -194,6 +217,7 @@
     { r: 130, items: R15_FENGFENJIN, size: 4, label: '圈15 缝针一百二十分金' },
     { r: 136, items: R16_YINGSUO, size: 4.5, label: '圈16 盈缩六十龙' },
     { r: 142, items: R17_SUXING, size: 5, label: '圈17 宿度五行' },
+    { r: 143, items: R18_64GUA, size: 4.5, label: '圈18 六十四卦' },
     { r: 148, items: R19_ZHOUTIAN, size: 5, label: '圈19 周天宿度' }
   ];
 
@@ -313,6 +337,25 @@
     if (r2) s += '<circle cx="' + CX + '" cy="' + CY + '" r="' + r2 + '" fill="none" stroke="' + (color || GOLD) + '" stroke-width="' + (width || 0.6) + '"/>';
     return s;
   }
+
+  // 按 ring 数据项的实际角度，在相邻两项中间画径向分隔线（短线从 rInner 到 rOuter）
+  // 这样不会压到文字（文字位于 item.deg 即格子中心），同时让各圈层像真实罗盘那样分出格子
+  function ringSectorDividers(rInner, rOuter, items, color, width) {
+    if (!items || items.length < 2) return '';
+    color = color || GOLD; width = width || 0.4;
+    var degs = items.map(function (it) { return it.deg % 360; }).sort(function (a, b) { return a - b; });
+    var n = degs.length, out = '', i;
+    for (i = 0; i < n; i++) {
+      var a = degs[i], b = degs[(i + 1) % n];
+      if (i === n - 1) b += 360;
+      var mid = ((a + b) / 2) % 360;
+      var p1 = pt(rInner, mid), p2 = pt(rOuter, mid);
+      out += '<line x1="' + p1[0].toFixed(1) + '" y1="' + p1[1].toFixed(1) +
+             '" x2="' + p2[0].toFixed(1) + '" y2="' + p2[1].toFixed(1) +
+             '" stroke="' + color + '" stroke-width="' + width + '" opacity="0.85"/>';
+    }
+    return out;
+  }
   function labels(r, arr, size, weight) {
     var s = '';
     arr.forEach(function (it) {
@@ -340,15 +383,26 @@
     s += '</g>';
     s += '<g id="lp-zh-ticks">' + denseTicks360({ rOut: 151, rMain: 145, rMid: 148, rMin: 150, numR: 138, showEvery: 30 }) + '</g>';
     s += '<g id="lp-zh-rings">';
-    for (var i = 0; i < ZH_RINGS.length; i++) {
-      s += ringLines(ZH_RINGS[i].r + 2.5, null, GOLD, 0.4);
-    }
+    ZH_RINGS.forEach(function (rg, i) {
+      var rIn = Math.max(36, rg.r - 1.5);
+      var rOut = rg.r + 1.5;
+      // 每个 ring 画出内、外两道环线 + 径向分隔短线，形成真实罗盘般的格子
+      s += ringLines(rIn, rOut, GOLD, 0.4);
+      s += ringSectorDividers(rIn, rOut, rg.items, GOLD, 0.35);
+    });
     s += '</g>';
     s += '<g id="lp-zh-labels">';
     ZH_RINGS.forEach(function (rg) {
       s += labels(rg.r, rg.items, rg.size, rg.bold ? 'bold' : 'normal');
     });
     s += '</g>';
+    // 最内圈八卦/四象基准（天池外围）加 4 条主方位分隔线，视觉更稳
+    s += '<g id="lp-zh-axis">' +
+           '<line x1="' + pt(38, 0)[0].toFixed(1) + '" y1="' + pt(38, 0)[1].toFixed(1) + '" x2="' + pt(42, 0)[0].toFixed(1) + '" y2="' + pt(42, 0)[1].toFixed(1) + '" stroke="' + RED + '" stroke-width="0.8"/>' +
+           '<line x1="' + pt(38, 90)[0].toFixed(1) + '" y1="' + pt(38, 90)[1].toFixed(1) + '" x2="' + pt(42, 90)[0].toFixed(1) + '" y2="' + pt(42, 90)[1].toFixed(1) + '" stroke="' + RED + '" stroke-width="0.8"/>' +
+           '<line x1="' + pt(38, 180)[0].toFixed(1) + '" y1="' + pt(38, 180)[1].toFixed(1) + '" x2="' + pt(42, 180)[0].toFixed(1) + '" y2="' + pt(42, 180)[1].toFixed(1) + '" stroke="' + RED + '" stroke-width="0.8"/>' +
+           '<line x1="' + pt(38, 270)[0].toFixed(1) + '" y1="' + pt(38, 270)[1].toFixed(1) + '" x2="' + pt(42, 270)[0].toFixed(1) + '" y2="' + pt(42, 270)[1].toFixed(1) + '" stroke="' + RED + '" stroke-width="0.8"/>' +
+         '</g>';
     var wx5 = [C_GOLD, C_WOOD, C_WATER, C_FIRE, C_EARTH];
     var wxSeg = '';
     for (var d = 0; d < 360; d += 6) {
@@ -370,37 +424,11 @@
   }
 
   function dialSanhe() {
-    var s = '';
-    s += '<g id="lp-outtick">' + denseTicks360({ rOut: 151, rMain: 145, rMid: 148, rMin: 150, numR: 138, showEvery: 30 }) + '</g>';
-    s += ringLines(54, null, GOLD, 0.6);
-    s += labels(46, R_SANHE.inner[0].items, 7, 'normal');
-    s += ringLines(64, null, GOLD, 0.6);
-    s += labels(60, R_SANHE.inner[1].items, 6, 'normal');
-    s += ringLines(70, null, GOLD, 0.6);
-    s += labels(78, R_SANHE.red, 7, 'bold');
-    s += labels(86, R_SANHE.green, 7, 'bold');
-    s += labels(94, R_SANHE.blue, 7, 'bold');
-    s += ringLines(102, null, GOLD, 0.6);
-    s += labels(112, [
-      { t: '红', deg: 0, c: RED }, { t: '绿', deg: 90, c: C_WOOD },
-      { t: '蓝', deg: 180, c: '#2f6fb0' }
-    ], 7, 'bold');
-    s += labels(112, [
-      { t: '正', deg: 30, c: INK }, { t: '中', deg: 120, c: INK },
-      { t: '缝', deg: 210, c: INK }
-    ], 6, 'normal');
-    s += labels(112, [
-      { t: '针', deg: 60, c: INK }, { t: '针', deg: 150, c: INK },
-      { t: '针', deg: 240, c: INK }
-    ], 6, 'normal');
-    s += ringLines(122, null, GOLD, 0.6);
-    s += labels(132, [
-      { t: '地盘', deg: 0, c: RED }, { t: '人盘', deg: 7.5, c: C_WOOD },
-      { t: '天盘', deg: 15, c: '#2f6fb0' },
-      { t: '正针', deg: 30, c: INK }, { t: '中针', deg: 37.5, c: INK },
-      { t: '缝针', deg: 45, c: INK }
-    ], 6, 'normal');
-    return s;
+    var b64 = (typeof window !== 'undefined' && window.LUOPAN_SANHE_IMG) ? window.LUOPAN_SANHE_IMG : '';
+    if (!b64) return '<text x="' + CX + '" y="' + CY + '" text-anchor="middle" fill="#c0392b">三合实物图未加载</text>';
+    var side = 285, off = (320 - side) / 2;
+    return '<image href="' + b64 + '" x="' + off + '" y="' + off + '" width="' + side + '" height="' + side + '" preserveAspectRatio="xMidYMid slice" clip-path="url(#lp-real-clip)"/>' +
+           '<circle cx="160" cy="160" r="135" fill="none" stroke="' + GOLD + '" stroke-width="1.5" opacity="0.85"/>';
   }
 
   function dialSanyuan() {
@@ -520,6 +548,7 @@
         '<circle cx="310" cy="160" r="2.2" fill="#7a5a1a"/>' +
         '<line x1="160" y1="12" x2="160" y2="308" stroke="' + GOLD + '" stroke-width="0.8" opacity="0.45"/>' +
         '<line x1="12" y1="160" x2="308" y2="160" stroke="' + GOLD + '" stroke-width="0.8" opacity="0.45"/>' +
+        '<polygon points="160,4 156,12 164,12" fill="' + GOLD2 + '" stroke="#7a5a1a" stroke-width="0.5"/>' +
         '<circle cx="160" cy="160" r="149" fill="url(#lp-face)"/>' +
         '<circle cx="160" cy="160" r="150" fill="none" stroke="' + GOLD + '" stroke-width="1.2"/>' +
         '<circle cx="160" cy="160" r="146" fill="none" stroke="' + GOLD + '" stroke-width="0.5"/>' +
@@ -531,68 +560,122 @@
         redCross() +
         // 中心标记层：实物=精致小指针；其他=标准天池+大指针
         '<g id="lp-marker"></g>' +
+        '<g id="lp-sensor-cross" style="display:none" pointer-events="none"></g>' +
       '</svg>';
   }
 
   // ---------- 交互状态 ----------
   var needleDeg = 0, rot = 0, sensorOn = false, sensorHandler = null;
   var typeKey = 'real';
-  var svgEl = null, staticEl = null, dialEl = null, markerEl = null, needleEl = null,
+  var currentHeading = 0; // 手机顶部（摄像头一侧）当前朝向，0=正北
+  var rawHeading = 0;     // 传感器原始读数（未经校准）
+  var headingOffset = 0;  // 校准偏移（度），持久化到 localStorage
+  try { var _ho = parseFloat(localStorage.getItem('lp_heading_offset')); if (!isNaN(_ho)) headingOffset = norm360(_ho); } catch (e) {}
+  var svgEl = null, staticEl = null, dialEl = null, markerEl = null, needleEl = null, sensorEl = null,
       readoutEl = null, headingEl = null, sensorBtn = null;
 
+  // 实物罗盘照片十字线偏心；三合/虚拟盘以几何中心为准
+  function markerCenter() { return (typeKey === 'real') ? [157.5, 159.2] : [160, 160]; }
+  function staticRotCenter() {
+    if (typeKey === 'real') return [157.5, 159.2];
+    if (typeKey === 'sanhe') return [158.8, 159.6];
+    return [160, 160];
+  }
+
   function setRot(v) {
-    rot = ((v % 360) + 360) % 360;
+    rot = norm360(v);
     if (dialEl) dialEl.setAttribute('transform', 'rotate(' + rot.toFixed(1) + ' 160 160)');
-    // 实物罗盘：旋转的是照片底图（#lp-static 内的 image），磁针保持指向不变
-    if (typeKey === 'real' && staticEl) staticEl.setAttribute('transform', 'rotate(' + rot.toFixed(1) + ' 160 160)');
+    // 实物/三合照片底图：随内盘一起旋转，使盘面北（子）始终对准真实北方
+    if ((typeKey === 'real' || typeKey === 'sanhe') && staticEl) {
+      var sc = staticRotCenter();
+      staticEl.setAttribute('transform', 'rotate(' + rot.toFixed(1) + ' ' + sc[0] + ' ' + sc[1] + ')');
+    }
+    // 手动拖拽时：盘面旋转角度直接换算为手机朝向（固定三角指针指示的方位）
+    if (!sensorOn) {
+      currentHeading = norm360(-rot);
+      var mc = markerCenter();
+      if (needleEl) needleEl.setAttribute('transform', 'rotate(0 ' + mc[0] + ' ' + mc[1] + ')');
+      if (headingEl) headingEl.value = Math.round(currentHeading);
+    }
     updateReadout();
   }
   function setNeedle(v) {
-    needleDeg = ((v % 360) + 360) % 360;
-    // 实物模式下磁针中心在照片十字线 (157.5,159.2)，旋转须绕该点，否则会偏心抖动
-    var ncx = (typeKey === 'real') ? 157.5 : 160, ncy = (typeKey === 'real') ? 159.2 : 160;
-    if (needleEl) needleEl.setAttribute('transform', 'rotate(' + needleDeg.toFixed(1) + ' ' + ncx + ' ' + ncy + ')');
-    if (headingEl) headingEl.value = Math.round(needleDeg);
+    needleDeg = norm360(v);
+    var mc = markerCenter();
+    if (needleEl) needleEl.setAttribute('transform', 'rotate(' + needleDeg.toFixed(1) + ' ' + mc[0] + ' ' + mc[1] + ')');
+    // 滑竿显示的是当前手机朝向，不是磁针自身角度
+    if (headingEl && !sensorOn) headingEl.value = Math.round(currentHeading);
     updateReadout();
   }
+
+  // 传感器原始读数 → 应用校准偏移 → 当前朝向
+  function applySensor(raw) {
+    rawHeading = norm360(raw);
+    currentHeading = norm360(rawHeading + headingOffset);
+    if (headingEl) headingEl.value = Math.round(currentHeading);
+    setRot(-currentHeading);
+    setNeedle(-currentHeading);
+    updateReadout();
+  }
+  // 手动设置朝向（滑竿/归北）：直接作为显示朝向，不经过传感器校准偏移
+  function setHeading(heading) {
+    currentHeading = norm360(heading);
+    if (headingEl) headingEl.value = Math.round(currentHeading);
+    setRot(-currentHeading);
+    setNeedle(-currentHeading);
+  }
+
   function updateReadout() {
     if (!readoutEl) return;
-    var idx = Math.round((((needleDeg - rot) % 360) + 360) % 360 / 15) % 24;
-    var sit = SHAN24[idx], face = SHAN24[(idx + 12) % 24];
-    readoutEl.textContent = '坐 ' + sit + ' 　向 ' + face + '　｜　指针方位 ' + Math.round(needleDeg) + '°　｜　内盘 ' + Math.round(rot) + '°';
+    var h = currentHeading;
+    var idx = Math.round(h / 15) % 24;
+    var face = SHAN24[idx], sit = SHAN24[(idx + 12) % 24];
+    var house = SHAN_TO_GUA[sit] || '';
+    readoutEl.innerHTML =
+      '<div class="lp-readout-main">向' + dir8(h) + ' ' + h.toFixed(2) + '° / 坐' + dir8((h + 180) % 360) + '</div>' +
+      '<div class="lp-readout-sub">' + house + '宅 · 坐' + sit + '向' + face + '</div>';
   }
 
   function fillDial() {
     if (!staticEl || !dialEl) return;
-    // 实物模式下隐藏我画的十字基线（图片自带粉色十字线，会和我的重叠）
-    var crossEl = svgEl ? svgEl.querySelector('#lp-red-cross') : null;
-    if (crossEl) crossEl.style.display = (typeKey === 'real') ? 'none' : 'inline';
+    // 红色十字基线与顶部三角固定在外盘，作为手机指向的固定参考
     if (typeKey === 'real') {
       staticEl.innerHTML = dialReal();
+      dialEl.innerHTML = '';
+    } else if (typeKey === 'sanhe') {
+      staticEl.innerHTML = dialSanhe();
       dialEl.innerHTML = '';
     } else {
       staticEl.innerHTML = '';
       staticEl.setAttribute('transform', '');
       var inner = '';
       if (typeKey === 'zonghe') inner = dialZonghe();
-      else if (typeKey === 'sanhe') inner = dialSanhe();
       else if (typeKey === 'sanyuan') inner = dialSanyuan();
       else if (typeKey === 'xuankong') inner = dialXuankong();
       dialEl.innerHTML = inner;
     }
     fillMarker();
+    setRot(rot);
   }
   function fillMarker() {
     if (!markerEl) return;
-    markerEl.innerHTML = (typeKey === 'real') ? realMarker() : standardMarker();
-    needleEl = svgEl.querySelector('#lp-needle');
+    if (typeKey === 'sanhe') {
+      markerEl.innerHTML = '';
+      needleEl = null;
+    } else if (typeKey === 'real') {
+      markerEl.innerHTML = realMarker();
+      needleEl = svgEl.querySelector('#lp-needle');
+    } else {
+      markerEl.innerHTML = standardMarker();
+      needleEl = svgEl.querySelector('#lp-needle');
+    }
   }
 
   function enableSensor() {
     function handler(e) {
       var h = (typeof e.webkitCompassHeading === 'number') ? e.webkitCompassHeading
               : (360 - (e.alpha || 0));
-      setNeedle(Math.round(h));
+      applySensor(h);
     }
     if (typeof DeviceOrientationEvent !== 'undefined' &&
         typeof DeviceOrientationEvent.requestPermission === 'function') {
@@ -600,6 +683,7 @@
         if (state === 'granted') {
           window.addEventListener('deviceorientation', handler);
           sensorHandler = handler; sensorOn = true;
+          if (sensorEl) { sensorEl.style.display = 'none'; sensorEl.innerHTML = ''; }
           if (sensorBtn) sensorBtn.textContent = '🧭 关闭方向传感器';
         } else {
           if (sensorBtn) sensorBtn.textContent = '⚠️ 传感器未授权';
@@ -608,6 +692,7 @@
     } else {
       window.addEventListener('deviceorientation', handler);
       sensorHandler = handler; sensorOn = true;
+      if (sensorEl) { sensorEl.style.display = 'none'; sensorEl.innerHTML = ''; }
       if (sensorBtn) sensorBtn.textContent = '🧭 关闭方向传感器';
     }
   }
@@ -615,12 +700,16 @@
     if (sensorHandler) window.removeEventListener('deviceorientation', sensorHandler);
     sensorHandler = null; sensorOn = false;
     if (sensorBtn) sensorBtn.textContent = '🧭 开启方向传感器';
+    if (sensorEl) { sensorEl.style.display = 'none'; sensorEl.innerHTML = ''; }
+    // 关闭传感器后，中心指针回归屏幕顶部（固定指针），读盘仍按当前盘面角度
+    var mc = markerCenter();
+    if (needleEl) needleEl.setAttribute('transform', 'rotate(0 ' + mc[0] + ' ' + mc[1] + ')');
   }
 
   var SUB_TEXT = {
-    real: '实物罗盘 · 照片底图 + 自绘精致磁针（金色框内）',
+    real: '实物罗盘 · 照片底图 + 自绘精致磁针',
     zonghe: '综合罗盘 · 传统19圈 · 入门总览',
-    sanhe: '三合罗盘 · 红正针·绿中针·蓝缝针',
+    sanhe: '三合罗盘 · 实物照片底图 · 红正针·人盘中针·天盘缝针',
     sanyuan: '三元罗盘 · 三元九运·父母卦',
     xuankong: '玄空罗盘 · 飞星·洛书九宫'
   };
@@ -636,19 +725,31 @@
         '<button class="lp-type" data-t="xuankong">玄空罗盘</button>' +
       '</div>' +
       '<div class="lp-sub" id="lp-sub"></div>' +
-      '<div class="lp-readout" id="lp-readout">坐 — 　向 —</div>' +
+      '<div class="lp-readout" id="lp-readout">' +
+        '<div class="lp-readout-main">向北 0.00° / 坐南</div>' +
+        '<div class="lp-readout-sub">坎宅 · 坐午向子</div>' +
+      '</div>' +
       '<div class="lp-controls">' +
         '<button id="lp-sensor" class="btn-ghost">🧭 开启方向传感器</button>' +
-        '<label>指针方位 <input type="range" id="lp-heading" min="0" max="359" value="0"></label>' +
-        '<button id="lp-reset" class="btn-ghost">内盘归零</button>' +
+        '<label>手机朝向 <input type="range" id="lp-heading" min="0" max="359" value="0"></label>' +
+        '<button id="lp-reset" class="btn-ghost">归北</button>' +
       '</div>' +
-      '<p class="hint">外盘为方形底座，内盘为刻度圈层（可拖动旋转），天池指南针指针随方位变化；五种盘面均加十字红色基线（过圆心、长=盘面）便于方位对位。' +
+      '<div class="lp-calib" id="lp-calib">' +
+        '<span class="lp-calib-label">方向校准：手机指向某方后点对应键</span>' +
+        '<button class="lp-cal-btn" data-deg="0">北</button>' +
+        '<button class="lp-cal-btn" data-deg="90">东</button>' +
+        '<button class="lp-cal-btn" data-deg="180">南</button>' +
+        '<button class="lp-cal-btn" data-deg="270">西</button>' +
+      '</div>' +
+      '<p class="hint">默认手机水平放置，进入罗盘自动开启方向传感器；手机顶部（摄像头一侧）即为朝向。' +
+      '内盘随手机方位自动旋转，使子-午线始终对准南北；外盘红色十字与顶部三角为固定参考。' +
       '本罗盘为电子模拟，纯属传统文化娱乐参考，请相信科学、不迷信。</p>';
 
     svgEl = root.querySelector('#lp-compass svg');
     staticEl = svgEl.querySelector('#lp-static');
     dialEl = svgEl.querySelector('#lp-dial');
     markerEl = svgEl.querySelector('#lp-marker');
+    sensorEl = svgEl.querySelector('#lp-sensor-cross');
     readoutEl = root.querySelector('#lp-readout');
     headingEl = root.querySelector('#lp-heading');
     sensorBtn = root.querySelector('#lp-sensor');
@@ -677,21 +778,37 @@
     });
     svgEl.addEventListener('pointermove', function (e) {
       if (!dragging) return;
+      if (sensorOn) disableSensor();
       setRot(startRot + (angleOf(e) - startAng));
     });
     function endDrag() { dragging = false; }
     svgEl.addEventListener('pointerup', endDrag);
     svgEl.addEventListener('pointercancel', endDrag);
 
-    headingEl.addEventListener('input', function () { setNeedle(+headingEl.value); });
-    root.querySelector('#lp-reset').addEventListener('click', function () { setRot(0); });
+    headingEl.addEventListener('input', function () {
+      if (sensorOn) disableSensor();
+      setHeading(+headingEl.value);
+    });
+    root.querySelector('#lp-reset').addEventListener('click', function () {
+      if (sensorOn) disableSensor();
+      setHeading(0);
+    });
     sensorBtn.addEventListener('click', function () {
       if (sensorOn) disableSensor(); else enableSensor();
     });
+    root.querySelectorAll('.lp-cal-btn').forEach(function (b) {
+      b.addEventListener('click', function () {
+        if (!sensorOn) { if (sensorBtn) sensorBtn.textContent = '⚠️ 请先开启传感器再校准'; return; }
+        var target = +b.getAttribute('data-deg');
+        headingOffset = norm360(target - rawHeading);
+        try { localStorage.setItem('lp_heading_offset', String(headingOffset)); } catch (e) {}
+        applySensor(rawHeading);
+      });
+    });
 
     fillDial();
-    setRot(0);
-    setNeedle(0);
+    setHeading(0);
+    enableSensor();
   }
 
   window.LuopanModule = {

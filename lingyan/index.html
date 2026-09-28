@@ -8,13 +8,12 @@
   <link rel="stylesheet" href="assets/css/style.css" data-page-node-id="58TGpjvWHJhXkTIOGt3rMh" />
   <link rel="stylesheet" href="assets/css/stamp-bg.css" data-page-node-id="0FOnOoLgOIYZCh6yxIAeUY" />
 <link rel="manifest" href="manifest.json">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="灵验APP">
-<link rel="apple-touch-icon" href="apple-touch-icon.png">
-<link rel="icon" href="favicon.png">
-<meta name="theme-color" content="#9e1b1b">
+  <link rel="apple-touch-icon" href="apple-touch-icon.png">
+  <link rel="icon" href="favicon.png">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="灵验">
 </head>
 <body data-page-node-id="1cqT9sJXPzBuQ4fV6ZqU6h">
   <div id="app" data-page-node-id="w0bhKbccDetU2GNMuxiNX8">
@@ -465,6 +464,8 @@
   <script src="assets/js/coin-images.js"></script>
   <!-- 实物罗盘照片（BASE64 JPEG，内嵌至 luopan-real.js；由 module-luopan.js 在选项卡"实物罗盘"使用） -->
   <script src="assets/js/luopan-real.js"></script>
+  <!-- 三合罗盘照片（BASE64 JPEG，内嵌至 luopan-sanhe.js；由 module-luopan.js 在选项卡"三合罗盘"使用） -->
+  <script src="assets/js/luopan-sanhe.js"></script>
   <!-- 农历库（lunar-javascript，离线可用） -->
   <script src="assets/js/lib/lunar.js"></script>
   <!-- 汉字笔画库（cnchar，离线可用） -->
@@ -486,12 +487,6 @@
   <script src="assets/js/module-marriage.js"></script>
   <script src="assets/js/module-babyname.js"></script>
   <script src="assets/js/main.js"></script>
-<script>
-if ('serviceWorker' in navigator) {
-  window.addEventListener('load', function () {
-    navigator.serviceWorker.register('./sw.js').catch(function () {});
-  });
-}
-</script>
+<script>if('serviceWorker' in navigator){window.addEventListener('load',function(){navigator.serviceWorker.register('./sw.js').catch(function(){});});}</script>
 </body>
 </html>

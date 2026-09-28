@@ -211,10 +211,16 @@ body{
 .lp-type.active{background:var(--red);color:#fff5dc;}
 .lp-sub{font-size:13px;color:var(--ink-soft);text-align:center;margin:2px 0 6px;letter-spacing:1px;}
 .lp-readout{text-align:center;font-size:15px;color:var(--ink);background:var(--paper-2);
-  border:1.5px solid var(--line);border-radius:12px;padding:10px;margin:6px 0;letter-spacing:1px;line-height:1.6;}
+  border:1.5px solid var(--line);border-radius:12px;padding:10px;margin:6px 0;letter-spacing:1px;line-height:1.5;}
+.lp-readout-main{font-size:16px;font-weight:700;color:var(--red);}
+.lp-readout-sub{font-size:13px;color:var(--gold);margin-top:3px;}
 .lp-controls{display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:center;margin-top:8px;width:100%;}
 .lp-controls label{font-size:13px;color:var(--ink-soft);display:flex;align-items:center;gap:6px;}
 .lp-controls input[type=range]{width:140px;}
+.lp-calib{display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin:4px 2px 2px;font-size:12px;color:#b5892f;}
+.lp-calib-label{opacity:.9;}
+.lp-cal-btn{padding:4px 11px;border:1px solid #b5892f;background:rgba(181,137,47,.12);color:#b5892f;border-radius:8px;font-size:12px;cursor:pointer;font-family:inherit;}
+.lp-cal-btn:active{background:rgba(181,137,47,.32);}
 
 /* ===== 罗盘说明 E. 64卦 ===== */
 .hx-toolbar{display:flex;gap:8px;margin:10px 0;}
