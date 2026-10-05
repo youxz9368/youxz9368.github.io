@@ -315,6 +315,7 @@ body{
 .paipan-form{background:var(--paper-2);border:1.5px solid var(--line);border-radius:14px;padding:16px;box-shadow:var(--shadow);}
 .pp-row{display:flex;align-items:center;gap:10px;margin-bottom:12px;}
 .pp-row label{min-width:64px;font-size:14px;color:var(--ink-soft);}
+.lydp-host{flex:1;min-width:0;}
 .pp-row input{flex:1;font-family:inherit;padding:9px;border-radius:8px;border:1px solid #6b5240;background:#fff8ea;color:var(--ink);font-size:15px;}
 .paipan-result{margin-top:14px;}
 .pp-block{background:var(--paper-2);border:1.5px solid var(--line);border-radius:12px;padding:14px;margin-bottom:12px;box-shadow:var(--shadow);}
@@ -479,7 +480,7 @@ body{
 .uc-card{text-align:center;background:linear-gradient(180deg,#fff8ea,#fdeccb);border-color:var(--gold-light);}
 .uc-title{font-size:16px;color:var(--gold);font-weight:700;letter-spacing:2px;margin-bottom:6px;}
 .uc-line{font-size:16px;color:var(--ink);margin:6px 0;display:flex;align-items:center;justify-content:center;flex-wrap:wrap;gap:2px;}
-.uc-line .roll{font-size:30px;}
+.uc-line .roll{font-size:15px;}
 .uc-sub{font-size:12.5px;color:var(--ink-soft);margin-top:4px;}
 
 .mg-counter{text-align:center;margin:14px 0 4px;font-size:12px;color:var(--ink);line-height:1.5;}
@@ -515,3 +516,7 @@ body{
 .mg-modal-close{background:transparent;border:none;color:#fff;font-size:24px;line-height:1;cursor:pointer;padding:0 4px;}
 .mg-modal-body{overflow-y:auto;-webkit-overflow-scrolling:touch;padding:14px 16px;font-size:13px;line-height:1.7;color:var(--ink);text-align:left;}
 .mg-modal .mg-agree-body{max-height:none;border:none;background:transparent;padding:0;}
+
+/* 万年历年/月选择器（V3.1.18） */
+.cal-ymsel{display:flex;align-items:center;justify-content:center;gap:6px;margin:8px 0 2px;color:var(--ink);font-size:14px;}
+.cal-sel{padding:5px 10px;border-radius:8px;border:1px solid var(--line,#e0d8c8);background:#fff;color:var(--ink);font-size:14px;}

@@ -127,8 +127,30 @@ window.LYDatePicker = (function () {
       lmSel.innerHTML = monthOptions(y, null);
       ldSel.innerHTML = dayOptions(y, parseInt(lmSel.value, 10), null);
     }
+    // 双向自动换算：切到农历时由当前公历推算农历；切回公历时由当前农历回推公历
+    function syncFromSolar() {
+      var di = container.querySelector('.lydp-date');
+      var sd = di.value ? new Date(di.value + 'T00:00:00') : new Date();
+      var lunar;
+      try { lunar = Solar.fromYmd(sd.getFullYear(), sd.getMonth() + 1, sd.getDate()).getLunar(); } catch (e) { return; }
+      var ly = lunar.getYear(), lm = lunar.getMonth(), ld = lunar.getDay();
+      var leapMonth = 0;
+      try { if (typeof LunarYear !== 'undefined') leapMonth = LunarYear.fromYear(ly).getLeapMonth() || 0; } catch (e) {}
+      var mVal = (lm === leapMonth) ? -lm : lm;
+      lySel.value = String(ly);
+      lmSel.innerHTML = monthOptions(ly, mVal);
+      ldSel.innerHTML = dayOptions(ly, mVal, ld);
+    }
+    function syncFromLunar() {
+      var ly = parseInt(lySel.value, 10), lm = parseInt(lmSel.value, 10), ld = parseInt(ldSel.value, 10);
+      var solar;
+      try { solar = Lunar.fromYmd(ly, lm, ld).getSolar(); } catch (e) { return; }
+      var di = container.querySelector('.lydp-date');
+      if (di) di.value = solar.getYear() + '-' + p2(solar.getMonth()) + '-' + p2(solar.getDay());
+    }
     function onTab(cal) {
       var isL = cal === 'lunar';
+      if (isL) syncFromSolar(); else syncFromLunar();
       tabSolar.classList.toggle('active', !isL);
       tabLunar.classList.toggle('active', isL);
       pSolar.hidden = isL;

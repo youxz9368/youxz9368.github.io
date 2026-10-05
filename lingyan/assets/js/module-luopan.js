@@ -565,12 +565,11 @@
   }
 
   // ---------- 交互状态 ----------
-  var needleDeg = 0, rot = 0, sensorOn = false, sensorHandler = null;
+  var needleDeg = 0, rot = 0, sensorOn = false, sensorHandler = null, sensorEvt = 'deviceorientation';
   var typeKey = 'real';
   var currentHeading = 0; // 手机顶部（摄像头一侧）当前朝向，0=正北
   var rawHeading = 0;     // 传感器原始读数（未经校准）
-  var headingOffset = 0;  // 校准偏移（度），持久化到 localStorage
-  try { var _ho = parseFloat(localStorage.getItem('lp_heading_offset')); if (!isNaN(_ho)) headingOffset = norm360(_ho); } catch (e) {}
+  var headingOffset = 0;  // 自动对齐真北，V3.1.17 起取消手动校准（默认 0）
   var svgEl = null, staticEl = null, dialEl = null, markerEl = null, needleEl = null, sensorEl = null,
       readoutEl = null, headingEl = null, sensorBtn = null;
 
@@ -671,33 +670,61 @@
     }
   }
 
+  // W3C 倾斜补偿指南针：设备近平放(beta≈0 且 gamma≈0)退化为 360-alpha；
+  // 手持倾斜时必须用 alpha/beta/gamma 投影，否则仅用 alpha 会在手机倾斜时产生数十度偏差（用户实测约 30°）。
+  function absoluteHeading(e) {
+    var alpha = e.alpha || 0, beta = e.beta || 0, gamma = e.gamma || 0;
+    if (Math.abs(beta) < 1 && Math.abs(gamma) < 1) {
+      return (360 - alpha) % 360;                   // 平放：W3C 规范直接 360 - alpha
+    }
+    var d = Math.PI / 180;
+    var a = alpha * d, b = beta * d, g = gamma * d;
+    var cA = Math.cos(a), sA = Math.sin(a);
+    var cB = Math.cos(b), sB = Math.sin(b);
+    var cG = Math.cos(g), sG = Math.sin(g);
+    var rA = -cA * sG - sA * sB * cG;               // W3C 规范「计算指南针方向」投影分量
+    var rB = -sA * sG + cA * sB * cG;
+    var heading = Math.atan2(rA, rB) / d;
+    return (heading + 360) % 360;
+  }
+
   function enableSensor() {
+    // 真北/磁北朝向：iOS 用 webkitCompassHeading；Android/Chrome 用「绝对方向」事件 deviceorientationabsolute
     function handler(e) {
-      var h = (typeof e.webkitCompassHeading === 'number') ? e.webkitCompassHeading
-              : (360 - (e.alpha || 0));
+      var h;
+      if (typeof e.webkitCompassHeading === 'number') {
+        h = e.webkitCompassHeading;                 // iOS：真北，顺时针 0-360
+      } else if (e.absolute === true) {
+        h = absoluteHeading(e);           // Android 绝对方向：W3C 倾斜补偿公式（含 beta/gamma），修正手持倾斜导致的偏差
+      } else {
+        return;                                      // 非绝对事件无真北意义，忽略
+      }
       applySensor(h);
     }
+    // 优先监听绝对方向事件（提供真北/磁北），否则退回普通事件
+    var evt = ('ondeviceorientationabsolute' in window) ? 'deviceorientationabsolute' : 'deviceorientation';
+    sensorEvt = evt;
     if (typeof DeviceOrientationEvent !== 'undefined' &&
         typeof DeviceOrientationEvent.requestPermission === 'function') {
       DeviceOrientationEvent.requestPermission().then(function (state) {
         if (state === 'granted') {
-          window.addEventListener('deviceorientation', handler);
+          window.addEventListener(evt, handler);
           sensorHandler = handler; sensorOn = true;
           if (sensorEl) { sensorEl.style.display = 'none'; sensorEl.innerHTML = ''; }
           if (sensorBtn) sensorBtn.textContent = '🧭 关闭方向传感器';
         } else {
-          if (sensorBtn) sensorBtn.textContent = '⚠️ 传感器未授权';
+          if (sensorBtn) sensorBtn.textContent = '⚠️ 传感器未授权（点此重试）';
         }
       }).catch(function () { if (sensorBtn) sensorBtn.textContent = '⚠️ 传感器不可用'; });
     } else {
-      window.addEventListener('deviceorientation', handler);
+      window.addEventListener(evt, handler);
       sensorHandler = handler; sensorOn = true;
       if (sensorEl) { sensorEl.style.display = 'none'; sensorEl.innerHTML = ''; }
       if (sensorBtn) sensorBtn.textContent = '🧭 关闭方向传感器';
     }
   }
   function disableSensor() {
-    if (sensorHandler) window.removeEventListener('deviceorientation', sensorHandler);
+    if (sensorHandler) window.removeEventListener(sensorEvt || 'deviceorientation', sensorHandler);
     sensorHandler = null; sensorOn = false;
     if (sensorBtn) sensorBtn.textContent = '🧭 开启方向传感器';
     if (sensorEl) { sensorEl.style.display = 'none'; sensorEl.innerHTML = ''; }
@@ -731,19 +758,9 @@
       '</div>' +
       '<div class="lp-controls">' +
         '<button id="lp-sensor" class="btn-ghost">🧭 开启方向传感器</button>' +
-        '<label>手机朝向 <input type="range" id="lp-heading" min="0" max="359" value="0"></label>' +
-        '<button id="lp-reset" class="btn-ghost">归北</button>' +
       '</div>' +
-      '<div class="lp-calib" id="lp-calib">' +
-        '<span class="lp-calib-label">方向校准：手机指向某方后点对应键</span>' +
-        '<button class="lp-cal-btn" data-deg="0">北</button>' +
-        '<button class="lp-cal-btn" data-deg="90">东</button>' +
-        '<button class="lp-cal-btn" data-deg="180">南</button>' +
-        '<button class="lp-cal-btn" data-deg="270">西</button>' +
-      '</div>' +
-      '<p class="hint">默认手机水平放置，进入罗盘自动开启方向传感器；手机顶部（摄像头一侧）即为朝向。' +
-      '内盘随手机方位自动旋转，使子-午线始终对准南北；外盘红色十字与顶部三角为固定参考。' +
-      '本罗盘为电子模拟，纯属传统文化娱乐参考，请相信科学、不迷信。</p>';
+      '<p class="hint">进入罗盘即自动开启方向传感器，内盘随手机方位自动旋转、子-午线始终对准南北，无需任何手动校准；手机顶部（摄像头一侧）指向即实际方位。' +
+      '外盘红色十字与顶部金色三角为固定参考。本罗盘为电子模拟，纯属传统文化娱乐参考，请相信科学、不迷信。</p>';
 
     svgEl = root.querySelector('#lp-compass svg');
     staticEl = svgEl.querySelector('#lp-static');
@@ -785,25 +802,8 @@
     svgEl.addEventListener('pointerup', endDrag);
     svgEl.addEventListener('pointercancel', endDrag);
 
-    headingEl.addEventListener('input', function () {
-      if (sensorOn) disableSensor();
-      setHeading(+headingEl.value);
-    });
-    root.querySelector('#lp-reset').addEventListener('click', function () {
-      if (sensorOn) disableSensor();
-      setHeading(0);
-    });
     sensorBtn.addEventListener('click', function () {
       if (sensorOn) disableSensor(); else enableSensor();
-    });
-    root.querySelectorAll('.lp-cal-btn').forEach(function (b) {
-      b.addEventListener('click', function () {
-        if (!sensorOn) { if (sensorBtn) sensorBtn.textContent = '⚠️ 请先开启传感器再校准'; return; }
-        var target = +b.getAttribute('data-deg');
-        headingOffset = norm360(target - rawHeading);
-        try { localStorage.setItem('lp_heading_offset', String(headingOffset)); } catch (e) {}
-        applySensor(rawHeading);
-      });
     });
 
     fillDial();

@@ -48,10 +48,17 @@
   }
 
   var nameEl = document.getElementById('pp-name');
-  var birthEl = document.getElementById('pp-birth');
+  var birthHost = document.getElementById('pp-birth');
+  var birthPicker = (typeof window.LYDatePicker !== 'undefined' && birthHost) ? window.LYDatePicker.build(birthHost, { id: 'pp' }) : null;
   var sexEl = document.getElementById('pp-sex');
   var btnGo = document.getElementById('pp-go');
   var resultEl = document.getElementById('pp-result');
+
+  function getBirthSolar() {
+    if (!birthPicker) return null;
+    var val = birthPicker.getValue();
+    return birthPicker.toSolar(val);
+  }
 
   function localToInput(d) {
     function p(n) { return (n < 10 ? '0' : '') + n; }
@@ -65,18 +72,13 @@
 
   function calc() {
     var name = (nameEl.value || '').trim();
-    var birthVal = birthEl.value;
     var sex = sexEl ? sexEl.value : '男';
-    if (!birthVal) { alert('请先选择出生时间'); return; }
-    var dt = new Date(birthVal);
-    if (isNaN(dt.getTime())) { alert('出生时间格式不正确'); return; }
+    var solar = getBirthSolar();
+    if (!solar) { alert('请先选择出生时间'); return; }
 
-    var hasLunar = (typeof Solar !== 'undefined');
-    var y = dt.getFullYear(), m = dt.getMonth() + 1, d = dt.getDate(), hh = dt.getHours(), mi = dt.getMinutes();
+    var y = solar.getYear(), m = solar.getMonth(), d = solar.getDay(), hh = solar.getHour(), mi = solar.getMinute();
     var lunar = null;
-    if (hasLunar) {
-      try { lunar = Solar.fromYmdHms(y, m, d, hh, mi, 0).getLunar(); } catch (e) { lunar = null; }
-    }
+    try { lunar = solar.getLunar(); } catch (e) { lunar = null; }
     var pillars = lunar ? [lunar.getYearInGanZhi(), lunar.getMonthInGanZhi(), lunar.getDayInGanZhi(), lunar.getTimeInGanZhi()] : null;
 
     var html = '';
@@ -191,11 +193,6 @@
 
   window.PaipanModule = {
     onEnter: function () {
-      if (!birthEl.value) {
-        // 预填当前北京时间
-        var t = new Date(); var local = new Date(t.getTime() - t.getTimezoneOffset() * 60000);
-        birthEl.value = localToInput(local);
-      }
       resultEl.hidden = true;
     }
   };

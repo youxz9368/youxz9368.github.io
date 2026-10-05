@@ -52,16 +52,12 @@
   function calcZiwei() {
     var name = (nameEl.value || '').trim();
     var sex = sexEl.value || '男';
-    var birthVal = birthEl.value;
-    if (!birthVal) { alert('请先选择出生时间'); return; }
-    var dt = new Date(birthVal);
-    if (isNaN(dt.getTime())) { alert('出生时间格式不正确'); return; }
+    var solar = getBirthSolar();
+    if (!solar) { alert('请先选择出生时间'); return; }
 
-    var y = dt.getFullYear(), m = dt.getMonth() + 1, d = dt.getDate(), hh = dt.getHours(), mi = dt.getMinutes();
+    var y = solar.getYear(), m = solar.getMonth(), d = solar.getDay(), hh = solar.getHour(), mi = solar.getMinute();
     var lunar = null, pillars = null;
-    if (typeof Solar !== 'undefined') {
-      try { lunar = Solar.fromYmdHms(y, m, d, hh, mi, 0).getLunar(); } catch (e) { lunar = null; }
-    }
+    try { lunar = solar.getLunar(); } catch (e) { lunar = null; }
     if (lunar) {
       pillars = [lunar.getYearInGanZhi(), lunar.getMonthInGanZhi(), lunar.getDayInGanZhi(), lunar.getTimeInGanZhi()];
     }
@@ -194,19 +190,21 @@
 
   var nameEl = document.getElementById('zw-name');
   var sexEl = document.getElementById('zw-sex');
-  var birthEl = document.getElementById('zw-birth');
+  var birthHost = document.getElementById('zw-birth');
+  var birthPicker = (typeof window.LYDatePicker !== 'undefined' && birthHost) ? window.LYDatePicker.build(birthHost, { id: 'zw' }) : null;
   var resultEl = document.getElementById('zw-result');
   var btnGo = document.getElementById('zw-go');
+
+  function getBirthSolar() {
+    if (!birthPicker) return null;
+    var val = birthPicker.getValue();
+    return birthPicker.toSolar(val);
+  }
 
   if (btnGo) btnGo.addEventListener('click', calcZiwei);
 
   window.ZiweiModule = {
     onEnter: function () {
-      if (!birthEl.value) {
-        var t = new Date(); var local = new Date(t.getTime() - t.getTimezoneOffset() * 60000);
-        function p(n) { return (n < 10 ? '0' : '') + n; }
-        birthEl.value = t.getFullYear() + '-' + p(t.getMonth() + 1) + '-' + p(t.getDate()) + 'T' + p(t.getHours()) + ':' + p(t.getMinutes());
-      }
       resultEl.hidden = true;
     }
   };

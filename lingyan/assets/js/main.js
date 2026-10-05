@@ -47,7 +47,7 @@
     var hc = document.getElementById('user-counter-home');
     if (hc && window.LYCounter) {
       var roll = new window.LYCounter.Rolling(hc);
-      roll.set(window.LYCounter.read('userCount', 10000000), true);
+      roll.set(window.LYCounter.read('userCount', 8800000), true);
     }
   }
 
@@ -91,7 +91,7 @@
     });
     window.scrollTo(0, 0);
     // 累计使用者计数：每次点击任意功能模块 +1（持久化）
-    if (window.LYCounter) window.LYCounter.bump('userCount', 10000000, 1);
+    if (window.LYCounter) window.LYCounter.bump('userCount', 8800000, 1);
     if (name === 'guanyin' && window.GuanyinModule) window.GuanyinModule.onEnter();
     if (name === 'hexagram' && window.HexagramModule) window.HexagramModule.onEnter();
     if (name === 'calendar' && window.CalendarModule) window.CalendarModule.onEnter();
@@ -196,7 +196,7 @@
       var uc = $('user-counter');
       if (uc && window.LYCounter) {
         var roll = new window.LYCounter.Rolling(uc);
-        var val = window.LYCounter.read('userCount', 10000000);
+        var val = window.LYCounter.read('userCount', 8800000);
         roll.set(val, true);
       }
     }

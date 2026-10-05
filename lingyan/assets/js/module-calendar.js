@@ -60,6 +60,8 @@
   var btnPrev = document.getElementById('cal-prev');
   var btnNext = document.getElementById('cal-next');
   var btnToday = document.getElementById('cal-today');
+  var yearSel = document.getElementById('cal-year');
+  var monthSel = document.getElementById('cal-month');
   var selDate = null;
   var cur = new Date(beijingNow().getTime());
 
@@ -72,6 +74,8 @@
   function render() {
     var y = cur.getFullYear(), m = cur.getMonth() + 1;
     titleEl.textContent = y + '年' + m + '月';
+    if (yearSel) yearSel.value = String(y);
+    if (monthSel) monthSel.value = String(m);
     var first = new Date(y, m - 1, 1);
     var startW = first.getDay();
     var days = new Date(y, m, 0).getDate();
@@ -134,6 +138,27 @@
     detailEl.innerHTML = '点击某一天，查看当日黄历（宜 / 忌 / 冲煞 / 方位）';
     render();
   });
+  if (yearSel) yearSel.addEventListener('change', function () {
+    cur = new Date(+yearSel.value, cur.getMonth(), 1);
+    selDate = null; render();
+  });
+  if (monthSel) monthSel.addEventListener('change', function () {
+    cur = new Date(cur.getFullYear(), +monthSel.value - 1, 1);
+    selDate = null; render();
+  });
+  function fillYmOptions() {
+    if (!yearSel || yearSel.options.length) return;
+    for (var y = 1900; y <= 2100; y++) {
+      var o = document.createElement('option');
+      o.value = String(y); o.textContent = y + '年';
+      yearSel.appendChild(o);
+    }
+    for (var m = 1; m <= 12; m++) {
+      var om = document.createElement('option');
+      om.value = String(m); om.textContent = m + '月';
+      monthSel.appendChild(om);
+    }
+  }
 
   window.CalendarModule = {
     onEnter: function () {
@@ -143,6 +168,7 @@
       cur = new Date(beijingNow().getTime());
       selDate = null;
       detailEl.innerHTML = '点击某一天，查看当日黄历（宜 / 忌 / 冲煞 / 方位）';
+      fillYmOptions();
       render();
     },
     onLeave: function () { if (timer) { clearInterval(timer); timer = null; } }

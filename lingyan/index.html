@@ -7,13 +7,6 @@
   <title>灵验APP · V3.1 202609</title>
   <link rel="stylesheet" href="assets/css/style.css" data-page-node-id="58TGpjvWHJhXkTIOGt3rMh" />
   <link rel="stylesheet" href="assets/css/stamp-bg.css" data-page-node-id="0FOnOoLgOIYZCh6yxIAeUY" />
-<link rel="manifest" href="manifest.json">
-  <link rel="apple-touch-icon" href="apple-touch-icon.png">
-  <link rel="icon" href="favicon.png">
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <meta name="apple-mobile-web-app-title" content="灵验">
 </head>
 <body data-page-node-id="1cqT9sJXPzBuQ4fV6ZqU6h">
   <div id="app" data-page-node-id="w0bhKbccDetU2GNMuxiNX8">
@@ -266,6 +259,12 @@
               <div class="cal-title" id="cal-title" data-page-node-id="QVoy0VNijDWgeAKejj4DuJ">----年--月</div>
               <button id="cal-next" class="btn-circle" data-page-node-id="E0urRTiC2IE4ZI3gN5EFI0">›</button>
             </div>
+            <div class="cal-ymsel">
+              <select id="cal-year" class="cal-sel"></select>
+              <span>年</span>
+              <select id="cal-month" class="cal-sel"></select>
+              <span>月</span>
+            </div>
             <div class="cal-weekdays" data-page-node-id="xFJ50hJ95x9El7mFlHP45B">
               <span data-page-node-id="O1FJzwsrYqZ5E8umubEOpr">日</span><span data-page-node-id="QGKJxZywqioL9wKU4bZHiF">一</span><span data-page-node-id="rbAbCgZSlBYGlcjdqkhVH7">二</span><span data-page-node-id="D2VIm4r6wfIR7yqwBCB5uC">三</span><span data-page-node-id="pz14sL6Ihcc8n0VSj287B9">四</span><span data-page-node-id="5zQ3rkvaiuoVAb6qnGonBn">五</span><span data-page-node-id="yFveDBBlSswNIVpTHFJUjM">六</span>
             </div>
@@ -285,7 +284,7 @@
             </div>
             <div class="pp-row" data-page-node-id="roRbEhfjpOja14Vk2iQGAp">
               <label data-page-node-id="9R3xgvjgUIOwwulrWwzdsh">出生时间</label>
-              <input id="pp-birth" type="datetime-local" data-page-node-id="xXjO8PXaHSXkbYSTLtRuOk" />
+              <div id="pp-birth" class="lydp-host" data-page-node-id="xXjO8PXaHSXkbYSTLtRuOk"></div>
             </div>
             <div class="pp-row" data-page-node-id="4aMN6HOkOsUqUfVKEiGjL5">
               <label data-page-node-id="e9J1WeADdtEnpWBJgPLhir">性别</label>
@@ -333,7 +332,7 @@
             </div>
             <div class="pp-row" data-page-node-id="rrRNcwPYJF9om2IPOxedp9">
               <label data-page-node-id="0aOTlCfzCW1B7QNhgMUCih">出生时间</label>
-              <input id="zw-birth" type="datetime-local" data-page-node-id="wM6ctHtyxbS7Zh25jEnTxV" />
+              <div id="zw-birth" class="lydp-host" data-page-node-id="wM6ctHtyxbS7Zh25jEnTxV"></div>
             </div>
             <button id="zw-go" class="btn-primary" data-page-node-id="ugGknOA8V1wBobisSkPj8i">🔮 紫微排盘</button>
           </div>
@@ -487,6 +486,5 @@
   <script src="assets/js/module-marriage.js"></script>
   <script src="assets/js/module-babyname.js"></script>
   <script src="assets/js/main.js"></script>
-<script>if('serviceWorker' in navigator){window.addEventListener('load',function(){navigator.serviceWorker.register('./sw.js').catch(function(){});});}</script>
 </body>
 </html>
