@@ -161,7 +161,7 @@
     var solar = dpBaby.toSolar(dpBaby.getValue());
     if (!solar) { alert('出生日期无效，请重新选择'); return; }
     var lunar = solar.getLunar();
-    var pillars = [lunar.getYearInGanZhi(), lunar.getMonthInGanZhi(), lunar.getDayInGanZhi(), lunar.getTimeInGanZhi()];
+    var pillars = [lunar.getYearInGanZhiByLiChun(), lunar.getMonthInGanZhi(), lunar.getDayInGanZhi(), lunar.getTimeInGanZhi()];
     var cnt = { '木': 0, '火': 0, '土': 0, '金': 0, '水': 0 };
     pillars.forEach(function (p) { cnt[wxOf(p)[0]]++; cnt[wxOf(p)[1]]++; });
     var dayGan = pillars[2].charAt(0);

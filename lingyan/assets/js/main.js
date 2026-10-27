@@ -11,6 +11,18 @@
   var hallGrid = document.getElementById('hall-grid');
   var hallModules = document.getElementById('hall-modules');
   var hallModule = null;
+  // 计数器迁移：旧版本基数 5000000 已被持久化到 localStorage（lingyan.userCount），
+  // 直接改 base 不会生效，故旧值低于新基数时重置为新基数，使升级后显示 8800000 起。
+  (function () {
+    try {
+      var KEY = 'lingyan.userCount', BASE = 8800000;
+      var raw = window.localStorage.getItem(KEY);
+      if (raw !== null) {
+        var n = parseInt(raw, 10);
+        if (!isNaN(n) && n < BASE) window.localStorage.setItem(KEY, String(BASE));
+      }
+    } catch (e) {}
+  })();
 
   function showOnly(page) {
     Object.keys(pages).forEach(function (k) {

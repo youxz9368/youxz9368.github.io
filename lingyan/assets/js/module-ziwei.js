@@ -59,7 +59,7 @@
     var lunar = null, pillars = null;
     try { lunar = solar.getLunar(); } catch (e) { lunar = null; }
     if (lunar) {
-      pillars = [lunar.getYearInGanZhi(), lunar.getMonthInGanZhi(), lunar.getDayInGanZhi(), lunar.getTimeInGanZhi()];
+      pillars = [lunar.getYearInGanZhiByLiChun(), lunar.getMonthInGanZhi(), lunar.getDayInGanZhi(), lunar.getTimeInGanZhi()];
     }
 
     var html = '';
@@ -123,7 +123,7 @@
     ];
 
     // ====== 渲染 ======
-    if (name) html += '<div class="pp-block"><h3>命主</h3><p class="pp-note">姓名：<b>' + escapeHtml(name) + '</b>　性别：' + sex + '　生肖：' + lunar.getYearShengXiao() + '</p></div>';
+    if (name) html += '<div class="pp-block"><h3>命主</h3><p class="pp-note">姓名：<b>' + escapeHtml(name) + '</b>　性别：' + sex + '　生肖：' + lunar.getYearShengXiaoByLiChun() + '（八字·立春）</p></div>';
 
     // 四柱八字
     html += '<div class="pp-block"><h3>四柱八字</h3><div class="pp-bazi">';

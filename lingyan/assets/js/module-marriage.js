@@ -198,7 +198,7 @@
 
   function baziOf(solar) {
     var lunar = solar.getLunar();
-    var pillars = [lunar.getYearInGanZhi(), lunar.getMonthInGanZhi(), lunar.getDayInGanZhi(), lunar.getTimeInGanZhi()];
+    var pillars = [lunar.getYearInGanZhiByLiChun(), lunar.getMonthInGanZhi(), lunar.getDayInGanZhi(), lunar.getTimeInGanZhi()];
     var cnt = { '木': 0, '火': 0, '土': 0, '金': 0, '水': 0 };
     pillars.forEach(function (p) { cnt[wxOf(p)[0]]++; cnt[wxOf(p)[1]]++; });
     return {

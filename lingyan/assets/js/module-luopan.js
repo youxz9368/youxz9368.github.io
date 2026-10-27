@@ -462,6 +462,29 @@
            '<circle cx="160" cy="160" r="135" fill="none" stroke="' + GOLD + '" stroke-width="1.5" opacity="0.85"/>';
   }
 
+  // ---------- 实物罗盘2：第二张实物图（用户 2026-10-27 上传）----------
+  // 源图 1554x1562，裁剪以「0-180 / 90-270 红准线交会点」为圆心 ⇒ 十字交点正落 SVG (160,160)，
+  // 旋转中心与磁针中心直接用几何中心。盘面 r≈134.4 贴 clip 135，外圈度数环完整。
+  function dialReal2() {
+    var b64 = (typeof window !== 'undefined' && window.LUOPAN_REAL2_IMG) ? window.LUOPAN_REAL2_IMG : '';
+    if (!b64) return '<text x="' + CX + '" y="' + CY + '" text-anchor="middle" fill="#c0392b">实物图2未加载</text>';
+    var side = 285, off = (320 - side) / 2;
+    return '<image href="' + b64 + '" x="' + off + '" y="' + off + '" width="' + side + '" height="' + side + '" preserveAspectRatio="xMidYMid slice" clip-path="url(#lp-real-clip)"/>' +
+           '<circle cx="160" cy="160" r="135" fill="none" stroke="' + GOLD + '" stroke-width="1.5" opacity="0.85"/>';
+  }
+  // 实物罗盘2 中心磁针：与实物罗盘1 同款（针尖 r=21，恰在天池白圈内）
+  function real2Marker() {
+    var cx = 160, cy = 160;
+    var hy = 21, hw = 5.4;
+    return '<g id="lp-needle" transform="rotate(0 ' + cx + ' ' + cy + ')">' +
+      '<polygon points="' + cx + ',' + (cy - hy) + ' ' + (cx - hw) + ',' + cy + ' ' + (cx + hw) + ',' + cy + '" fill="#c8102e" stroke="#7a1a0a" stroke-width="0.5"/>' +
+      '<polygon points="' + cx + ',' + (cy + hy) + ' ' + (cx - hw) + ',' + cy + ' ' + (cx + hw) + ',' + cy + '" fill="#2a2a2a" stroke="#000" stroke-width="0.5"/>' +
+      '<line x1="' + cx + '" y1="' + (cy - hy + 1) + '" x2="' + cx + '" y2="' + (cy + hy - 1) + '" stroke="#b5892f" stroke-width="0.6" opacity="0.6"/>' +
+      '<circle cx="' + cx + '" cy="' + cy + '" r="5" fill="#d6b365" stroke="#7a5a1a" stroke-width="0.6"/>' +
+      '<circle cx="' + cx + '" cy="' + cy + '" r="2.5" fill="#fff8ea"/>' +
+      '<circle cx="' + cx + '" cy="' + cy + '" r="1" fill="#c8102e"/>' +
+      '</g>';
+  }
   // ---------- 中心标记：实物模式 / 标准模式 ----------
   // 实物模式：磁针必须 ≤ 中央玻璃罩 r≈13，故整体限 r<10（之前 ±16 超出太多）
   function realMarker() {
@@ -565,63 +588,71 @@
   }
 
   // ---------- 交互状态 ----------
-  var needleDeg = 0, rot = 0, sensorOn = false, sensorHandler = null, sensorEvt = 'deviceorientation';
+  var needleDeg = 0, rot = 0, rotCont = 0, sensorOn = false, sensorHandler = null, sensorEvt = 'deviceorientation';
+  var sensorLastT = 0, hintEl = null;
+  var HINT_TEXT = '进入罗盘即自动开启方向传感器，内盘随手机方位自动旋转、子-午线始终对准南北，无需任何手动校准；手机顶部（摄像头一侧）指向即实际方位。外盘红色十字与顶部金色三角为固定参考。本罗盘为电子模拟，纯属传统文化娱乐参考，请相信科学、不迷信。';
   var typeKey = 'real';
   var currentHeading = 0; // 手机顶部（摄像头一侧）当前朝向，0=正北
   var rawHeading = 0;     // 传感器原始读数（未经校准）
   var headingOffset = 0;  // 自动对齐真北，V3.1.17 起取消手动校准（默认 0）
   var svgEl = null, staticEl = null, dialEl = null, markerEl = null, needleEl = null, sensorEl = null,
-      readoutEl = null, headingEl = null, sensorBtn = null;
+      readoutEl = null, headingEl = null, sensorBtn = null, hintEl = null;
 
   // 实物罗盘照片十字线偏心；三合/虚拟盘以几何中心为准
   function markerCenter() { return (typeKey === 'real') ? [157.5, 159.2] : [160, 160]; }
   function staticRotCenter() {
     if (typeKey === 'real') return [157.5, 159.2];
-    if (typeKey === 'sanhe') return [158.8, 159.6];
+    if (typeKey === 'sanhe') return [160, 160]; // V3.6.1 准线转正后交点即图心
     return [160, 160];
   }
 
-  function setRot(v) {
-    rot = norm360(v);
-    if (dialEl) dialEl.setAttribute('transform', 'rotate(' + rot.toFixed(1) + ' 160 160)');
-    // 实物/三合照片底图：随内盘一起旋转，使盘面北（子）始终对准真实北方
-    if ((typeKey === 'real' || typeKey === 'sanhe') && staticEl) {
+  // 短路径角度差（用于平滑旋转，避免跨 0/360 时整圈回拨）
+  function shortestDelta(from, to) {
+    var d = (to - from) % 360;
+    if (d > 180) d -= 360;
+    if (d < -180) d += 360;
+    return d;
+  }
+  // 将内盘、实物/三合底图、中心磁针统一按 rotCont 旋转（三者锁定同步）
+  function applyTransforms() {
+    if (dialEl) dialEl.setAttribute('transform', 'rotate(' + rotCont.toFixed(2) + ' 160 160)');
+    if ((typeKey === 'real' || typeKey === 'real2' || typeKey === 'sanhe') && staticEl) {
       var sc = staticRotCenter();
-      staticEl.setAttribute('transform', 'rotate(' + rot.toFixed(1) + ' ' + sc[0] + ' ' + sc[1] + ')');
+      staticEl.setAttribute('transform', 'rotate(' + rotCont.toFixed(2) + ' ' + sc[0] + ' ' + sc[1] + ')');
     }
-    // 手动拖拽时：盘面旋转角度直接换算为手机朝向（固定三角指针指示的方位）
+    var mc = markerCenter();
+    if (needleEl) needleEl.setAttribute('transform', 'rotate(' + rotCont.toFixed(2) + ' ' + mc[0] + ' ' + mc[1] + ')');
+  }
+  function setRot(v) {            // 手动拖拽：直接设定旋转角
+    rotCont = v;
+    rot = norm360(v);
+    applyTransforms();
     if (!sensorOn) {
-      currentHeading = norm360(-rot);
-      var mc = markerCenter();
-      if (needleEl) needleEl.setAttribute('transform', 'rotate(0 ' + mc[0] + ' ' + mc[1] + ')');
+      currentHeading = norm360(-rotCont);
       if (headingEl) headingEl.value = Math.round(currentHeading);
     }
     updateReadout();
   }
-  function setNeedle(v) {
-    needleDeg = norm360(v);
-    var mc = markerCenter();
-    if (needleEl) needleEl.setAttribute('transform', 'rotate(' + needleDeg.toFixed(1) + ' ' + mc[0] + ' ' + mc[1] + ')');
-    // 滑竿显示的是当前手机朝向，不是磁针自身角度
-    if (headingEl && !sensorOn) headingEl.value = Math.round(currentHeading);
-    updateReadout();
-  }
-
-  // 传感器原始读数 → 应用校准偏移 → 当前朝向
+  // 传感器读数 → 当前朝向；rotCont 轻量低通平滑（0.35）短路径跟随，指针跟手且不抖
   function applySensor(raw) {
+    if (raw == null) return;
     rawHeading = norm360(raw);
     currentHeading = norm360(rawHeading + headingOffset);
+    var target = -currentHeading;
+    rotCont += shortestDelta(rotCont, target) * 0.35;
+    rot = norm360(rotCont);
     if (headingEl) headingEl.value = Math.round(currentHeading);
-    setRot(-currentHeading);
-    setNeedle(-currentHeading);
+    applyTransforms();
     updateReadout();
   }
-  // 手动设置朝向（滑竿/归北）：直接作为显示朝向，不经过传感器校准偏移
+  // 手动设置朝向：直接作为显示朝向（不经由传感器），用于初始化复位
   function setHeading(heading) {
     currentHeading = norm360(heading);
     if (headingEl) headingEl.value = Math.round(currentHeading);
-    setRot(-currentHeading);
-    setNeedle(-currentHeading);
+    rotCont = -currentHeading;
+    rot = norm360(rotCont);
+    applyTransforms();
+    updateReadout();
   }
 
   function updateReadout() {
@@ -640,6 +671,9 @@
     // 红色十字基线与顶部三角固定在外盘，作为手机指向的固定参考
     if (typeKey === 'real') {
       staticEl.innerHTML = dialReal();
+      dialEl.innerHTML = '';
+    } else if (typeKey === 'real2') {
+      staticEl.innerHTML = dialReal2();
       dialEl.innerHTML = '';
     } else if (typeKey === 'sanhe') {
       staticEl.innerHTML = dialSanhe();
@@ -664,77 +698,81 @@
     } else if (typeKey === 'real') {
       markerEl.innerHTML = realMarker();
       needleEl = svgEl.querySelector('#lp-needle');
+    } else if (typeKey === 'real2') {
+      markerEl.innerHTML = real2Marker();
+      needleEl = svgEl.querySelector('#lp-needle');
     } else {
       markerEl.innerHTML = standardMarker();
       needleEl = svgEl.querySelector('#lp-needle');
     }
   }
 
-  // W3C 倾斜补偿指南针：设备近平放(beta≈0 且 gamma≈0)退化为 360-alpha；
-  // 手持倾斜时必须用 alpha/beta/gamma 投影，否则仅用 alpha 会在手机倾斜时产生数十度偏差（用户实测约 30°）。
-  function absoluteHeading(e) {
-    var alpha = e.alpha || 0, beta = e.beta || 0, gamma = e.gamma || 0;
-    if (Math.abs(beta) < 1 && Math.abs(gamma) < 1) {
-      return (360 - alpha) % 360;                   // 平放：W3C 规范直接 360 - alpha
-    }
+  // 计算罗盘航向（0=正北，顺时针 0-360），与 iOS webkitCompassHeading 语义一致。
+  // 权威依据：Android alpha 逆时针增大、罗盘航向顺时针，故平放航向 = 360 - alpha（多资料验证）。
+  // 手持倾斜时取设备顶边(+y)在世界水平面的投影方位 atan2(-sinα·cosβ, cosα·cosβ)，
+  // 该式由旋转矩阵推导，β=0 时精确退化为 360-alpha，全程连续（无需 MDN rA/rB 易错的后处理）。
+  // gamma(横滚)不影响顶边水平投影，故不参与计算。
+  function computeHeading(e) {
+    if (typeof e.webkitCompassHeading === 'number') return e.webkitCompassHeading; // iOS 直接真北航向
+    if (e.absolute !== true) return null;            // 非绝对方向无真北参照，忽略
+    var alpha = e.alpha || 0, beta = e.beta || 0;
     var d = Math.PI / 180;
-    var a = alpha * d, b = beta * d, g = gamma * d;
-    var cA = Math.cos(a), sA = Math.sin(a);
-    var cB = Math.cos(b), sB = Math.sin(b);
-    var cG = Math.cos(g), sG = Math.sin(g);
-    var rA = -cA * sG - sA * sB * cG;               // W3C 规范「计算指南针方向」投影分量
-    var rB = -sA * sG + cA * sB * cG;
-    var heading = Math.atan2(rA, rB) / d;
-    return (heading + 360) % 360;
+    var a = alpha * d, b = beta * d;
+    var h = Math.atan2(-Math.sin(a) * Math.cos(b), Math.cos(a) * Math.cos(b)) / d;
+    return (h + 360) % 360;
   }
 
+  var sensorWatchdog = null;
   function enableSensor() {
-    // 真北/磁北朝向：iOS 用 webkitCompassHeading；Android/Chrome 用「绝对方向」事件 deviceorientationabsolute
+    // 同时监听「绝对方向」与「普通方向」两路事件：部分 Android WebView 不触发
+    // deviceorientationabsolute，但会持续触发带 absolute:true 的 deviceorientation，
+    // 两路都接才能稳定收到真北数据（旧版只接单一事件 → 经常收不到 → 卡死）。
     function handler(e) {
-      var h;
-      if (typeof e.webkitCompassHeading === 'number') {
-        h = e.webkitCompassHeading;                 // iOS：真北，顺时针 0-360
-      } else if (e.absolute === true) {
-        h = absoluteHeading(e);           // Android 绝对方向：W3C 倾斜补偿公式（含 beta/gamma），修正手持倾斜导致的偏差
-      } else {
-        return;                                      // 非绝对事件无真北意义，忽略
-      }
+      var h = computeHeading(e);
+      if (h == null) return;
+      sensorLastT = Date.now();
+      if (sensorWatchdog) { clearInterval(sensorWatchdog); sensorWatchdog = null; }
+      if (hintEl) hintEl.textContent = HINT_TEXT;
       applySensor(h);
     }
-    // 优先监听绝对方向事件（提供真北/磁北），否则退回普通事件
-    var evt = ('ondeviceorientationabsolute' in window) ? 'deviceorientationabsolute' : 'deviceorientation';
-    sensorEvt = evt;
+    if (sensorHandler) { sensorOn = true; return; }   // 已在监听
+    sensorHandler = handler;
+    window.addEventListener('deviceorientationabsolute', handler, true);
+    window.addEventListener('deviceorientation', handler, true);
+    sensorOn = true;
+    if (sensorEl) { sensorEl.style.display = 'none'; sensorEl.innerHTML = ''; }
+    if (sensorBtn) sensorBtn.textContent = '🧭 关闭方向传感器';
+    // 看门狗：开启后若 2.5s 仍无绝对数据，提示用户画「∞」轻晃以触发磁场校准
+    sensorWatchdog = setInterval(function () {
+      if (!sensorOn) { clearInterval(sensorWatchdog); sensorWatchdog = null; return; }
+      if (Date.now() - sensorLastT > 2500 && hintEl) {
+        hintEl.textContent = '暂未收到罗盘数据，请手持手机在空中画「∞」字轻轻晃动几下以校准磁场，再平放对位。';
+      }
+    }, 1000);
+    // iOS 13+ 需在用户手势内请求授权；其它平台直接可用
     if (typeof DeviceOrientationEvent !== 'undefined' &&
         typeof DeviceOrientationEvent.requestPermission === 'function') {
       DeviceOrientationEvent.requestPermission().then(function (state) {
-        if (state === 'granted') {
-          window.addEventListener(evt, handler);
-          sensorHandler = handler; sensorOn = true;
-          if (sensorEl) { sensorEl.style.display = 'none'; sensorEl.innerHTML = ''; }
-          if (sensorBtn) sensorBtn.textContent = '🧭 关闭方向传感器';
-        } else {
-          if (sensorBtn) sensorBtn.textContent = '⚠️ 传感器未授权（点此重试）';
-        }
+        if (state !== 'granted' && sensorBtn) sensorBtn.textContent = '⚠️ 传感器未授权（点此重试）';
       }).catch(function () { if (sensorBtn) sensorBtn.textContent = '⚠️ 传感器不可用'; });
-    } else {
-      window.addEventListener(evt, handler);
-      sensorHandler = handler; sensorOn = true;
-      if (sensorEl) { sensorEl.style.display = 'none'; sensorEl.innerHTML = ''; }
-      if (sensorBtn) sensorBtn.textContent = '🧭 关闭方向传感器';
     }
   }
   function disableSensor() {
-    if (sensorHandler) window.removeEventListener(sensorEvt || 'deviceorientation', sensorHandler);
+    if (sensorHandler) {
+      window.removeEventListener('deviceorientationabsolute', sensorHandler, true);
+      window.removeEventListener('deviceorientation', sensorHandler, true);
+    }
+    if (sensorWatchdog) { clearInterval(sensorWatchdog); sensorWatchdog = null; }
     sensorHandler = null; sensorOn = false;
     if (sensorBtn) sensorBtn.textContent = '🧭 开启方向传感器';
     if (sensorEl) { sensorEl.style.display = 'none'; sensorEl.innerHTML = ''; }
-    // 关闭传感器后，中心指针回归屏幕顶部（固定指针），读盘仍按当前盘面角度
     var mc = markerCenter();
     if (needleEl) needleEl.setAttribute('transform', 'rotate(0 ' + mc[0] + ' ' + mc[1] + ')');
   }
 
   var SUB_TEXT = {
     real: '实物罗盘 · 照片底图 + 自绘精致磁针',
+    real2: '实物罗盘2 · 照片底图 + 自绘精致磁针',
     zonghe: '综合罗盘 · 传统19圈 · 入门总览',
     sanhe: '三合罗盘 · 实物照片底图 · 红正针·人盘中针·天盘缝针',
     sanyuan: '三元罗盘 · 三元九运·父母卦',
@@ -746,6 +784,7 @@
       '<div class="lp-compass" id="lp-compass">' + skeleton() + '</div>' +
       '<div class="lp-types" id="lp-types">' +
         '<button class="lp-type active" data-t="real">实物罗盘</button>' +
+        '<button class="lp-type" data-t="real2">实物罗盘2</button>' +
         '<button class="lp-type" data-t="zonghe">综合罗盘</button>' +
         '<button class="lp-type" data-t="sanhe">三合罗盘</button>' +
         '<button class="lp-type" data-t="sanyuan">三元罗盘</button>' +
@@ -770,6 +809,8 @@
     readoutEl = root.querySelector('#lp-readout');
     headingEl = root.querySelector('#lp-heading');
     sensorBtn = root.querySelector('#lp-sensor');
+    hintEl = root.querySelector('.hint');
+    if (hintEl) hintEl.textContent = HINT_TEXT;
     var subEl = root.querySelector('#lp-sub');
 
     root.querySelectorAll('.lp-type').forEach(function (b) {
@@ -791,7 +832,7 @@
     }
     svgEl.addEventListener('pointerdown', function (e) {
       dragging = true; svgEl.setPointerCapture(e.pointerId);
-      startAng = angleOf(e); startRot = rot;
+      startAng = angleOf(e); startRot = rotCont;
     });
     svgEl.addEventListener('pointermove', function (e) {
       if (!dragging) return;

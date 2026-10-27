@@ -79,7 +79,7 @@
     var y = solar.getYear(), m = solar.getMonth(), d = solar.getDay(), hh = solar.getHour(), mi = solar.getMinute();
     var lunar = null;
     try { lunar = solar.getLunar(); } catch (e) { lunar = null; }
-    var pillars = lunar ? [lunar.getYearInGanZhi(), lunar.getMonthInGanZhi(), lunar.getDayInGanZhi(), lunar.getTimeInGanZhi()] : null;
+    var pillars = lunar ? [lunar.getYearInGanZhiByLiChun(), lunar.getMonthInGanZhi(), lunar.getDayInGanZhi(), lunar.getTimeInGanZhi()] : null;
 
     var html = '';
 
@@ -93,8 +93,10 @@
           '<div class="bz-gan">' + p.charAt(0) + '<small>' + wx[0] + '</small></div>' +
           '<div class="bz-zhi">' + p.charAt(1) + '<small>' + wx[1] + '</small></div></div>';
       }).join('') + '</div>';
-      var sx = lunar.getYearShengXiao();
-      html += '<p class="pp-note">生肖：' + sx + '　|　日柱纳音：' + lunar.getDayNaYin() + '</p>';
+      // 八字年柱/生肖以「立春」为界（命理标准，正确）；「春节·正月初一」为民俗生肖，二者可能相差一属。
+      var sxBazi = lunar.getYearShengXiaoByLiChun();   // 八字生肖（立春·命理标准）
+      var sxFolk = lunar.getYearShengXiao();           // 春节民俗生肖
+      html += '<p class="pp-note">生肖：<b>' + sxBazi + '</b>（八字·立春·年柱 ' + pillars[0] + '）　|　民俗春节：' + sxFolk + '　|　日柱纳音：' + lunar.getDayNaYin() + '</p>';
     } else {
       html += '<p class="pp-note">（农历库未加载，无法推算八字）</p>';
     }
@@ -133,15 +135,20 @@
           if (!gz) return; // 跳过「起运前」的空运
           shown++;
           var gzWx = wxOf(gz)[0];
+          var age = dy.getStartAge(); // 库内为虚岁（出生即1岁）
           html += '<div class="dy-item">' +
             '<span class="dy-idx">第' + shown + '运</span>' +
             '<span class="dy-gz wx-' + gzWx + '">' + gz + '</span>' +
-            '<span class="dy-meta">约 ' + dy.getStartAge() + ' 岁起 · ' + dy.getStartYear() + ' 年</span>' +
+            '<span class="dy-info">' +
+              '<span class="dy-meta">虚岁 ' + age + '–' + (age + 9) + '</span>' +
+              '<span class="dy-meta">实岁 ' + (age - 1) + '–' + (age + 8) + '</span>' +
+              '<span class="dy-meta">' + dy.getStartYear() + ' 年交运</span>' +
+            '</span>' +
             '</div>';
         });
         html += '</div>';
         html += '<p class="pp-note">大运按 ' + (sex === '男' ? '男命阳顺阴逆、女命阳逆阴顺' : '女命阳逆阴顺、男命阳顺阴逆') +
-          ' 排布；起运岁数由出生日距最近节气推算，每运十年，仅供娱乐参考。</p>';
+          ' 排布；「起运岁数」为虚岁（出生即1岁），实岁＝虚岁−1；每运十年，仅供娱乐参考。</p>';
         html += '</div>';
       } catch (e) {
         html += '<div class="pp-block"><p class="pp-note">（大运推算暂不可用：' + (e && e.message ? e.message : '未知错误') + '）</p></div>';

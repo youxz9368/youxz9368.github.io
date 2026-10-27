@@ -1,5 +1,5 @@
-// 灵验APP PWA Service Worker (lingyan-v3.1.18)
-const CACHE = 'lingyan-v3.1.18';
+// 灵验APP PWA Service Worker (lingyan-v3.6e)
+const CACHE = 'lingyan-v3.6e';
 const SHELL = ['./', './index.html', './manifest.json',
   'icon-192.png', 'icon-512.png', 'apple-touch-icon.png', 'favicon.png'];
 self.addEventListener('install', function (e) {
